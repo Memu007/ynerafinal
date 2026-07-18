@@ -1,0 +1,14 @@
+# Configuración de build para Railway (Nixpacks)
+# Sitio estático Vite: instala deps, compila a dist/, sirve con `serve`.
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npx serve dist -s -l $PORT"

@@ -1,0 +1,261 @@
+/* Geist Sans — solo woff2 moderno (los .woff de fallback duplicaban peso) */
+@font-face {
+  font-family: "Geist Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/geist-sans/files/geist-sans-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("@fontsource/geist-sans/files/geist-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 260 87% 3%;
+    --foreground: 40 6% 95%;
+    --hero-sub: 40 6% 82%;
+    --card: 260 60% 5%;
+    --card-foreground: 40 6% 95%;
+    --popover: 260 60% 5%;
+    --popover-foreground: 40 6% 95%;
+    --primary: 250 90% 70%;
+    --primary-foreground: 260 87% 3%;
+    --secondary: 260 30% 12%;
+    --secondary-foreground: 40 6% 95%;
+    --muted: 260 25% 10%;
+    --muted-foreground: 40 6% 65%;
+    --accent: 260 30% 14%;
+    --accent-foreground: 40 6% 95%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 40 6% 95%;
+    --border: 260 25% 18%;
+    --input: 260 25% 18%;
+    --ring: 250 90% 70%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* clip, no hidden: hidden crea un scroll container y rompe position: sticky en Safari */
+    overflow-x: clip;
+  }
+
+  /* ── atmósfera de marca: grano cinematográfico, detrás de todo ──
+     (las auroras "mancha" se reemplazan por el canvas <LivingBackground/>) */
+  /* viñeta estática (antes se dibujaba por frame en el canvas — caro) */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 75% 65% at 50% 50%, transparent 55%, rgba(3, 1, 10, 0.55) 100%);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* el contenido queda por encima de la atmósfera */
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::selection {
+    background: rgba(139, 92, 246, 0.45);
+  }
+
+  section[id] {
+    scroll-margin-top: 84px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "General Sans", "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* ── liquid glass ─────────────────────────── */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.15) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.15) 80%,
+      rgba(255, 255, 255, 0.45) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .liquid-glass-strong {
+    background: rgba(255, 255, 255, 0.02);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    border: none;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .liquid-glass-strong::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.2) 80%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* heroSecondary button variant */
+  .btn-hero-secondary {
+    @apply liquid-glass-strong inline-flex items-center justify-center gap-2 rounded-full text-foreground transition-all duration-300;
+  }
+  .btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  }
+
+  /* gradient text: indigo → purple → amber */
+  .text-brand-gradient {
+    background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── reveal on scroll ─────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal[data-delay="1"] { transition-delay: 0.1s; }
+  .reveal[data-delay="2"] { transition-delay: 0.2s; }
+  .reveal[data-delay="3"] { transition-delay: 0.3s; }
+  .reveal[data-delay="4"] { transition-delay: 0.4s; }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── marquee ──────────────────────────────── */
+  @keyframes marquee {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+
+  /* pulse dot */
+  @keyframes pulse-dot {
+    0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.45); }
+    70% { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+  }
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: #a855f7;
+    animation: pulse-dot 2.4s infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  .pulse-green { animation: pulse-green 2s infinite; }
+
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+  }
+  .animate-floaty { animation: floaty 5.5s ease-in-out infinite; }
+  .animate-floaty-b { animation: floaty 6.5s ease-in-out 0.8s infinite; }
+
+  @keyframes shimmer-soft {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  .animate-shimmer { animation: shimmer-soft 3.2s ease-in-out infinite; }
+
+  @keyframes blink-caret {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.15; }
+  }
+  .animate-caret { animation: blink-caret 1s steps(2) infinite; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .animate-marquee, .pulse-dot, .pulse-green, .animate-floaty, .animate-floaty-b,
+  .animate-shimmer, .animate-caret, .living-blob { animation: none; }
+  .hero-bg { animation: none; opacity: 1; }
+}
