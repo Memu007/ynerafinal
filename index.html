@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html { background: #030109; }
+  body { visibility: hidden; }
+  body.dc-ready { visibility: visible; }
+</style>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -225,10 +230,12 @@
     .text-em { color: #c9a4ff; }
 
     .stack-card {
-      position: sticky;
+      position: relative;
       border-radius: 2.25rem 2.25rem 0 0;
       border-top: 1px solid rgba(255, 255, 255, 0.09);
       box-shadow: 0 -32px 90px rgba(2, 1, 8, 0.75);
+      overflow: clip;
+      isolation: isolate;
     }
 
     .reveal {
@@ -808,6 +815,7 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    document.body.classList.add('dc-ready');
     this.initHero();
     this.initBackground();
     this.initResponsive();
@@ -817,7 +825,6 @@ class Component extends DCLogic {
     this.initFAQ();
     this.initMenuToggle();
     this.initReveal();
-    this.initStackCards();
     this.initAnchorNav();
     this.initFloatNav();
     this.initSpotlight();
@@ -995,21 +1002,6 @@ class Component extends DCLogic {
         settle(() => correct(el));
       });
     });
-  }
-
-  initStackCards() {
-    const cards = Array.from(document.querySelectorAll('.stack-card'));
-    if (!cards.length) return;
-    const setTops = () => cards.forEach((c) => {
-      c.style.top = Math.min(0, window.innerHeight - c.offsetHeight) + 'px';
-    });
-    cards.forEach((c, i) => { c.style.zIndex = 10 + i; });
-    setTops();
-    window.addEventListener('resize', setTops, { passive: true });
-    if (typeof ResizeObserver !== 'undefined') {
-      const ro = new ResizeObserver(setTops);
-      cards.forEach((c) => ro.observe(c));
-    }
   }
 
   initMenuToggle() {
@@ -1722,18 +1714,6 @@ class Component extends DCLogic {
           );
           anim.onfinish = () => { content.style.overflow = ''; detail._animating = false; };
         }
-      });
-    });
-  }
-
-  renderVals() {
-    return {};
-  }
-}
-
-</script>
-</body>
-</html>
       });
     });
   }
