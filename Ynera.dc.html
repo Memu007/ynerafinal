@@ -269,22 +269,16 @@
     }
 
     .ynera-trace {
-      position: absolute;
-      inset: 0 0 auto;
-      height: clamp(620px, 100vh, 900px);
-      max-height: 100%;
+      position: fixed;
+      inset: 0;
+      height: 100vh;
       z-index: 0;
       overflow: hidden;
-      border-radius: inherit;
       pointer-events: none;
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity 900ms ease, transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .ynera-trace.is-visible {
       opacity: 0.16;
-      transform: none;
+      --signal-progress: 0;
+      --shape-progress: 0;
+      --detail-progress: 0;
     }
 
     .logo-closure {
@@ -297,13 +291,15 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      transform: translateX(var(--trace-shift, 0)) scale(1.08);
+      transform: scale(1.04);
     }
 
     .ynera-trace path,
     .ynera-trace line {
       fill: none;
       stroke-width: 1.15;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
     }
 
@@ -311,24 +307,18 @@
     .ynera-trace .trace-security { stroke: #c084fc; }
     .ynera-trace .trace-ai { stroke: #f4c95d; }
     .ynera-trace .trace-fragments { opacity: 0.85; stroke-dasharray: 2 11; }
-    .ynera-trace .trace-connected { opacity: 0.08; }
-    .ynera-trace .trace-nodes { opacity: 0.12; }
-    .ynera-trace .trace-hub { opacity: 0.08; }
+    .ynera-trace .trace-connected { opacity: 1; }
+    .ynera-trace .trace-connected path { stroke-dasharray: 1; }
+    .ynera-trace .trace-connected path:nth-child(-n+3) { stroke-dashoffset: calc(1 - var(--signal-progress)); }
+    .ynera-trace .trace-connected path:nth-child(n+4):nth-child(-n+6) { stroke-dashoffset: calc(1 - var(--shape-progress)); }
+    .ynera-trace .trace-connected path:nth-child(n+7) { stroke-dashoffset: calc(1 - var(--detail-progress)); }
+    .ynera-trace .trace-nodes,
+    .ynera-trace .trace-hub { opacity: 0; }
     .ynera-trace .trace-labels { opacity: 0.42; fill: #d8c8ee; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 0.18em; }
     .ynera-trace .trace-stage { display: none; }
     .ynera-trace[data-phase="0"] .trace-stage-0,
     .ynera-trace[data-phase="1"] .trace-stage-1,
     .ynera-trace[data-phase="2"] .trace-stage-2 { display: inline; }
-
-    .ynera-trace[data-phase="1"] .trace-fragments { opacity: 0.35; }
-    .ynera-trace[data-phase="1"] .trace-connected { opacity: 0.48; }
-    .ynera-trace[data-phase="1"] .trace-nodes,
-    .ynera-trace[data-phase="1"] .trace-hub { opacity: 0.55; }
-
-    .ynera-trace[data-phase="2"] .trace-fragments { opacity: 0.08; }
-    .ynera-trace[data-phase="2"] .trace-connected { opacity: 0.82; }
-    .ynera-trace[data-phase="2"] .trace-nodes,
-    .ynera-trace[data-phase="2"] .trace-hub { opacity: 0.9; }
 
     .animate-marquee {
       animation: marquee 20s linear infinite;
@@ -374,8 +364,8 @@
     }
 
     @media (max-width: 767px) {
-      .ynera-trace.is-visible { opacity: 0.12; }
-      .ynera-trace svg { width: 145%; transform: translateX(-16%) scale(1.04); }
+      .ynera-trace { opacity: 0.12; }
+      .ynera-trace svg { width: 145%; transform: translateX(-16%) scale(1.02); }
       .ynera-trace .trace-labels { display: none; }
       .logo-closure { margin-top: -2rem; padding: 1rem 0 5rem; }
     }
@@ -389,7 +379,7 @@
   </div>
 
   <div id="ynera-trace-source" aria-hidden="true" style="display: none;">
-    <div class="ynera-trace reveal">
+    <div class="ynera-trace">
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <g class="trace-fragments">
           <path class="trace-data" d="M-70 230 C115 210 205 270 285 330 M330 365 C360 385 388 400 410 409" />
@@ -1191,13 +1181,68 @@ class Component extends DCLogic {
   initSignalTrace() {
     const source = document.querySelector('#ynera-trace-source .ynera-trace');
     const cards = Array.from(document.querySelectorAll('.stack-card'));
-    if (!source || !cards.length) return;
-    cards.forEach((card, index) => {
+    const main = document.querySelector('main');
+    if (!source || !cards.length || !main) return;
+
+    const traces = cards.map((card) => {
       const trace = source.cloneNode(true);
-      trace.dataset.phase = String(Math.min(2, Math.floor(index * 3 / cards.length)));
-      trace.style.setProperty('--trace-shift', index % 2 ? '-5%' : '5%');
+      trace.dataset.phase = '0';
+      trace.querySelectorAll('.trace-connected path').forEach((path) => path.setAttribute('pathLength', '1'));
       card.prepend(trace);
+      return {
+        card,
+        trace,
+        fragments: trace.querySelector('.trace-fragments'),
+        nodes: trace.querySelector('.trace-nodes'),
+        hub: trace.querySelector('.trace-hub'),
+      };
     });
+
+    const clamp = (value) => Math.min(1, Math.max(0, value));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const update = () => {
+      const viewport = window.innerHeight;
+      const start = main.offsetTop - viewport;
+      const end = main.offsetTop + main.offsetHeight - viewport;
+      const raw = clamp((window.scrollY - start) / Math.max(1, end - start));
+      const progress = reduced ? 1 : raw;
+      const signal = clamp(progress / 0.28);
+      const shape = clamp((progress - 0.18) / 0.47);
+      const detail = clamp((progress - 0.48) / 0.44);
+      const fragmentOpacity = 0.85 * (1 - clamp(progress / 0.48));
+      const nodeOpacity = 0.9 * clamp((progress - 0.32) / 0.4);
+      const hubOpacity = 0.9 * clamp((progress - 0.68) / 0.22);
+      const phase = progress < 0.32 ? '0' : progress < 0.72 ? '1' : '2';
+
+      traces.forEach(({ card, trace, fragments, nodes, hub }) => {
+        const rect = card.getBoundingClientRect();
+        const visibleTop = Math.max(0, rect.top);
+        const visibleBottom = Math.min(viewport, rect.bottom);
+        const visible = visibleBottom > visibleTop;
+        trace.style.visibility = visible ? 'visible' : 'hidden';
+        if (!visible) return;
+        trace.style.clipPath = `inset(${visibleTop.toFixed(1)}px 0 ${(viewport - visibleBottom).toFixed(1)}px 0)`;
+        trace.style.setProperty('--signal-progress', signal.toFixed(4));
+        trace.style.setProperty('--shape-progress', shape.toFixed(4));
+        trace.style.setProperty('--detail-progress', detail.toFixed(4));
+        trace.dataset.phase = phase;
+        if (fragments) fragments.style.opacity = fragmentOpacity.toFixed(3);
+        if (nodes) nodes.style.opacity = nodeOpacity.toFixed(3);
+        if (hub) hub.style.opacity = hubOpacity.toFixed(3);
+      });
+    };
+
+    let frame = null;
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        update();
+      });
+    };
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
   }
 
   initMenuToggle() {
