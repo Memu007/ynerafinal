@@ -1014,7 +1014,7 @@ class Component extends DCLogic {
     const veils = cards.map((c, i) => {
       if (i === cards.length - 1) return null;
       const v = document.createElement('div');
-      v.style.cssText = 'position:absolute;inset:0;border-radius:inherit;background:#030109;opacity:0;pointer-events:none;z-index:60;';
+      v.style.cssText = 'position:absolute;inset:0;border-radius:inherit;background:#080312;opacity:0;pointer-events:none;z-index:60;';
       c.appendChild(v);
       return v;
     });
@@ -1028,8 +1028,9 @@ class Component extends DCLogic {
         const cRaw = clamp01(1 - next.getBoundingClientRect().top / window.innerHeight);
         const covered = cRaw * cRaw * (3 - 2 * cRaw);
         c.style.transformOrigin = 'center bottom';
-        c.style.transform = covered > 0 ? 'scale(' + (1 - covered * 0.04) + ')' : '';
-        if (veils[i]) veils[i].style.opacity = Math.min(1, covered * 1.5).toFixed(3);
+        // translateZ evita flash gris al escalar sticky
+        c.style.transform = 'translateZ(0) scale(' + (1 - covered * 0.035) + ')';
+        if (veils[i]) veils[i].style.opacity = Math.min(0.85, covered * 1.25).toFixed(3);
       });
     };
     window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
@@ -1746,6 +1747,18 @@ class Component extends DCLogic {
           );
           anim.onfinish = () => { content.style.overflow = ''; detail._animating = false; };
         }
+      });
+    });
+  }
+
+  renderVals() {
+    return {};
+  }
+}
+
+</script>
+</body>
+</html>
       });
     });
   }
