@@ -360,6 +360,10 @@
       display: none;
     }
 
+    .mobile-carousel-meta {
+      display: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
@@ -423,6 +427,38 @@
         letter-spacing: 0.14em;
         text-transform: uppercase;
       }
+      .mobile-carousel-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 0.25rem;
+      }
+      .mobile-carousel-count {
+        flex-shrink: 0;
+        min-width: 3.25rem;
+        color: rgba(255, 255, 255, 0.52);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+      }
+      .mobile-carousel-track {
+        position: relative;
+        flex: 1;
+        height: 3px;
+        overflow: hidden;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.09);
+      }
+      .mobile-carousel-track > i {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #6366f1, #a855f7 62%, #f4c95d);
+        box-shadow: 0 0 14px rgba(168, 85, 247, 0.55);
+        transform: scaleX(var(--carousel-progress, 0.25));
+        transform-origin: left;
+        transition: transform 180ms ease-out;
+      }
       .mobile-snap-row {
         display: flex !important;
         gap: 1rem !important;
@@ -446,7 +482,8 @@
       #services-grid > article { min-height: 29rem; }
       #proceso ol > li { min-height: 12rem; }
       #proceso h2 { margin-bottom: 2rem !important; }
-      #nosotros .mobile-snap-row { margin-bottom: 3.5rem !important; }
+      #nosotros .mobile-snap-row { margin-bottom: 0.25rem !important; }
+      #nosotros .mobile-carousel-meta { margin-bottom: 3.5rem; }
       #nosotros .mobile-snap-row > article {
         flex-direction: column !important;
         gap: 1.25rem !important;
@@ -467,6 +504,7 @@
         scroll-snap-align: center;
         scroll-snap-stop: always;
       }
+      #prueba-progress-track { height: 3px !important; }
       #carousel-row > div:first-child {
         width: 78vw !important;
         max-width: none !important;
@@ -779,6 +817,10 @@
 
         <p class="mobile-swipe-hint" aria-hidden="true">Deslizá para ver más →</p>
         <div id="services-grid" class="mobile-snap-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;"></div>
+        <div class="mobile-carousel-meta" aria-hidden="true">
+          <span class="mobile-carousel-count">01 / 03</span>
+          <span class="mobile-carousel-track"><i></i></span>
+        </div>
       </div>
     </section>
     </div>
@@ -861,6 +903,10 @@
             <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0;">Sale a producción y lo seguimos mejorando. Como Aira, CDI y ReservaYá.</p>
           </li>
         </ol>
+        <div class="mobile-carousel-meta" aria-hidden="true">
+          <span class="mobile-carousel-count">01 / 04</span>
+          <span class="mobile-carousel-track"><i></i></span>
+        </div>
       </div>
     </section>
 
@@ -919,6 +965,10 @@
             </a>
             </div>
           </article>
+        </div>
+        <div class="mobile-carousel-meta" aria-hidden="true">
+          <span class="mobile-carousel-count">01 / 02</span>
+          <span class="mobile-carousel-track"><i></i></span>
         </div>
 
         <blockquote class="reveal" style="text-align: center; max-width: 48rem; margin: 0 auto 3.5rem;">
@@ -1101,6 +1151,7 @@ class Component extends DCLogic {
     this.initFooterTime();
     this.initServices();
     this.initCarousel();
+    this.initMobileCarouselProgress();
     this.initFAQ();
     this.initMenuToggle();
     this.initSignalTrace();
@@ -1824,6 +1875,37 @@ class Component extends DCLogic {
     this.initPruebaScroll();
   }
 
+  initMobileCarouselProgress() {
+    const rows = Array.from(document.querySelectorAll('.mobile-snap-row'));
+    const update = (row) => {
+      const meta = row.nextElementSibling;
+      if (!meta?.classList.contains('mobile-carousel-meta')) return;
+      const items = Array.from(row.children);
+      const count = meta.querySelector('.mobile-carousel-count');
+      const fill = meta.querySelector('.mobile-carousel-track > i');
+      if (!items.length || !count || !fill) return;
+      const gap = parseFloat(getComputedStyle(row).gap) || 0;
+      const step = (items[0].getBoundingClientRect().width || items[0].offsetWidth || 1) + gap;
+      const index = Math.min(items.length - 1, Math.max(0, Math.round(row.scrollLeft / step)));
+      const max = Math.max(1, row.scrollWidth - row.clientWidth);
+      const continuous = Math.min(1, Math.max(0, row.scrollLeft / max));
+      const progress = (1 / items.length) + continuous * (1 - 1 / items.length);
+      count.textContent = `${String(index + 1).padStart(2, '0')} / ${String(items.length).padStart(2, '0')}`;
+      fill.style.setProperty('--carousel-progress', progress.toFixed(4));
+    };
+
+    rows.forEach((row) => {
+      let frame = null;
+      const requestUpdate = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => { frame = null; update(row); });
+      };
+      update(row);
+      row.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate, { passive: true });
+    });
+  }
+
   updatePruebaLayout(isMobile) {
     const section = document.getElementById('prueba');
     const sticky = document.getElementById('prueba-sticky');
@@ -1843,7 +1925,7 @@ class Component extends DCLogic {
       rowWrap.style.cssText = 'overflow: hidden;';
       row.style.cssText = 'display: flex; gap: 1.25rem; align-items: stretch; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 1.5rem 1rem; -ms-overflow-style: none; scrollbar-width: none; transform: none;';
       row.querySelectorAll('.prueba-card').forEach(c => c.style.scrollSnapAlign = 'center');
-      if (progressTrack) progressTrack.style.display = 'none';
+      if (progressTrack) progressTrack.style.display = 'block';
       if (hint) hint.textContent = 'Deslizá →';
     } else {
       section.style.height = '280vh';
