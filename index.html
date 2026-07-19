@@ -356,6 +356,10 @@
       display: none;
     }
 
+    .mobile-swipe-hint {
+      display: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
@@ -364,10 +368,152 @@
     }
 
     @media (max-width: 767px) {
-      .ynera-trace { opacity: 0.12; }
+      .stack-card { border-radius: 1.5rem 1.5rem 0 0; }
+      .ynera-trace { opacity: 0.09; }
       .ynera-trace svg { width: 145%; transform: translateX(-16%) scale(1.02); }
+      .ynera-trace .trace-fragments,
       .ynera-trace .trace-labels { display: none; }
       .logo-closure { margin-top: -2rem; padding: 1rem 0 5rem; }
+
+      #top { height: 300vh !important; }
+      #top header { padding: 1rem !important; }
+      #float-nav { top: 0.75rem !important; max-width: calc(100vw - 1rem); }
+      #float-nav nav { max-width: 100%; }
+      #float-nav nav > a:last-child { padding: 0.5rem 0.75rem !important; }
+
+      main section[aria-label="Sistemas construidos por Ynera"] {
+        padding: 3.5rem 0 1.5rem !important;
+      }
+      .production-strip {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 1.5rem !important;
+      }
+      .production-strip > p { width: auto !important; }
+      .production-strip > div { width: 100%; }
+
+      #servicios,
+      #proceso,
+      #nosotros,
+      #preguntas { padding: 5rem 0 !important; }
+      #contacto { padding: 4rem 0 5rem !important; }
+      #servicios > div,
+      #proceso > div,
+      #nosotros > div,
+      #preguntas > div,
+      #contacto > div { padding-left: 1rem !important; padding-right: 1rem !important; }
+
+      .mobile-heading-grid {
+        display: block !important;
+        margin-bottom: 2rem !important;
+      }
+      .mobile-heading-grid > p {
+        margin: 1.25rem 0 0 !important;
+        font-size: 1rem !important;
+        line-height: 1.65 !important;
+      }
+      .mobile-swipe-hint {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin: 0 0 0.75rem;
+        color: rgba(255, 255, 255, 0.46);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .mobile-snap-row {
+        display: flex !important;
+        gap: 1rem !important;
+        margin-left: -1rem !important;
+        margin-right: -1rem !important;
+        padding: 0 1rem 1rem !important;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-padding-inline: 1rem;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .mobile-snap-row::-webkit-scrollbar,
+      #carousel-row::-webkit-scrollbar { display: none; }
+      .mobile-snap-row > * {
+        flex: 0 0 min(84vw, 22rem);
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+      }
+      #services-grid > article { min-height: 29rem; }
+      #proceso ol > li { min-height: 12rem; }
+      #proceso h2 { margin-bottom: 2rem !important; }
+      #nosotros .mobile-snap-row { margin-bottom: 3.5rem !important; }
+      #nosotros .mobile-snap-row > article {
+        flex-direction: column !important;
+        gap: 1.25rem !important;
+        padding: 1.5rem !important;
+      }
+      #nosotros .mobile-snap-row > article > div:first-child {
+        width: 64px !important;
+        height: 64px !important;
+      }
+
+      #prueba-sticky > div:first-child { padding: 1rem 1rem 1.5rem !important; }
+      #carousel-row {
+        scroll-padding-inline: 1rem;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      #carousel-row > * {
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+      }
+      #carousel-row > div:first-child {
+        width: 78vw !important;
+        max-width: none !important;
+        padding-right: 0 !important;
+      }
+      .prueba-card {
+        width: calc(100vw - 2rem) !important;
+        grid-template-columns: 1fr !important;
+        border-radius: 1.5rem !important;
+      }
+      .prueba-card > div:first-child {
+        min-height: 190px !important;
+        padding: 1rem !important;
+      }
+      .prueba-card > div:last-child { padding: 1.5rem !important; }
+      .prueba-cta-card {
+        width: 78vw !important;
+        padding: 1.5rem !important;
+      }
+
+      #preguntas h2 { margin-bottom: 2rem !important; }
+      #preguntas summary {
+        gap: 0.75rem !important;
+        padding: 1.25rem 0 !important;
+        font-size: 1rem !important;
+      }
+      #preguntas details > p {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      #contacto .liquid-glass-strong {
+        padding: 3rem 1.25rem !important;
+        border-radius: 1.75rem !important;
+      }
+      #contacto .liquid-glass-strong > div:nth-last-of-type(1) {
+        flex-direction: column;
+      }
+      #contacto .btn-hero-secondary {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 1rem !important;
+      }
+      footer > div {
+        padding: 0 1rem !important;
+        align-items: flex-start !important;
+        flex-direction: column;
+      }
     }
   </style>
 </helmet>
@@ -559,7 +705,7 @@
     <!-- Marquee Section -->
     <section aria-label="Sistemas construidos por Ynera" style="position: relative; padding: 5rem 0 2.5rem; max-width: 80rem; margin: 0 auto;">
       <div style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem;">
-        <div class="reveal" style="display: flex; align-items: center; gap: 3rem;">
+        <div class="reveal production-strip" style="display: flex; align-items: center; gap: 3rem;">
           <p style="flex-shrink: 0; width: 9rem; color: rgba(255, 255, 255, 0.42); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.7; border-left: 1px solid rgba(255,255,255,0.12); padding-left: 1.25rem;">
             En producción<br>por Ynera
           </p>
@@ -621,7 +767,7 @@
           <span class="pulse-dot"></span>
           Servicios
         </p>
-        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
+        <div class="mobile-heading-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
           <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0;">
             Venís por una parte.<br>
             Miramos <span class="text-em">el todo</span>.
@@ -631,7 +777,8 @@
           </p>
         </div>
 
-        <div id="services-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;"></div>
+        <p class="mobile-swipe-hint" aria-hidden="true">Deslizá para ver más →</p>
+        <div id="services-grid" class="mobile-snap-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;"></div>
       </div>
     </section>
     </div>
@@ -691,7 +838,8 @@
           <span class="text-em">La herramienta después</span>.
         </h2>
 
-        <ol style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; list-style: none; margin: 0; padding: 0;">
+        <p class="mobile-swipe-hint" aria-hidden="true">Deslizá para ver los pasos →</p>
+        <ol class="mobile-snap-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; list-style: none; margin: 0; padding: 0;">
           <li class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 1.75rem; transition: transform 300ms;">
             <span class="liquid-glass" style="display: inline-block; border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 11px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">01</span>
             <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Escuchamos</h3>
@@ -723,7 +871,7 @@
           <span class="pulse-dot"></span>
           Quiénes somos
         </p>
-        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
+        <div class="mobile-heading-grid" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
           <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0;">
             Dos perfiles.<br>
             Un modo: <span class="text-em">entender, construir, probar</span>.
@@ -733,7 +881,8 @@
           </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 5rem;">
+        <p class="mobile-swipe-hint" aria-hidden="true">Deslizá para conocernos →</p>
+        <div class="mobile-snap-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 5rem;">
           <article class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: row; gap: 1.75rem; transition: transform 300ms;">
             <div style="flex-shrink: 0; width: 84px; height: 84px; border-radius: 1.25rem; display: grid; place-items: center; overflow: hidden; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.75rem; color: rgba(255,255,255,0.9); background: radial-gradient(130% 130% at 30% 15%, rgba(255,255,255,0.10), rgba(255,255,255,0.015) 60%); border: 1px solid rgba(201,164,255,0.30); box-shadow: inset 0 1px 1px rgba(255,255,255,0.10);" title="Foto de Emiliano" aria-hidden="true">E</div>
             <div style="display: flex; flex-direction: column;">
@@ -1642,6 +1791,7 @@ class Component extends DCLogic {
     });
 
     const ctaCard = document.createElement('div');
+    ctaCard.className = 'prueba-cta-card';
     ctaCard.style.cssText = `
       flex-shrink: 0;
       width: 85vw;
