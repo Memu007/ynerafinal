@@ -283,8 +283,13 @@
     }
 
     .ynera-trace.is-visible {
-      opacity: 0.34;
+      opacity: 0.16;
       transform: none;
+    }
+
+    .logo-closure {
+      margin-top: -8rem;
+      padding: 1rem 0 6rem;
     }
 
     .ynera-trace svg {
@@ -360,14 +365,15 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
-      .ynera-trace { opacity: 0.3; }
+      .ynera-trace { opacity: 0.15; }
       .animate-marquee, .pulse-dot, .pulse-green, .animate-shimmer { animation: none; }
     }
 
     @media (max-width: 767px) {
-      .ynera-trace.is-visible { opacity: 0.24; }
+      .ynera-trace.is-visible { opacity: 0.12; }
       .ynera-trace svg { width: 145%; transform: translateX(-16%) scale(1.04); }
       .ynera-trace .trace-labels { display: none; }
+      .logo-closure { margin-top: -2rem; padding: 1rem 0 5rem; }
     }
   </style>
 </helmet>
@@ -917,7 +923,7 @@
   </div>
 
   <!-- Logo closure -->
-  <div style="position: relative; z-index: 5; display: flex; justify-content: center; align-items: center; padding: 5rem 0 8rem;">
+  <div class="logo-closure" style="position: relative; z-index: 5; display: flex; justify-content: center; align-items: center;">
     <div style="position: relative; display: grid; place-items: center;">
       <div aria-hidden="true" style="position: absolute; width: 180px; height: 180px; border-radius: 9999px; background: radial-gradient(circle, rgba(168, 85, 247, 0.22), transparent 65%); filter: blur(10px); pointer-events: none;"></div>
       <img src="./src/assets/logo.png" alt="Ynera" style="position: relative; height: 72px; width: 72px; filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.45));">
