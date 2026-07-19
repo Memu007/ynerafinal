@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ynera — IA, datos y seguridad para PyMEs</title>
+  <meta name="description" content="Ynera: consultoría de IA, datos y seguridad para PyMEs en Buenos Aires. Ordenamos datos, protegemos sistemas y automatizamos procesos. Construimos antes de aconsejar." />
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: "Geist Sans";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.2.5/files/geist-sans-latin-400-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Geist Sans";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.2.5/files/geist-sans-latin-500-normal.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Geist Sans";
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.2.5/files/geist-sans-latin-600-normal.woff2") format("woff2");
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0%); }
+      to { transform: translateX(-50%); }
+    }
+    @keyframes pulse-dot {
+      0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.45); }
+      70% { box-shadow: 0 0 0 10px rgba(168, 85, 247, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+    }
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-9px); }
+    }
+    @keyframes shimmer-soft {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+    @keyframes blink-caret {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.15; }
+    }
+
+    :root {
+      --background: 260 87% 3%;
+      --foreground: 40 6% 95%;
+      --hero-sub: 40 6% 82%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-family: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(ellipse 75% 65% at 50% 50%, transparent 55%, rgba(3, 1, 10, 0.55) 100%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    #root {
+      position: relative;
+      z-index: 1;
+    }
+
+    ::selection {
+      background: rgba(139, 92, 246, 0.45);
+    }
+
+    section[id] {
+      scroll-margin-top: 84px;
+    }
+
+    .font-display {
+      font-family: "General Sans", "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.01);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.75rem;
+    }
+
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.15) 80%,
+        rgba(255, 255, 255, 0.45) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .liquid-glass-strong {
+      background: rgba(255, 255, 255, 0.02);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.75rem;
+    }
+
+    .liquid-glass-strong::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.4px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.2) 80%,
+        rgba(255, 255, 255, 0.5) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .btn-hero-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 9999px;
+      color: hsl(var(--foreground));
+      transition: all 300ms;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-hero-secondary:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    }
+
+    .text-brand-gradient {
+      background-image: linear-gradient(to left, #6366f1, #a855f7, #fcd34d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .text-em { color: #c9a4ff; }
+
+    .stack-card {
+      position: sticky;
+      border-radius: 2.25rem 2.25rem 0 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 -32px 90px rgba(2, 1, 8, 0.75);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .animate-marquee {
+      animation: marquee 20s linear infinite;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 9999px;
+      background: #a855f7;
+      animation: pulse-dot 2.4s infinite;
+    }
+
+    .pulse-green {
+      animation: pulse-green 2s infinite;
+    }
+
+    .animate-shimmer {
+      animation: shimmer-soft 3.2s ease-in-out infinite;
+    }
+
+    a {
+      color: hsl(var(--foreground));
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: hsl(var(--foreground));
+    }
+
+    details summary:hover {
+      color: #d8b4fe;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .animate-marquee, .pulse-dot, .pulse-green, .animate-shimmer { animation: none; }
+    }
+  </style>
+</helmet>
+
+<div class="text-foreground min-h-screen">
+  <!-- Background -->
+  <div id="living-bg" style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;">
+    <img id="bg-nebula" src="./src/assets/bg-nebula.jpg" alt="" loading="eager" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.12); will-change: transform;">
+    <canvas id="bg-canvas" style="position: absolute; inset: 0;"></canvas>
+  </div>
+
+  <!-- Preloader -->
+  <div id="preloader" style="position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: #030109; opacity: 1; transition: opacity 650ms cubic-bezier(0.22, 1, 0.36, 1);">
+    <div style="text-align: center;">
+      <div id="preloader-word" class="font-display" style="font-weight: 600; letter-spacing: -0.04em; line-height: 1; font-size: clamp(2.5rem, 8vw, 5rem); background-image: linear-gradient(90deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.14) 38%, #f4f0fb 50%, rgba(255,255,255,0.14) 62%, rgba(255,255,255,0.14) 100%); background-size: 250% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none;">Ynera</div>
+      <div style="margin: 1.5rem auto 0; width: 120px; height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; border-radius: 9999px;">
+        <div id="preloader-bar" style="height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, #6366f1, #a855f7, #fcd34d);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page-transition fade -->
+  <div id="page-fade" style="position: fixed; inset: 0; z-index: 150; background: #030109; opacity: 0; pointer-events: none; transition: opacity 220ms ease;"></div>
+
+  <!-- Custom cursor -->
+  <div id="cursor-dot" style="position: fixed; left: -100px; top: -100px; width: 6px; height: 6px; border-radius: 9999px; background: #ede9f8; z-index: 300; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); transition: opacity 250ms;"></div>
+  <div id="cursor-ring" style="position: fixed; left: -100px; top: -100px; width: 34px; height: 34px; border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 9999px; z-index: 300; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); transition: opacity 250ms, width 250ms, height 250ms, border-color 250ms, background-color 250ms;"></div>
+
+  <!-- Floating nav (post-hero) -->
+  <div id="float-nav" style="position: fixed; top: 1rem; left: 50%; transform: translate(-50%, -16px); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1), transform 400ms cubic-bezier(0.22, 1, 0.36, 1);">
+    <nav class="liquid-glass-strong" style="display: flex; align-items: center; gap: 0.25rem; border-radius: 9999px; padding: 0.375rem;" aria-label="Navegación flotante">
+      <a href="#top" aria-label="Inicio" style="display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9999px;">
+        <img src="./src/assets/logo.png" alt="" style="height: 22px; width: 22px;">
+      </a>
+      <a class="float-link" href="#servicios" style="font-size: 0.8125rem; color: rgba(255, 255, 255, 0.72); padding: 0.5rem 0.875rem; border-radius: 9999px; transition: color 250ms, background-color 250ms;">Servicios</a>
+      <a class="float-link" href="#prueba" style="font-size: 0.8125rem; color: rgba(255, 255, 255, 0.72); padding: 0.5rem 0.875rem; border-radius: 9999px; transition: color 250ms, background-color 250ms;">Sistemas</a>
+      <a class="float-link" href="#nosotros" style="font-size: 0.8125rem; color: rgba(255, 255, 255, 0.72); padding: 0.5rem 0.875rem; border-radius: 9999px; transition: color 250ms, background-color 250ms;">Nosotros</a>
+      <a class="float-link" href="#preguntas" style="font-size: 0.8125rem; color: rgba(255, 255, 255, 0.72); padding: 0.5rem 0.875rem; border-radius: 9999px; transition: color 250ms, background-color 250ms;">Preguntas</a>
+      <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; font-size: 0.8125rem; color: hsl(var(--foreground)); padding: 0.5rem 1rem; margin-left: 0.25rem; border-radius: 9999px; background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.35); transition: background-color 250ms; white-space: nowrap;" style-hover="background: rgba(168, 85, 247, 0.3);">Agendá 30 min</a>
+    </nav>
+  </div>
+
+  <!-- Hero Section -->
+  <section id="top" style="position: relative; height: 330vh;">
+    <div style="position: sticky; top: 0; height: 100vh; overflow: hidden;">
+      <!-- Scenes -->
+      <div id="hero-scenes" style="position: absolute; inset: 0;"></div>
+
+      <!-- Final CTA -->
+      <div id="hero-final" style="position: absolute; inset: 0; display: flex; flex-direction: column; background-color: hsl(var(--background)); opacity: 0; pointer-events: none;">
+        <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
+          <div style="position: absolute; inset: 0; overflow: hidden;">
+            <picture style="position: absolute; inset: 0;">
+              <source srcSet="./src/assets/brand-sistema.avif" type="image/avif" />
+              <source srcSet="./src/assets/brand-sistema.webp" type="image/webp" />
+              <img src="./src/assets/brand-sistema.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4;">
+            </picture>
+            <div aria-hidden="true" style="pointer-events: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 984px; height: 527px; max-width: 140vw; opacity: 0.9; background-color: #0a0a0a; filter: blur(82px);"></div>
+          </div>
+          <div style="position: relative; z-index: 10; flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+              <h1 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 400; line-height: 1.02; letter-spacing: -0.024em; font-size: clamp(3rem, 20vw, 200px); margin: 0;">
+                <span style="color: hsl(var(--foreground));">IA </span>
+                <span class="text-brand-gradient">real</span>
+              </h1>
+              <p style="color: hsl(var(--hero-sub)); font-size: 1.125rem; line-height: 2rem; max-width: 28ch; margin-top: 9px; opacity: 0.8;">
+                La consultoría que construye<br>antes de aconsejar.
+              </p>
+              <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" class="btn-hero-secondary" style="padding: 24px 29px; margin-top: 25px; font-size: 1rem;">
+                Agendá 30 min
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline;">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navbar -->
+      <header style="position: absolute; top: 0; inset-x: 0; z-index: 20; width: 100%; padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <a href="#top" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: hsl(var(--foreground));">
+          <img src="./src/assets/logo.png" alt="Ynera" style="height: 32px; width: 32px;">
+          <span class="font-display" style="font-weight: 600; font-size: 1.125rem; letter-spacing: -0.025em; color: hsl(var(--foreground));">Ynera</span>
+        </a>
+
+        <nav id="nav-desktop" style="display: none; align-items: center; gap: 2rem;" aria-label="Principal">
+          <a href="#servicios" style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); transition: color 200ms;">Servicios</a>
+          <a href="#prueba" style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); transition: color 200ms;">Sistemas</a>
+          <a href="#nosotros" style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); transition: color 200ms;">Nosotros</a>
+          <a href="#preguntas" style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); transition: color 200ms;">Preguntas</a>
+        </nav>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" class="btn-hero-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem; display: none;" id="nav-cta">Agendá 30 min</a>
+          <button id="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" class="liquid-glass" style="display: none; width: 40px; height: 40px; border-radius: 9999px; grid-place-items: center; border: none; background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); cursor: pointer;">
+            <span style="position: relative; display: block; width: 16px; height: 12px;">
+              <i id="menu-line-1" style="position: absolute; left: 0; top: 0; display: block; height: 1px; width: 16px; background-color: hsl(var(--foreground)); transition: transform 300ms; transform: none;"></i>
+              <i id="menu-line-2" style="position: absolute; left: 0; top: 50%; display: block; height: 1px; width: 16px; background-color: hsl(var(--foreground)); transition: opacity 300ms; opacity: 1;"></i>
+              <i id="menu-line-3" style="position: absolute; left: 0; bottom: 0; display: block; height: 1px; width: 16px; background-color: hsl(var(--foreground)); transition: transform 300ms; transform: none;"></i>
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" style="position: absolute; top: 76px; inset-x: 0; z-index: 20; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 300ms, opacity 300ms;">
+        <nav class="liquid-glass-strong" style="margin: 0.5rem 1rem; border-radius: 1.5rem; padding: 1rem; display: flex; flex-direction: column;" aria-label="Menú móvil">
+          <a href="#servicios" style="padding: 0.875rem 1rem; font-size: 1rem; color: rgba(255, 255, 255, 0.9); border-radius: 0.5rem; transition: background-color 200ms;">Servicios</a>
+          <a href="#prueba" style="padding: 0.875rem 1rem; font-size: 1rem; color: rgba(255, 255, 255, 0.9); border-radius: 0.5rem; transition: background-color 200ms;">Sistemas</a>
+          <a href="#nosotros" style="padding: 0.875rem 1rem; font-size: 1rem; color: rgba(255, 255, 255, 0.9); border-radius: 0.5rem; transition: background-color 200ms;">Nosotros</a>
+          <a href="#preguntas" style="padding: 0.875rem 1rem; font-size: 1rem; color: rgba(255, 255, 255, 0.9); border-radius: 0.5rem; transition: background-color 200ms;">Preguntas</a>
+        </nav>
+      </div>
+
+      <div style="position: absolute; top: 76px; inset-x: 0; z-index: 20; height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);"></div>
+
+      <!-- Scroll Indicator -->
+      <div id="scroll-indicator" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; opacity: 1; transition: opacity 300ms;">
+        <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6);">Scrolleá</span>
+        <span style="display: block; width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);"></span>
+      </div>
+
+      <!-- Progress Indicators -->
+      <div style="position: absolute; right: 24px; top: 50%; transform: translateY(-50%); z-index: 20; display: none; flex-direction: column; gap: 0.625rem;" id="hero-progress">
+        <span class="hero-progress-dot" style="width: 6px; height: 22px; border-radius: 9999px; background: #a855f7; transition: all 300ms;"></span>
+        <span class="hero-progress-dot" style="width: 6px; height: 6px; border-radius: 9999px; background: rgba(255, 255, 255, 0.25); transition: all 300ms;"></span>
+        <span class="hero-progress-dot" style="width: 6px; height: 6px; border-radius: 9999px; background: rgba(255, 255, 255, 0.25); transition: all 300ms;"></span>
+        <span class="hero-progress-dot" style="width: 6px; height: 6px; border-radius: 9999px; background: rgba(255, 255, 255, 0.25); transition: all 300ms;"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main>
+    <div class="stack-card" style="background: linear-gradient(180deg, #0d0819 0%, #080312 30%);">
+    <!-- Marquee Section -->
+    <section aria-label="Sistemas construidos por Ynera" style="position: relative; padding: 5rem 0 2.5rem; max-width: 80rem; margin: 0 auto;">
+      <div style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem;">
+        <div class="reveal" style="display: flex; align-items: center; gap: 3rem;">
+          <p style="flex-shrink: 0; width: 9rem; color: rgba(255, 255, 255, 0.42); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; line-height: 1.7; border-left: 1px solid rgba(255,255,255,0.12); padding-left: 1.25rem;">
+            En producción<br>por Ynera
+          </p>
+          <div style="position: relative; flex: 1; overflow: hidden; mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);">
+            <div class="animate-marquee" style="display: flex; width: max-content; gap: 5rem; padding-right: 5rem;">
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">A</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">Aira</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Salud mental</span>
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">C</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">CDI</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Comercio exterior</span>
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">R</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">ReservaYá</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Hotelería</span>
+                </span>
+              </div>
+              <!-- Repeated for animation -->
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">A</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">Aira</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Salud mental</span>
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">C</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">CDI</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Comercio exterior</span>
+                </span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;">
+                <span class="liquid-glass" style="width: 36px; height: 36px; border-radius: 0.5rem; display: grid; place-items: center; font-size: 0.875rem; font-weight: 600; color: hsl(var(--foreground));">R</span>
+                <span style="display: flex; flex-direction: column; line-height: 1.25;">
+                  <span style="font-size: 1rem; font-weight: 600; color: hsl(var(--foreground)); white-space: nowrap;">ReservaYá</span>
+                  <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); white-space: nowrap;">Hotelería</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Servicios Section -->
+    <section id="servicios" style="position: relative; padding: 10rem 0 7rem;">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 2rem;">
+        <p class="reveal" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.5rem 0;">
+          <span class="pulse-dot"></span>
+          Servicios
+        </p>
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
+          <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0;">
+            Venís por una parte.<br>
+            Miramos <span class="text-em">el todo</span>.
+          </h2>
+          <p class="reveal" style="color: rgba(255, 255, 255, 0.64); font-size: 1.125rem; line-height: 2rem; max-width: 28ch; transition-delay: 0.1s;">
+            Tres disciplinas independientes. Las combinamos solo cuando el problema lo pide.
+          </p>
+        </div>
+
+        <div id="services-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;"></div>
+      </div>
+    </section>
+    </div>
+
+    <!-- Prueba Section -->
+    <section id="prueba" class="stack-card" style="background: linear-gradient(180deg, #0a0514 0%, #060210 30%);">
+      <div id="prueba-sticky" style="position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+        <div style="max-width: 96rem; margin: 0 auto; padding: 6rem 1.5rem 1rem; width: 100%; flex-shrink: 0;">
+          <p style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.25rem 0;">
+            <span class="pulse-dot"></span>
+            Prueba en producción
+          </p>
+          <h2 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0;">
+            No traemos demos.<br>
+            Traemos <span class="text-em">sistemas vivos</span>.
+          </h2>
+        </div>
+
+        <div id="prueba-row-wrap" style="flex: 1; display: flex; align-items: center; overflow: hidden;">
+          <div id="carousel-row" style="display: flex; gap: 2rem; align-items: stretch; padding-left: 2rem; will-change: transform;">
+            <!-- Intro card -->
+            <div style="flex-shrink: 0; width: 85vw; max-width: 400px; display: flex; flex-direction: column; justify-content: center; padding-right: 1rem;">
+              <p style="color: rgba(255, 255, 255, 0.64); font-size: 1.125rem; line-height: 2rem; max-width: 21ch; margin: 0 0 1.5rem;">
+                Aira, CDI y ReservaYá nacieron de problemas de tres industrias distintas. Los construimos, operamos y mejoramos — de ahí sale el criterio.
+              </p>
+              <div style="display: flex; align-items: center; gap: 0.75rem; color: rgba(255, 255, 255, 0.4); font-size: 0.875rem;">
+                <span style="display: block; width: 40px; height: 1px; background-color: rgba(255, 255, 255, 0.3);"></span>
+                <span id="prueba-hint-text">Seguí scrolleando</span>
+              </div>
+            </div>
+
+            <!-- Project cards will be added via JS -->
+          </div>
+        </div>
+
+        <div style="max-width: 96rem; margin: 0 auto; padding: 0.5rem 1.5rem 2rem; width: 100%; flex-shrink: 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <div id="carousel-dots" style="display: flex; align-items: center; gap: 0.625rem;"></div>
+            <span id="carousel-name" style="font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); transition: opacity 300ms;"></span>
+          </div>
+          <div id="prueba-progress-track" style="height: 1px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; border-radius: 9999px;">
+            <div id="prueba-progress-bar" style="position: absolute; inset-y: 0; left: 0; width: 100%; transform-origin: left; background: linear-gradient(90deg, #6366f1, #a855f7, #fcd34d); border-radius: 9999px; transform: scaleX(0.03);"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proceso Section -->
+    <section id="proceso" class="stack-card" style="background: linear-gradient(180deg, #0d0819 0%, #080312 30%); padding: 7rem 0;">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 2rem;">
+        <p class="reveal" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.5rem 0;">
+          <span class="pulse-dot"></span>
+          Cómo trabajamos
+        </p>
+        <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0 0 4rem;">
+          El problema primero.<br>
+          <span class="text-em">La herramienta después</span>.
+        </h2>
+
+        <ol style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; list-style: none; margin: 0; padding: 0;">
+          <li class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 1.75rem; transition: transform 300ms;">
+            <span class="liquid-glass" style="display: inline-block; border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 11px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">01</span>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Escuchamos</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0;">Traés el problema. El trabajo empieza con una conversación, no con un pitch deck.</p>
+          </li>
+          <li class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 1.75rem; transition: transform 300ms; transition-delay: 0.1s;">
+            <span class="liquid-glass" style="display: inline-block; border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 11px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">02</span>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Diagnosticamos</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0;">Miramos impacto, datos y riesgos. Si no vale la pena, te lo decimos antes de cobrar.</p>
+          </li>
+          <li class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 1.75rem; transition: transform 300ms; transition-delay: 0.2s;">
+            <span class="liquid-glass" style="display: inline-block; border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 11px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">03</span>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Construimos</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0;">Con revisión humana y trazabilidad. Nada de cajas negras.</p>
+          </li>
+          <li class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 1.75rem; transition: transform 300ms; transition-delay: 0.3s;">
+            <span class="liquid-glass" style="display: inline-block; border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 11px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.8); margin-bottom: 1.5rem;">04</span>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.25rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Operamos</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0;">Sale a producción y lo seguimos mejorando. Como Aira, CDI y ReservaYá.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Nosotros Section -->
+    <section id="nosotros" class="stack-card" style="background: linear-gradient(180deg, #0a0514 0%, #060210 30%); padding: 7rem 0;">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 2rem;">
+        <p class="reveal" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.5rem 0;">
+          <span class="pulse-dot"></span>
+          Quiénes somos
+        </p>
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; align-items: end; margin-bottom: 4rem;">
+          <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0;">
+            Dos perfiles.<br>
+            Un modo: <span class="text-em">entender, construir, probar</span>.
+          </h2>
+          <p class="reveal" style="color: rgba(255, 255, 255, 0.64); font-size: 1.125rem; line-height: 2rem; max-width: 28ch; transition-delay: 0.1s;">
+            Emiliano construye y asegura sistemas. Mariano convierte problemas de negocio en preguntas que los datos responden. Juntos llevaron tres productos a producción.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 5rem;">
+          <article class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: row; gap: 1.75rem; transition: transform 300ms;">
+            <div style="flex-shrink: 0; width: 84px; height: 84px; border-radius: 1.25rem; display: grid; place-items: center; overflow: hidden; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.75rem; color: rgba(255,255,255,0.9); background: radial-gradient(130% 130% at 30% 15%, rgba(255,255,255,0.10), rgba(255,255,255,0.015) 60%); border: 1px solid rgba(201,164,255,0.30); box-shadow: inset 0 1px 1px rgba(255,255,255,0.10);" title="Foto de Emiliano" aria-hidden="true">E</div>
+            <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+              <span style="border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.25rem 0.75rem; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">Ciberseguridad</span>
+              <span style="border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.25rem 0.75rem; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">Código</span>
+              <span style="border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.25rem 0.75rem; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">IA</span>
+            </div>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.5rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Emiliano</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0 0 1.25rem;">Construye sistemas desde la arquitectura hasta el despliegue. Para él, la seguridad no es una capa final: es una condición para que algo pueda salir a producción.</p>
+            <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: hsl(var(--foreground)); transition: color 300ms; margin-top: auto;">
+              LinkedIn
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #c084fc;">
+                <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+              </svg>
+            </a>
+            </div>
+          </article>
+
+          <article class="reveal" style="background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: row; gap: 1.75rem; transition: transform 300ms; transition-delay: 0.1s;">
+            <div style="flex-shrink: 0; width: 84px; height: 84px; border-radius: 1.25rem; display: grid; place-items: center; overflow: hidden; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.75rem; color: rgba(255,255,255,0.9); background: radial-gradient(130% 130% at 30% 15%, rgba(255,255,255,0.10), rgba(255,255,255,0.015) 60%); border: 1px solid rgba(201,164,255,0.30); box-shadow: inset 0 1px 1px rgba(255,255,255,0.10);" title="Foto de Mariano" aria-hidden="true">M</div>
+            <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+              <span style="border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.25rem 0.75rem; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">Ciencia de datos</span>
+              <span style="border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.25rem 0.75rem; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5);">Negocio</span>
+            </div>
+            <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.5rem; letter-spacing: -0.025em; margin: 0 0 0.75rem;">Mariano</h3>
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0 0 1.25rem;">Convierte conversaciones de negocio en problemas que se pueden medir y resolver. Trabaja entre los datos, el contexto y las decisiones que el equipo necesita tomar.</p>
+            <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: hsl(var(--foreground)); transition: color 300ms; margin-top: auto;">
+              LinkedIn
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #c084fc;">
+                <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+              </svg>
+            </a>
+            </div>
+          </article>
+        </div>
+
+        <blockquote class="reveal" style="text-align: center; max-width: 48rem; margin: 0 auto 3.5rem;">
+          <p style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 400; letter-spacing: -0.02em; font-size: clamp(1.875rem, 4vw, 2.25rem); line-height: 1.15; margin: 0 0 1.5rem;">
+            "La tecnología entiende el negocio,<br><span class="text-em">no al revés</span>."
+          </p>
+          <footer style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4);">
+            Lo que aprendimos en tres industrias distintas
+          </footer>
+        </blockquote>
+
+        <p class="reveal" style="max-width: 56rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; border-radius: 0.5rem; border: 1px dashed rgba(244, 114, 182, 0.35); padding: 1rem 1.5rem; font-size: 0.75rem; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.6); text-align: center; margin: 0 auto;">
+          <span style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 9999px; border: 1px solid rgba(244, 114, 182, 0.55); color: #f472b6; display: grid; place-items: center; font-size: 0.75rem;">!</span>
+          Límite de trabajo — no trabajamos en apuestas online ni en productos que dañen a las personas.
+        </p>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="preguntas" class="stack-card" style="background: linear-gradient(180deg, #0d0819 0%, #080312 30%); padding: 7rem 0;">
+      <div style="max-width: 48rem; margin: 0 auto; padding: 0 2rem;">
+        <p class="reveal" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.5rem 0;">
+          <span class="pulse-dot"></span>
+          Preguntas frecuentes
+        </p>
+        <h2 class="reveal" style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.125rem); margin: 0 0 3rem;">
+          Lo que preguntan <span class="text-em">antes de empezar</span>.
+        </h2>
+
+        <div class="reveal" style="border-top: 1px solid rgba(255, 255, 255, 0.1); transition-delay: 0.1s;">
+          <details style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <summary style="display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; cursor: pointer; list-style: none; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.125rem; letter-spacing: -0.025em; transition: color 300ms;">
+              <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.1em;">01</span>
+              ¿Puedo contratarlos solo para IA, datos o seguridad?
+              <span style="margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); display: grid; place-items: center; transition: transform 300ms;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </span>
+            </summary>
+            <p style="padding-bottom: 1.75rem; padding-left: 3rem; padding-right: 1.5rem; color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.75; max-width: 62ch; margin: 0;">
+              Sí. Cada área se trabaja por separado. Si el problema se beneficia de combinar disciplinas, lo proponemos; no es una condición para trabajar con nosotros.
+            </p>
+          </details>
+          <details style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <summary style="display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; cursor: pointer; list-style: none; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.125rem; letter-spacing: -0.025em; transition: color 300ms;">
+              <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.1em;">02</span>
+              ¿Cómo saben si vale la pena hacer el proyecto?
+              <span style="margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); display: grid; place-items: center; transition: transform 300ms;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </span>
+            </summary>
+            <p style="padding-bottom: 1.75rem; padding-left: 3rem; padding-right: 1.5rem; color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.75; max-width: 62ch; margin: 0;">
+              Empezamos por el problema, no por la herramienta. En la primera conversación buscamos entender impacto, datos disponibles, riesgos y si tiene sentido avanzar.
+            </p>
+          </details>
+          <details style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <summary style="display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; cursor: pointer; list-style: none; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.125rem; letter-spacing: -0.025em; transition: color 300ms;">
+              <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.1em;">03</span>
+              ¿Trabajan con equipos chicos?
+              <span style="margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); display: grid; place-items: center; transition: transform 300ms;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </span>
+            </summary>
+            <p style="padding-bottom: 1.75rem; padding-left: 3rem; padding-right: 1.5rem; color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.75; max-width: 62ch; margin: 0;">
+              Sí. Nuestros productos nacieron junto a profesionales independientes y PyMEs. El tamaño no define la oportunidad; el problema concreto sí.
+            </p>
+          </details>
+          <details style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <summary style="display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; cursor: pointer; list-style: none; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.125rem; letter-spacing: -0.025em; transition: color 300ms;">
+              <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.1em;">04</span>
+              ¿Cuánto cuesta?
+              <span style="margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); display: grid; place-items: center; transition: transform 300ms;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </span>
+            </summary>
+            <p style="padding-bottom: 1.75rem; padding-left: 3rem; padding-right: 1.5rem; color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.75; max-width: 62ch; margin: 0;">
+              Depende del alcance y del punto de partida. Antes de cotizar, preferimos entender qué conviene resolver y qué no.
+            </p>
+          </details>
+          <details style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+            <summary style="display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0; cursor: pointer; list-style: none; font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.125rem; letter-spacing: -0.025em; transition: color 300ms;">
+              <span style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.4); letter-spacing: 0.1em;">05</span>
+              ¿Con quién voy a trabajar?
+              <span style="margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.15); display: grid; place-items: center; transition: transform 300ms;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"></path>
+                </svg>
+              </span>
+            </summary>
+            <p style="padding-bottom: 1.75rem; padding-left: 3rem; padding-right: 1.5rem; color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.75; max-width: 62ch; margin: 0;">
+              Directo con Emiliano y Mariano. Sin capas comerciales entre el problema y quien lo va a resolver.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contacto Section -->
+    <section id="contacto" class="stack-card" style="background: linear-gradient(180deg, #0a0514 0%, #060210 30%); padding: 6rem 0 8rem;">
+      <div style="max-width: 96rem; margin: 0 auto; padding: 0 2rem;">
+        <div class="reveal liquid-glass-strong" style="position: relative; overflow: hidden; text-align: center; padding: 5rem 2rem; border-radius: 2.5rem;">
+          <div aria-hidden="true" style="pointer-events: none; position: absolute; inset-x: -20%; bottom: -55%; height: 340px; background: radial-gradient(ellipse at 50% 100%, rgba(168, 85, 247, 0.22), transparent 70%);"></div>
+          <p style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin: 0 0 1.5rem;">
+            <span class="pulse-dot"></span>
+            Mesa de entrada
+          </p>
+          <h2 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; font-size: clamp(1.875rem, 5vw, 3.75rem); margin: 0 0 1.5rem;">
+            Contanos tu caos.<br>
+            Lo convertimos en <span class="text-em">sistema</span>.
+          </h2>
+          <p style="color: rgba(255, 255, 255, 0.64); font-size: 1.125rem; line-height: 2rem; max-width: 28ch; margin: 0 auto 2.5rem;">
+            Un dato que no llega, una operación expuesta o un proceso que te roba horas. Venís por una cosa o por las tres.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 1.75rem;">
+            <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" class="btn-hero-secondary" style="padding: 24px 29px; font-size: 1rem;">
+              Agendá 30 minutos
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+              </svg>
+            </a>
+            <a href="https://wa.me/5491100000000" target="_blank" rel="noopener noreferrer" class="btn-hero-secondary" style="padding: 24px 28px; font-size: 1rem;">
+              Escribinos por WhatsApp
+            </a>
+          </div>
+          <p style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin: 0;">
+            sin compromiso · te decimos si podemos ayudarte — y si no, también
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 2.25rem 0;">
+    <div style="max-width: 96rem; margin: 0 auto; padding: 0 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+      <a href="#top" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: hsl(var(--foreground));">
+        <img src="./src/assets/logo.png" alt="Ynera" style="height: 28px; width: 28px;">
+        <span class="font-display" style="font-weight: 600; letter-spacing: -0.025em; color: hsl(var(--foreground));">Ynera</span>
+      </a>
+      <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; margin: 0;">Software que sigue trabajando cuando nos vamos.</p>
+      <p id="footer-time" style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); margin: 0;">© 2026 · Buenos Aires · --:-- ART · sin cookies de tracking</p>
+    </div>
+  </footer>
+
+  <!-- Oversized wordmark -->
+  <div aria-hidden="true" style="overflow: hidden; padding: 1rem 0 0.5rem;">
+    <div class="font-display" style="font-weight: 600; letter-spacing: -0.04em; line-height: 0.8; text-align: center; font-size: clamp(4rem, 24vw, 22rem); background-image: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.015)); -webkit-background-clip: text; background-clip: text; color: transparent; user-select: none;">Ynera</div>
+  </div>
+
+  <!-- Logo closure -->
+  <div style="position: relative; z-index: 5; display: flex; justify-content: center; align-items: center; padding: 5rem 0 8rem;">
+    <div style="position: relative; display: grid; place-items: center;">
+      <div aria-hidden="true" style="position: absolute; width: 180px; height: 180px; border-radius: 9999px; background: radial-gradient(circle, rgba(168, 85, 247, 0.22), transparent 65%); filter: blur(10px); pointer-events: none;"></div>
+      <img src="./src/assets/logo.png" alt="Ynera" style="position: relative; height: 72px; width: 72px; filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.45));">
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: &quot;100%&quot;, &quot;height&quot;: &quot;720px&quot;}}">
+class Component extends DCLogic {
+  state = {
+    heroProgress: 0,
+    menuOpen: false,
+    isMobile: false,
+    carouselIndex: 0,
+  };
+
+  componentDidMount() {
+    this.initHero();
+    this.initBackground();
+    this.initResponsive();
+    this.initFooterTime();
+    this.initServices();
+    this.initCarousel();
+    this.initFAQ();
+    this.initMenuToggle();
+    this.initReveal();
+    this.initStackCards();
+    this.initAnchorNav();
+    this.initFloatNav();
+    this.initSpotlight();
+    this.initMagnetic();
+    this.initPreloader();
+    this.initCursor();
+  }
+
+  initPreloader() {
+    const pre = document.getElementById('preloader');
+    if (!pre) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const word = document.getElementById('preloader-word');
+    const bar = document.getElementById('preloader-bar');
+    const done = () => {
+      document.documentElement.style.overflow = '';
+      pre.style.opacity = '0';
+      pre.style.pointerEvents = 'none';
+      setTimeout(() => pre.remove(), 750);
+    };
+    if (reduced) { done(); return; }
+    document.documentElement.style.overflow = 'hidden';
+    const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    if (word) word.animate([{ backgroundPosition: '100% 0' }, { backgroundPosition: '0% 0' }], { duration: 1100, easing: 'ease-in-out', fill: 'forwards' });
+    if (bar) bar.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 1150, easing: ease, fill: 'forwards' });
+    setTimeout(done, 1300);
+  }
+
+  initCursor() {
+    if (window.matchMedia('(hover: none)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    if (!dot || !ring) return;
+    const style = document.createElement('style');
+    style.textContent = '*, *::before, *::after { cursor: none !important; }';
+    document.head.appendChild(style);
+    let x = -100, y = -100, rx = -100, ry = -100, shown = false;
+    window.addEventListener('mousemove', (e) => {
+      x = e.clientX; y = e.clientY;
+      if (!shown) { shown = true; rx = x; ry = y; dot.style.opacity = '1'; ring.style.opacity = '1'; }
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      const on = !!(e.target.closest && e.target.closest('a, button, summary, input, textarea, label, [role="button"]'));
+      ring.style.width = on ? '48px' : '34px';
+      ring.style.height = on ? '48px' : '34px';
+      ring.style.backgroundColor = on ? 'rgba(168,85,247,0.10)' : 'transparent';
+      ring.style.borderColor = on ? 'rgba(168,85,247,0.85)' : 'rgba(168,85,247,0.5)';
+    }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; shown = false; });
+    const loop = () => {
+      const dx = x - rx, dy = y - ry;
+      if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
+        rx += dx * 0.18; ry += dy * 0.18;
+        ring.style.left = rx.toFixed(1) + 'px';
+        ring.style.top = ry.toFixed(1) + 'px';
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+
+  initFloatNav() {
+    const nav = document.getElementById('float-nav');
+    const hero = document.getElementById('top');
+    if (!nav || !hero) return;
+    const links = Array.from(nav.querySelectorAll('.float-link'));
+    const ids = links.map((a) => a.getAttribute('href').slice(1));
+    let visible = false;
+    const update = () => {
+      const show = hero.getBoundingClientRect().bottom < window.innerHeight * 0.4;
+      if (show !== visible) {
+        visible = show;
+        nav.style.opacity = show ? '1' : '0';
+        nav.style.transform = show ? 'translate(-50%, 0)' : 'translate(-50%, -16px)';
+        nav.style.pointerEvents = show ? 'auto' : 'none';
+      }
+      let active = -1;
+      ids.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) active = i;
+      });
+      links.forEach((a, i) => {
+        const on = i === active;
+        a.style.color = on ? 'hsl(40 6% 95%)' : 'rgba(255,255,255,0.72)';
+        a.style.backgroundColor = on ? 'rgba(168,85,247,0.16)' : 'transparent';
+      });
+    };
+    update();
+    let navRaf = null;
+    window.addEventListener('scroll', () => {
+      if (!navRaf) navRaf = requestAnimationFrame(() => { navRaf = null; update(); });
+    }, { passive: true });
+  }
+
+  initSpotlight() {
+    if (window.matchMedia('(hover: none)').matches) return;
+    document.querySelectorAll('#services-grid article, #proceso ol li, #nosotros article').forEach((card) => {
+      const rgb = card.dataset.rgb || '168,85,247';
+      if (!card.style.position) card.style.position = 'relative';
+      const glow = document.createElement('div');
+      glow.style.cssText = 'position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity 350ms;pointer-events:none;';
+      card.prepend(glow);
+      let raf = null, ev = null;
+      card.addEventListener('mousemove', (e) => {
+        ev = e;
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = null;
+          const r = card.getBoundingClientRect();
+          glow.style.background = `radial-gradient(320px circle at ${ev.clientX - r.left}px ${ev.clientY - r.top}px, rgba(${rgb},0.09), transparent 70%)`;
+          glow.style.opacity = '1';
+        });
+      });
+      card.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+    });
+  }
+
+  initMagnetic() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(hover: none)').matches) return;
+    document.querySelectorAll('.btn-hero-secondary').forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width / 2) / r.width;
+        const dy = (e.clientY - r.top - r.height / 2) / r.height;
+        btn.style.transform = `translate(${(dx * 6).toFixed(1)}px, ${(dy * 4 - 1).toFixed(1)}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  }
+
+  initAnchorNav() {
+    const OFF = 24;
+    const correct = (el) => {
+      for (let i = 0; i < 6; i++) {
+        const d = el.getBoundingClientRect().top - OFF;
+        if (Math.abs(d) < 2) break;
+        window.scrollTo({ top: window.scrollY + d, behavior: 'instant' });
+      }
+    };
+    const settle = (cb) => {
+      let last = -1, same = 0, done = false;
+      const fin = () => { if (!done) { done = true; clearInterval(t); cb(); } };
+      const t = setInterval(() => {
+        if (window.scrollY === last) { if (++same >= 2) fin(); }
+        else { same = 0; last = window.scrollY; }
+      }, 90);
+      setTimeout(fin, 2500);
+    };
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href').slice(1);
+        const el = id && document.getElementById(id);
+        if (!el) return;
+        e.preventDefault();
+        history.pushState(null, '', '#' + id);
+        const fade = document.getElementById('page-fade');
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (fade && !reduced) {
+          fade.style.pointerEvents = 'auto';
+          fade.style.opacity = '1';
+          setTimeout(() => {
+            if (id === 'top') window.scrollTo({ top: 0, behavior: 'instant' });
+            else {
+              window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - OFF, behavior: 'instant' });
+              correct(el);
+            }
+            requestAnimationFrame(() => { fade.style.opacity = '0'; fade.style.pointerEvents = 'none'; });
+          }, 240);
+          return;
+        }
+        if (id === 'top') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - OFF, behavior: 'smooth' });
+        settle(() => correct(el));
+      });
+    });
+  }
+
+  initStackCards() {
+    const cards = Array.from(document.querySelectorAll('.stack-card'));
+    if (!cards.length) return;
+    const setTops = () => cards.forEach((c) => {
+      c.style.top = Math.min(0, window.innerHeight - c.offsetHeight) + 'px';
+    });
+    cards.forEach((c, i) => { c.style.zIndex = 10 + i; });
+    setTops();
+    window.addEventListener('resize', setTops, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(setTops);
+      cards.forEach((c) => ro.observe(c));
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const veils = cards.map((c, i) => {
+      if (i === cards.length - 1) return null;
+      const v = document.createElement('div');
+      v.style.cssText = 'position:absolute;inset:0;border-radius:inherit;background:#030109;opacity:0;pointer-events:none;z-index:60;';
+      c.appendChild(v);
+      return v;
+    });
+    const clamp01 = (v) => Math.min(1, Math.max(0, v));
+    let raf = null;
+    const update = () => {
+      raf = null;
+      cards.forEach((c, i) => {
+        const next = cards[i + 1];
+        if (!next) return;
+        const cRaw = clamp01(1 - next.getBoundingClientRect().top / window.innerHeight);
+        const covered = cRaw * cRaw * (3 - 2 * cRaw);
+        c.style.transformOrigin = 'center bottom';
+        c.style.transform = covered > 0 ? 'scale(' + (1 - covered * 0.04) + ')' : '';
+        if (veils[i]) veils[i].style.opacity = Math.min(1, covered * 1.5).toFixed(3);
+      });
+    };
+    window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+    update();
+  }
+
+  initMenuToggle() {
+    const toggle = document.getElementById('menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    if (!toggle || !menu) return;
+    const setOpen = (isOpen) => {
+      this.setState({ menuOpen: isOpen });
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      menu.style.maxHeight = isOpen ? '320px' : '0';
+      menu.style.opacity = isOpen ? '1' : '0';
+    };
+    toggle.addEventListener('click', () => setOpen(!this.state.menuOpen));
+    document.querySelectorAll('#mobile-menu a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  }
+
+  initResponsive() {
+    const updateResponsive = () => {
+      const isMobile = window.innerWidth < 768;
+      const isDesktop = window.innerWidth >= 768;
+      if (this.state.isMobile !== isMobile) this.setState({ isMobile });
+      const nav = document.getElementById('nav-desktop');
+      const cta = document.getElementById('nav-cta');
+      const toggle = document.getElementById('menu-toggle');
+      const progress = document.getElementById('hero-progress');
+      if (nav) nav.style.display = isDesktop ? 'flex' : 'none';
+      if (cta) cta.style.display = isDesktop ? 'inline-flex' : 'none';
+      if (toggle) toggle.style.display = isMobile ? 'grid' : 'none';
+      if (progress) progress.style.display = !isMobile ? 'flex' : 'none';
+      document.querySelectorAll('#float-nav .float-link').forEach((a) => { a.style.display = isMobile ? 'none' : 'inline-block'; });
+      if (this.updatePruebaLayout) this.updatePruebaLayout(isMobile);
+    };
+    updateResponsive();
+    window.addEventListener('resize', updateResponsive);
+  }
+
+  initHero() {
+    const trackRef = document.getElementById('top');
+    const scenesContainer = document.getElementById('hero-scenes');
+    const finalCTA = document.getElementById('hero-final');
+    const indicator = document.getElementById('scroll-indicator');
+    const progress = document.getElementById('hero-progress');
+
+    const scenes = [
+      { title: 'Datos que no llegan.\nSistemas que nadie audita.', sub: 'Planillas que no cierran. Vencimientos que se pierden. Horas que se van en lo manual.', avif: './src/assets/brand-caos.avif', webp: './src/assets/brand-caos.webp', jpg: './src/assets/brand-caos.jpg' },
+      { title: 'Lo convertimos en sistema.', sub: 'Dos personas. Tres disciplinas: datos, seguridad e IA. Construimos antes de aconsejar.', avif: './src/assets/brand-trabajo.avif', webp: './src/assets/brand-trabajo.webp', jpg: './src/assets/brand-trabajo.jpg' },
+      { title: 'Ynera.', sub: 'Software que sigue trabajando cuando nos vamos. Aira, CDI y ReservaYá son la prueba.', avif: './src/assets/brand-sistema.avif', webp: './src/assets/brand-sistema.webp', jpg: './src/assets/brand-sistema.jpg' },
+    ];
+
+    const SEG = 1 / 4;
+    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    const localProgress = (p, i) => clamp((p - i * SEG) / SEG);
+
+    this.buildHeroScenes(scenes);
+
+    let intro = 0;
+    const introAnim = () => {
+      const start = performance.now();
+      const DURATION = 1400;
+      const tick = (now) => {
+        const t = clamp((now - start) / DURATION);
+        intro = 1 - Math.pow(1 - t, 3);
+        this.applyHeroScenes(intro, this.heroP || 0);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    introAnim();
+
+    const update = () => {
+      if (!trackRef) return;
+      const rect = trackRef.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const scrolled = clamp(-rect.top / Math.max(total, 1));
+      this.heroP = scrolled;
+      this.applyHeroScenes(intro, scrolled);
+      
+      const finalP = localProgress(scrolled, 3);
+      if (finalCTA) {
+        const e = clamp((finalP - 0.15) / 0.45);
+        const ee = e * e * (3 - 2 * e);
+        finalCTA.style.opacity = ee;
+        finalCTA.style.transform = `translateY(${(1 - ee) * 26}px)`;
+        finalCTA.style.pointerEvents = finalP > 0.5 ? 'auto' : 'none';
+      }
+      
+      if (indicator) indicator.style.opacity = 1 - clamp(scrolled / 0.06);
+      if (progress) {
+        const dots = progress.querySelectorAll('.hero-progress-dot');
+        dots.forEach((dot, i) => {
+          const active = scrolled >= i * SEG && scrolled < (i + 1) * SEG;
+          dot.style.height = active ? '22px' : '6px';
+          dot.style.background = active ? '#a855f7' : 'rgba(255,255,255,0.25)';
+        });
+      }
+    };
+
+    update();
+    let heroRaf = null;
+    window.addEventListener('scroll', () => {
+      if (!heroRaf) heroRaf = requestAnimationFrame(() => { heroRaf = null; update(); });
+    }, { passive: true });
+  }
+
+  buildHeroScenes(scenes) {
+    const container = document.getElementById('hero-scenes');
+    if (!container) return;
+    container.innerHTML = '';
+    this.heroSceneEls = scenes.map((scene, i) => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:absolute;inset:0;opacity:0;';
+      const picture = document.createElement('picture');
+      picture.style.cssText = 'position:absolute;inset:0;';
+      const s1 = document.createElement('source'); s1.srcset = scene.avif; s1.type = 'image/avif';
+      const s2 = document.createElement('source'); s2.srcset = scene.webp; s2.type = 'image/webp';
+      const img = document.createElement('img');
+      img.src = scene.jpg; img.alt = ''; img.loading = i === 0 ? 'eager' : 'lazy'; img.decoding = 'async';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform;';
+      picture.append(s1, s2, img);
+      const phraseWrap = document.createElement('div');
+      phraseWrap.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;';
+      const scrim = document.createElement('div');
+      scrim.style.cssText = 'position:absolute;inset:0;background:radial-gradient(ellipse 60% 45% at 50% 52%, rgba(3,1,10,0.72) 0%, rgba(3,1,10,0.35) 55%, transparent 100%);';
+      const inner = document.createElement('div');
+      inner.style.cssText = 'position:relative;text-align:center;max-width:64rem;';
+      const h2 = document.createElement('h2');
+      h2.style.cssText = "font-family:'General Sans','Geist Sans',ui-sans-serif,system-ui,sans-serif;font-weight:400;letter-spacing:-0.024em;line-height:1.06;font-size:clamp(2.75rem,8vw,6rem);color:hsl(40 6% 95%);margin:0;white-space:pre-line;text-shadow:0 4px 40px rgba(0,0,0,0.9),0 1px 8px rgba(0,0,0,0.8);";
+      h2.textContent = scene.title;
+      const sub = document.createElement('p');
+      sub.style.cssText = 'margin:1.25rem auto 0;color:hsl(40 6% 82%);font-size:1.125rem;line-height:1.75rem;max-width:36rem;text-shadow:0 2px 20px rgba(0,0,0,0.95),0 1px 6px rgba(0,0,0,0.9);';
+      sub.textContent = scene.sub;
+      inner.append(h2, sub);
+      phraseWrap.append(scrim, inner);
+      wrap.append(picture, phraseWrap);
+      container.appendChild(wrap);
+      return { wrap, img, phraseWrap, inner };
+    });
+  }
+
+  applyHeroScenes(intro, p) {
+    const els = this.heroSceneEls;
+    if (!els) return;
+    const SEG = 1 / 4;
+    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    const localProgress = (pp, i) => clamp((pp - i * SEG) / SEG);
+    const finalP = localProgress(p, 3);
+    const ease = (t) => { const c = clamp(t); return c * c * (3 - 2 * c); };
+    els.forEach((el, i) => {
+      const local = localProgress(p, i);
+      const isLast = i === els.length - 1;
+      const sceneIn = i === 0 ? intro : ease(local / 0.26);
+      const sceneOut = isLast ? 1 - ease((finalP - 0.3) / 0.35) : 1 - ease((local - 0.78) / 0.22);
+      const opacity = clamp(sceneIn * sceneOut);
+      const phraseIn = i === 0 ? ease((intro - 0.35) / 0.4) : ease((local - 0.16) / 0.18);
+      const phraseOut = isLast ? 1 - ease((finalP - 0.18) / 0.25) : 1 - ease((local - 0.68) / 0.16);
+      const outP = 1 - phraseOut;
+      el.wrap.style.opacity = opacity;
+      el.wrap.style.visibility = opacity === 0 ? 'hidden' : 'visible';
+      el.img.style.transform = `scale(${1.08 + local * 0.08}) translate(${(i % 2 === 0 ? -1 : 1) * local * 1.6}%, ${-local * 1.8}%)`;
+      el.phraseWrap.style.opacity = phraseIn * phraseOut;
+      el.inner.style.transform = `translateY(${(1 - phraseIn) * 30 - outP * 26}px) scale(${1 - outP * 0.02})`;
+    });
+  }
+
+  initBackground() {
+    const canvas = document.getElementById('bg-canvas');
+    const img = document.getElementById('bg-nebula');
+    if (!canvas || !img) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const PALETTE = ['99,102,241', '168,85,247', '252,211,77'];
+    let particles = [];
+    let w = 0;
+    let h = 0;
+    let lastW = 0;
+    let maxScroll = 1;
+
+    const buildParticles = (w, h) => {
+      const count = Math.round(Math.min(Math.max((w * h) / 24000, 36), 84));
+      return Array.from({ length: count }, () => ({
+        hx: 0.04 + Math.random() * 0.92,
+        hy: 0.04 + Math.random() * 0.92,
+        sx: (Math.random() - 0.5) * 0.9,
+        sy: (Math.random() - 0.5) * 0.9,
+        r: 1.2 + Math.random() * 1.8,
+        color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
+        delay: Math.random() * 0.55,
+        wobAmp: 4 + Math.random() * 8,
+        wobSpeed: 0.0004 + Math.random() * 0.0008,
+        wobPhase: Math.random() * Math.PI * 2,
+      }));
+    };
+
+    const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    const easeInOut = (v) => v < 0.5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (w !== lastW) {
+        particles = buildParticles(w, h);
+        lastW = w;
+      }
+    };
+
+    const scrollProgress = () => clamp01(window.scrollY / maxScroll);
+
+    const draw = (t, time) => {
+      ctx.clearRect(0, 0, w, h);
+      const th = Math.min(w, h) * 0.16;
+      const pts = particles.map((p) => {
+        const e = easeInOut(clamp01(t * 1.55 - p.delay));
+        const spread = 1 - e;
+        const wob = p.wobAmp * (0.4 + spread);
+        return {
+          x: (p.hx + p.sx * spread) * w + Math.cos(time * p.wobSpeed + p.wobPhase) * wob,
+          y: (p.hy + p.sy * spread) * h + Math.sin(time * p.wobSpeed * 1.3 + p.wobPhase) * wob,
+          r: p.r,
+          color: p.color,
+          e,
+        };
+      });
+
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const a = pts[i];
+          const b = pts[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > th * th) continue;
+          const strength = (1 - Math.sqrt(d2) / th) * Math.min(a.e, b.e);
+          if (strength <= 0.01) continue;
+          ctx.strokeStyle = `rgba(${a.color},${(strength * 0.3).toFixed(3)})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+
+      for (const p of pts) {
+        ctx.fillStyle = `rgba(${p.color},${(0.18 + 0.6 * p.e).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    resize();
+    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const ro = new ResizeObserver(() => {
+      maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    });
+    ro.observe(document.body);
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      draw(1, 0);
+      window.addEventListener('resize', () => { resize(); draw(1, 0); });
+      return;
+    }
+
+    let cur = scrollProgress();
+    const stackCards = Array.from(document.querySelectorAll('.stack-card'));
+    const bgCovered = () => {
+      for (const c of stackCards) {
+        if (c.style.transform) continue;
+        const r = c.getBoundingClientRect();
+        if (r.top <= 1 && r.bottom >= h - 1) return true;
+      }
+      return false;
+    };
+    let wasCovered = false;
+    const loop = (time) => {
+      const target = scrollProgress();
+      cur += (target - cur) * 0.08;
+      const covered = bgCovered();
+      if (covered) {
+        if (!wasCovered) ctx.clearRect(0, 0, w, h);
+      } else {
+        draw(cur, time);
+      }
+      wasCovered = covered;
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+
+    // Parallax on image
+    let parRaf = null;
+    const onScroll = () => {
+      if (parRaf) return;
+      parRaf = requestAnimationFrame(() => {
+        parRaf = null;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const p = max > 0 ? window.scrollY / max : 0;
+        img.style.transform = `scale(1.12) translateY(${(-p * 5).toFixed(2)}%)`;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', resize);
+  }
+
+  initReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  }
+
+  initFooterTime() {
+    const updateTime = () => {
+      const fmt = new Intl.DateTimeFormat('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'America/Argentina/Buenos_Aires',
+      });
+      const time = fmt.format(new Date());
+      const el = document.getElementById('footer-time');
+      if (el) el.textContent = `© 2026 · Buenos Aires · ${time} ART · sin cookies de tracking`;
+    };
+    updateTime();
+    setInterval(updateTime, 30000);
+  }
+
+  initServices() {
+    const services = [
+      {
+        num: '01',
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"></path><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"></path></svg>`,
+        title: 'Datos',
+        problem: '"La información llega tarde, incompleta, y nadie confía en ella."',
+        desc: 'Pipelines, calidad de datos y tableros que la gente usa.',
+        out: 'Datos para decidir, no para discutir.',
+        link: 'Hablemos de datos',
+        accent: '#22d3ee',
+        rgb: '34,211,238',
+      },
+      {
+        num: '02',
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"></path><path d="M9.2 12l1.9 1.9 3.7-3.9"></path></svg>`,
+        title: 'Seguridad',
+        problem: '"Tu operación funciona, pero no sabés qué tan expuesta está."',
+        desc: 'Auditoría, hardening, APIs seguras y protección de datos.',
+        out: 'Una operación preparada para crecer sin miedo.',
+        link: 'Hablemos de seguridad',
+        accent: '#a855f7',
+        rgb: '168,85,247',
+      },
+      {
+        num: '03',
+        icon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.5L18 9l-4.3 1.5L12 15l-1.7-4.5L6 9l4.3-1.5z"></path><path d="M18.5 14.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"></path></svg>`,
+        title: 'IA aplicada',
+        problem: '"El trabajo repetitivo le roba horas a tu equipo."',
+        desc: 'Automatizaciones con LLMs y asistentes sobre tus documentos.',
+        out: 'Procesos más rápidos, con revisión humana y trazabilidad.',
+        link: 'Hablemos de IA',
+        accent: '#fcd34d',
+        rgb: '252,211,77',
+      },
+    ];
+
+    const grid = document.getElementById('services-grid');
+    if (!grid) return;
+
+    services.forEach((s, i) => {
+      const card = document.createElement('article');
+      card.className = 'reveal';
+      card.style.cssText = `
+        background: rgba(255, 255, 255, 0.01);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        transition: all 300ms;
+        position: relative;
+        transition-delay: ${i * 0.1}s;
+      `;
+      card.innerHTML = `
+        <div style="position: absolute; top: 0; inset-x: 2rem; height: 1px; background: linear-gradient(90deg, transparent, rgba(${s.rgb},0.7), transparent);"></div>
+        <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 224px; height: 112px; border-radius: 9999px; pointer-events: none; background: radial-gradient(ellipse, rgba(${s.rgb},0.16), transparent 70%); filter: blur(14px);"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+          <span style="font-size: 0.75rem; letter-spacing: 0.14em; font-weight: 600; color: ${s.accent};">${s.num}</span>
+          <span style="width: 48px; height: 48px; border-radius: 0.75rem; display: grid; place-items: center; color: ${s.accent}; background: rgba(${s.rgb},0.10); border: 1px solid rgba(${s.rgb},0.28); box-shadow: inset 0 1px 1px rgba(255,255,255,0.08), 0 0 24px rgba(${s.rgb},0.18);">${s.icon}</span>
+        </div>
+        <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.5rem; letter-spacing: -0.025em; margin: 0 0 1rem;">${s.title}</h3>
+        <p style="font-style: italic; color: rgba(255, 255, 255, 0.9); line-height: 1.75; margin: 0 0 0.75rem;">${s.problem}</p>
+        <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; line-height: 1.5; margin: 0 0 1.5rem;">${s.desc}</p>
+        <div style="border-radius: 0.5rem; border: 1px dashed rgba(${s.rgb},0.4); background: rgba(${s.rgb},0.06); padding: 1rem; margin: 0 0 1.5rem;">
+          <span style="display: block; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 0.375rem; color: ${s.accent};">Salida concreta</span>
+          <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); margin: 0;">${s.out}</p>
+        </div>
+        <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: hsl(var(--foreground)); transition: color 300ms; margin-top: auto;">
+          ${s.link}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: ${s.accent};">
+            <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+          </svg>
+        </a>
+      `;
+      card.addEventListener('mouseenter', () => {
+        card.style.boxShadow = `0 24px 70px rgba(${s.rgb},0.22), inset 0 1px 1px rgba(255,255,255,0.1)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.boxShadow = '';
+      });
+      card.dataset.rgb = s.rgb;
+      grid.appendChild(card);
+    });
+  }
+
+  buildShot(variant, tag) {
+    const dotsHtml = `
+      <div style="display: flex; gap: 0.375rem; margin-bottom: 1.25rem;">
+        <i style="width: 10px; height: 10px; border-radius: 9999px; background: rgba(244, 114, 182, 0.6);"></i>
+        <i style="width: 10px; height: 10px; border-radius: 9999px; background: rgba(252, 211, 77, 0.6);"></i>
+        <i style="width: 10px; height: 10px; border-radius: 9999px; background: rgba(52, 211, 153, 0.6);"></i>
+      </div>`;
+    let variantHtml = '';
+    if (variant === 'docs') {
+      variantHtml = `
+        <div style="display: flex; gap: 0.625rem; margin-bottom: 1.25rem;">
+          ${[0, 1, 2].map(() => `<div style="flex: 1; height: 64px; border-radius: 0.5rem; border: 1px solid rgba(168,85,247,0.3); background: linear-gradient(rgba(168,85,247,0.14), rgba(168,85,247,0.03)), repeating-linear-gradient(180deg, transparent 0 9px, rgba(196,181,253,0.16) 9px 11px);"></div>`).join('')}
+        </div>`;
+    } else if (variant === 'cal') {
+      const highlighted = [2, 4, 7, 10, 13];
+      variantHtml = `
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+          ${Array.from({ length: 14 }).map((_, i) => `<i style="aspect-ratio: 1; border-radius: 0.25rem; ${highlighted.includes(i) ? 'background: rgba(252,211,77,0.25); border: 1px solid rgba(252,211,77,0.5); box-shadow: 0 0 12px rgba(252,211,77,0.25);' : 'background: rgba(255,255,255,0.1);'}"></i>`).join('')}
+        </div>`;
+    }
+    const barWidths = variant === 'rows' ? ['82%', '64%', '91%', '48%'] : ['74%', '56%'];
+    const barsHtml = `
+      <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+        ${barWidths.map((w) => `<div class="animate-shimmer" style="height: 10px; border-radius: 0.375rem; width: ${w}; background: linear-gradient(90deg, rgba(196,181,253,0.28), rgba(196,181,253,0.06));"></div>`).join('')}
+      </div>`;
+    return `
+      <div style="background: rgba(255,255,255,0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-radius: 1rem; padding: 1.25rem; width: 100%;">
+        ${dotsHtml}
+        ${variantHtml}
+        ${barsHtml}
+        <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4);">${tag}</div>
+      </div>`;
+  }
+
+  initCarousel() {
+    const projects = [
+      {
+        num: '01', industry: 'Salud mental', name: 'Aira',
+        tagline: 'La operación de un consultorio, en un solo lugar.',
+        desc: 'Agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras independientes.',
+        chips: ['Agenda', 'Historias clínicas', 'Facturación'],
+        note: 'Vista protegida: no publicamos capturas porque Aira trabaja con información clínica.',
+        link: 'Solicitar recorrido privado', shot: 'rows', tag: 'Aira / operación clínica',
+        glow: 'rgba(34,211,238,0.22)', accent: '#22d3ee',
+      },
+      {
+        num: '02', industry: 'Comercio exterior', name: 'CDI',
+        tagline: 'Menos papel. Menos vencimientos perdidos.',
+        desc: 'Digitaliza documentos, centraliza conversaciones y controla vencimientos para despachantes de aduana.',
+        chips: ['Documentos', 'Vencimientos', 'Conversaciones'],
+        link: 'Ver CDI en producción', shot: 'docs', tag: 'CDI / vista en producción',
+        glow: 'rgba(168,85,247,0.22)', accent: null,
+      },
+      {
+        num: '03', industry: 'Hotelería', name: 'ReservaYá',
+        tagline: 'Reservas y operación, sin planillas sueltas.',
+        desc: 'Reservas online, check-in digital y reportes de ocupación para hoteles de 10 a 40 habitaciones.',
+        chips: ['Reservas online', 'Check-in digital', 'Ocupación'],
+        link: 'Ver ReservaYá en producción', shot: 'cal', tag: 'ReservaYá / vista en producción',
+        glow: 'rgba(252,211,77,0.14)', accent: '#fcd34d',
+      },
+    ];
+    this.pruebaProjects = projects;
+
+    const row = document.getElementById('carousel-row');
+    const dots = document.getElementById('carousel-dots');
+    const name = document.getElementById('carousel-name');
+    if (!row || !dots || !name) return;
+
+    projects.forEach((p) => {
+      const card = document.createElement('article');
+      card.className = 'prueba-card';
+      card.style.cssText = `
+        flex-shrink: 0;
+        width: 85vw;
+        max-width: 900px;
+        background: rgba(255,255,255,0.01);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 2rem;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      `;
+      card.innerHTML = `
+        <div style="position: relative; min-height: 280px; display: grid; place-items: center; padding: 2rem; background: radial-gradient(ellipse at 50% 30%, ${p.glow}, transparent 65%);">
+          <div style="width: 100%; max-width: 340px;">${this.buildShot(p.shot, p.tag)}</div>
+        </div>
+        <div style="padding: 2.5rem; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.25rem;">
+            <span style="${p.accent ? `color: ${p.accent};` : ''}">${p.num} · ${p.industry}</span>
+            <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6ee7b7;">
+              <i class="pulse-green" style="width: 8px; height: 8px; border-radius: 9999px; background: #34d399; box-shadow: 0 0 10px rgba(52,211,153,0.9);"></i>
+              en producción
+            </span>
+          </div>
+          <h3 style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 1.75rem; letter-spacing: -0.025em; margin: 0 0 0.5rem;">${p.name}</h3>
+          <p style="font-style: italic; color: hsl(var(--hero-sub)); font-size: 1.125rem; line-height: 1.75; margin: 0 0 1rem;">${p.tagline}</p>
+          <p style="color: rgba(255,255,255,0.6); font-size: 0.875rem; line-height: 1.5; margin: 0 0 1.25rem; max-width: 46ch;">${p.desc}</p>
+          <ul style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.25rem; padding: 0; list-style: none;">
+            ${p.chips.map(c => `<li style="background: rgba(255,255,255,0.01); backdrop-filter: blur(4px); border-radius: 9999px; padding: 0.375rem 0.875rem; font-size: 0.75rem; color: rgba(255,255,255,0.8);">${c}</li>`).join('')}
+          </ul>
+          ${p.note ? `<p style="font-size: 0.75rem; color: rgba(255,255,255,0.4); border-left: 2px solid rgba(168,85,247,0.4); padding-left: 0.75rem; margin: 0 0 1.25rem; line-height: 1.25;">${p.note}</p>` : ''}
+          <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: hsl(var(--foreground)); transition: color 300ms; margin-top: auto;">
+            ${p.link}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d8b4fe" stroke-width="2">
+              <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+            </svg>
+          </a>
+        </div>
+      `;
+      row.appendChild(card);
+    });
+
+    const ctaCard = document.createElement('div');
+    ctaCard.style.cssText = `
+      flex-shrink: 0;
+      width: 85vw;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding-right: 2rem;
+    `;
+    ctaCard.innerHTML = `
+      <p style="font-family: General Sans, Geist Sans, ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.25; margin: 0 0 1.5rem;">
+        El próximo puede ser <span class="text-brand-gradient">el tuyo</span>.
+      </p>
+      <a href="https://cal.com/ynera/30min" target="_blank" rel="noopener noreferrer" class="btn-hero-secondary" style="padding: 1rem 1.75rem; font-size: 1rem;">
+        Agendá 30 min
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M7 17L17 7M17 7H7M17 7V17"></path>
+        </svg>
+      </a>
+    `;
+    row.appendChild(ctaCard);
+
+    projects.forEach(() => {
+      const dot = document.createElement('span');
+      dot.style.cssText = 'width: 6px; height: 6px; border-radius: 9999px; background: rgba(255,255,255,0.2); transition: all 300ms;';
+      dots.appendChild(dot);
+    });
+
+    this.initPruebaScroll();
+  }
+
+  updatePruebaLayout(isMobile) {
+    const section = document.getElementById('prueba');
+    const sticky = document.getElementById('prueba-sticky');
+    const rowWrap = document.getElementById('prueba-row-wrap');
+    const row = document.getElementById('carousel-row');
+    const progressTrack = document.getElementById('prueba-progress-track');
+    const hint = document.getElementById('prueba-hint-text');
+    if (!section || !sticky || !rowWrap || !row) return;
+
+    if (isMobile) {
+      section.style.height = 'auto';
+      sticky.style.position = 'relative';
+      sticky.style.top = 'auto';
+      sticky.style.height = 'auto';
+      sticky.style.paddingTop = '3rem';
+      sticky.style.paddingBottom = '2rem';
+      rowWrap.style.cssText = 'overflow: hidden;';
+      row.style.cssText = 'display: flex; gap: 1.25rem; align-items: stretch; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 1.5rem 1rem; -ms-overflow-style: none; scrollbar-width: none; transform: none;';
+      row.querySelectorAll('.prueba-card').forEach(c => c.style.scrollSnapAlign = 'center');
+      if (progressTrack) progressTrack.style.display = 'none';
+      if (hint) hint.textContent = 'Deslizá →';
+    } else {
+      section.style.height = '280vh';
+      sticky.style.position = 'sticky';
+      sticky.style.top = '0';
+      sticky.style.height = '100vh';
+      sticky.style.paddingTop = '0';
+      sticky.style.paddingBottom = '0';
+      rowWrap.style.cssText = 'flex: 1; display: flex; align-items: center; overflow: hidden;';
+      row.style.cssText = 'display: flex; gap: 2rem; align-items: stretch; padding-left: 2rem; will-change: transform; overflow: visible;';
+      if (progressTrack) progressTrack.style.display = 'block';
+      if (hint) hint.textContent = 'Seguí scrolleando';
+    }
+  }
+
+  initPruebaScroll() {
+    const section = document.getElementById('prueba');
+    const row = document.getElementById('carousel-row');
+    const dots = document.getElementById('carousel-dots');
+    const name = document.getElementById('carousel-name');
+    const progressBar = document.getElementById('prueba-progress-bar');
+    const projects = this.pruebaProjects || [];
+    if (!section || !row) return;
+
+    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    let maxX = 1;
+
+    const measure = () => {
+      const padLeft = 32;
+      maxX = Math.max(1, row.scrollWidth - window.innerWidth + padLeft);
+    };
+
+    const updateIndicators = (progress) => {
+      const active = Math.min(projects.length, Math.max(0, Math.round(progress * (projects.length + 1))));
+      if (dots) {
+        dots.querySelectorAll('span').forEach((dot, i) => {
+          const isActive = active === i + 1;
+          dot.style.width = isActive ? '22px' : '6px';
+          dot.style.background = isActive ? '#a855f7' : 'rgba(255,255,255,0.2)';
+        });
+      }
+      if (name) {
+        const t = active >= 1 && active <= projects.length ? projects[active - 1].name : '';
+        if (this._namePending !== t && name.textContent !== t) {
+          this._namePending = t;
+          name.style.transition = 'opacity 200ms ease';
+          name.style.opacity = '0';
+          clearTimeout(this._nameTimer);
+          this._nameTimer = setTimeout(() => { name.textContent = t; name.style.opacity = '1'; }, 160);
+        }
+      }
+      if (progressBar) progressBar.style.transform = `scaleX(${Math.max(0.03, progress)})`;
+    };
+
+    const updateDesktop = () => {
+      if (this.state.isMobile) return;
+      const rect = section.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const p = clamp(-rect.top / Math.max(total, 1));
+      const x = -p * maxX;
+      row.style.transform = `translateX(${x}px)`;
+      updateIndicators(clamp(-x / maxX));
+    };
+
+    measure();
+    updateDesktop();
+    let pruebaRaf = null;
+    window.addEventListener('scroll', () => {
+      if (!pruebaRaf) pruebaRaf = requestAnimationFrame(() => { pruebaRaf = null; updateDesktop(); });
+    }, { passive: true });
+    window.addEventListener('resize', () => { measure(); updateDesktop(); });
+
+    // Mobile native scroll (snap)
+    row.addEventListener('scroll', () => {
+      if (!this.state.isMobile) return;
+      const cardW = row.querySelector('.prueba-card')?.offsetWidth || 1;
+      const gap = 20;
+      const idx = Math.round(row.scrollLeft / (cardW + gap));
+      const active = Math.min(projects.length, Math.max(0, idx));
+      updateIndicators(active / (projects.length + 1));
+    });
+  }
+
+  initFAQ() {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('details').forEach((detail) => {
+      const summary = detail.querySelector('summary');
+      const content = detail.querySelector(':scope > p');
+      const icon = detail.querySelector('summary span:last-of-type');
+      detail.addEventListener('toggle', () => {
+        if (!icon) return;
+        icon.style.transform = detail.open ? 'rotate(45deg)' : '';
+        icon.style.background = detail.open ? 'rgba(168, 85, 247, 0.15)' : '';
+      });
+      if (reduced || !summary || !content) return;
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (detail._animating) return;
+        detail._animating = true;
+        const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+        content.style.overflow = 'hidden';
+        if (detail.open) {
+          const h = content.offsetHeight;
+          const anim = content.animate(
+            [{ height: h + 'px', opacity: 1 }, { height: '0px', paddingBottom: '0px', opacity: 0 }],
+            { duration: 280, easing: ease }
+          );
+          anim.onfinish = () => { detail.open = false; content.style.overflow = ''; detail._animating = false; };
+        } else {
+          detail.open = true;
+          const h = content.offsetHeight;
+          const anim = content.animate(
+            [{ height: '0px', paddingBottom: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }],
+            { duration: 340, easing: ease }
+          );
+          anim.onfinish = () => { content.style.overflow = ''; detail._animating = false; };
+        }
+      });
+    });
+  }
+
+  renderVals() {
+    return {};
+  }
+}
+
+</script>
+</body>
+</html>
