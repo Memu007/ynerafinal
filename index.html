@@ -263,6 +263,64 @@
       transform: none;
     }
 
+    .stack-card > :not(.ynera-trace) {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ynera-trace {
+      position: absolute;
+      inset: 0 0 auto;
+      height: clamp(620px, 100vh, 900px);
+      max-height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 900ms ease, transform 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .ynera-trace.is-visible {
+      opacity: 0.34;
+      transform: none;
+    }
+
+    .ynera-trace svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: translateX(var(--trace-shift, 0)) scale(1.08);
+    }
+
+    .ynera-trace path,
+    .ynera-trace line {
+      fill: none;
+      stroke-width: 1.15;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .ynera-trace .trace-data { stroke: #6366f1; }
+    .ynera-trace .trace-security { stroke: #c084fc; }
+    .ynera-trace .trace-ai { stroke: #f4c95d; }
+    .ynera-trace .trace-fragments { opacity: 0.9; stroke-dasharray: 2 11; }
+    .ynera-trace .trace-connected { opacity: 0.18; }
+    .ynera-trace .trace-nodes { opacity: 0.35; }
+    .ynera-trace .trace-hub { opacity: 0.25; }
+    .ynera-trace .trace-labels { opacity: 0.42; fill: #d8c8ee; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 0.18em; }
+
+    .ynera-trace[data-phase="1"] .trace-fragments { opacity: 0.48; }
+    .ynera-trace[data-phase="1"] .trace-connected { opacity: 0.58; }
+    .ynera-trace[data-phase="1"] .trace-nodes,
+    .ynera-trace[data-phase="1"] .trace-hub { opacity: 0.7; }
+
+    .ynera-trace[data-phase="2"] .trace-fragments { opacity: 0.12; }
+    .ynera-trace[data-phase="2"] .trace-connected { opacity: 0.9; }
+    .ynera-trace[data-phase="2"] .trace-nodes,
+    .ynera-trace[data-phase="2"] .trace-hub { opacity: 1; }
+
     .animate-marquee {
       animation: marquee 20s linear infinite;
     }
@@ -302,7 +360,14 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
+      .ynera-trace { opacity: 0.3; }
       .animate-marquee, .pulse-dot, .pulse-green, .animate-shimmer { animation: none; }
+    }
+
+    @media (max-width: 767px) {
+      .ynera-trace.is-visible { opacity: 0.24; }
+      .ynera-trace svg { width: 145%; transform: translateX(-16%) scale(1.04); }
+      .ynera-trace .trace-labels { display: none; }
     }
   </style>
 </helmet>
@@ -311,7 +376,49 @@
   <!-- Background -->
   <div id="living-bg" style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: #030109; transform: translateZ(0);">
     <img id="bg-nebula" src="./src/assets/bg-nebula.jpg" alt="" loading="eager" decoding="async" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); backface-visibility: hidden;">
-    <canvas id="bg-canvas" aria-hidden="true" style="display: none;"></canvas>
+  </div>
+
+  <div id="ynera-trace-source" aria-hidden="true" style="display: none;">
+    <div class="ynera-trace reveal">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g class="trace-fragments">
+          <path class="trace-data" d="M-70 145 C160 115 210 210 320 270 M388 318 C470 370 535 404 612 426" />
+          <path class="trace-security" d="M1510 112 C1270 120 1225 218 1110 290 M1038 340 C940 398 862 422 790 438" />
+          <path class="trace-ai" d="M720 950 C735 790 665 730 690 620 M702 562 C710 520 714 488 718 455" />
+          <line class="trace-data" x1="178" y1="520" x2="382" y2="460" />
+          <line class="trace-security" x1="1138" y1="565" x2="986" y2="505" />
+        </g>
+        <g class="trace-connected">
+          <path class="trace-data" d="M-70 145 C230 105 270 355 720 450" />
+          <path class="trace-security" d="M1510 112 C1190 115 1160 360 720 450" />
+          <path class="trace-ai" d="M720 450 C710 620 900 730 960 950" />
+          <path class="trace-data" d="M175 520 C380 455 520 478 720 450" />
+          <path class="trace-security" d="M1165 570 C980 500 875 486 720 450" />
+        </g>
+        <g class="trace-nodes">
+          <circle cx="210" cy="145" r="3.5" fill="#6366f1" />
+          <circle cx="415" cy="335" r="3" fill="#6366f1" />
+          <circle cx="1230" cy="145" r="3.5" fill="#c084fc" />
+          <circle cx="1025" cy="345" r="3" fill="#c084fc" />
+          <circle cx="720" cy="620" r="3.5" fill="#f4c95d" />
+          <circle cx="870" cy="760" r="3" fill="#f4c95d" />
+          <circle cx="315" cy="480" r="2.5" fill="#6366f1" />
+          <circle cx="1080" cy="535" r="2.5" fill="#c084fc" />
+        </g>
+        <g class="trace-hub">
+          <circle cx="720" cy="450" r="25" fill="none" stroke="#d8b4fe" stroke-width="1" />
+          <circle cx="720" cy="450" r="6" fill="#f4f0fb" />
+          <line x1="690" y1="450" x2="750" y2="450" stroke="#d8b4fe" />
+          <line x1="720" y1="420" x2="720" y2="480" stroke="#d8b4fe" />
+        </g>
+        <g class="trace-labels">
+          <text x="225" y="133">DATOS / 01</text>
+          <text x="1090" y="133">SEGURIDAD / 02</text>
+          <text x="885" y="785">IA / 03</text>
+          <text x="758" y="443">YNERA / SISTEMA</text>
+        </g>
+      </svg>
+    </div>
   </div>
 
   <!-- Preloader -->
@@ -837,6 +944,7 @@ class Component extends DCLogic {
     this.initCarousel();
     this.initFAQ();
     this.initMenuToggle();
+    this.initSignalTrace();
     this.initReveal();
     this.initStackCards();
     this.initAnchorNav();
@@ -1060,6 +1168,18 @@ class Component extends DCLogic {
     }, { passive: true });
   }
 
+  initSignalTrace() {
+    const source = document.querySelector('#ynera-trace-source .ynera-trace');
+    const cards = Array.from(document.querySelectorAll('.stack-card'));
+    if (!source || !cards.length) return;
+    cards.forEach((card, index) => {
+      const trace = source.cloneNode(true);
+      trace.dataset.phase = String(Math.min(2, Math.floor(index * 3 / cards.length)));
+      trace.style.setProperty('--trace-shift', index % 2 ? '-5%' : '5%');
+      card.prepend(trace);
+    });
+  }
+
   initMenuToggle() {
     const toggle = document.getElementById('menu-toggle');
     const menu = document.getElementById('mobile-menu');
@@ -1220,153 +1340,6 @@ class Component extends DCLogic {
       el.phraseWrap.style.opacity = phraseIn * phraseOut;
       el.inner.style.transform = `translateY(${(1 - phraseIn) * 30 - outP * 26}px) scale(${1 - outP * 0.02})`;
     });
-  }
-
-  initBackground() {
-    const canvas = document.getElementById('bg-canvas');
-    const img = document.getElementById('bg-nebula');
-    if (!canvas || !img) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const PALETTE = ['99,102,241', '168,85,247', '252,211,77'];
-    let particles = [];
-    let w = 0;
-    let h = 0;
-    let lastW = 0;
-    let maxScroll = 1;
-
-    const buildParticles = (w, h) => {
-      const count = Math.round(Math.min(Math.max((w * h) / 24000, 36), 84));
-      return Array.from({ length: count }, () => ({
-        hx: 0.04 + Math.random() * 0.92,
-        hy: 0.04 + Math.random() * 0.92,
-        sx: (Math.random() - 0.5) * 0.9,
-        sy: (Math.random() - 0.5) * 0.9,
-        r: 1.2 + Math.random() * 1.8,
-        color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-        delay: Math.random() * 0.55,
-        wobAmp: 4 + Math.random() * 8,
-        wobSpeed: 0.0004 + Math.random() * 0.0008,
-        wobPhase: Math.random() * Math.PI * 2,
-      }));
-    };
-
-    const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-    const easeInOut = (v) => v < 0.5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2;
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (w !== lastW) {
-        particles = buildParticles(w, h);
-        lastW = w;
-      }
-    };
-
-    const scrollProgress = () => clamp01(window.scrollY / maxScroll);
-
-    const draw = (t, time) => {
-      ctx.clearRect(0, 0, w, h);
-      const th = Math.min(w, h) * 0.16;
-      const pts = particles.map((p) => {
-        const e = easeInOut(clamp01(t * 1.55 - p.delay));
-        const spread = 1 - e;
-        const wob = p.wobAmp * (0.4 + spread);
-        return {
-          x: (p.hx + p.sx * spread) * w + Math.cos(time * p.wobSpeed + p.wobPhase) * wob,
-          y: (p.hy + p.sy * spread) * h + Math.sin(time * p.wobSpeed * 1.3 + p.wobPhase) * wob,
-          r: p.r,
-          color: p.color,
-          e,
-        };
-      });
-
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const a = pts[i];
-          const b = pts[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 > th * th) continue;
-          const strength = (1 - Math.sqrt(d2) / th) * Math.min(a.e, b.e);
-          if (strength <= 0.01) continue;
-          ctx.strokeStyle = `rgba(${a.color},${(strength * 0.3).toFixed(3)})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
-      }
-
-      for (const p of pts) {
-        ctx.fillStyle = `rgba(${p.color},${(0.18 + 0.6 * p.e).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    };
-
-    resize();
-    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const ro = new ResizeObserver(() => {
-      maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    });
-    ro.observe(document.body);
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      draw(1, 0);
-      window.addEventListener('resize', () => { resize(); draw(1, 0); });
-      return;
-    }
-
-    let cur = scrollProgress();
-    const stackCards = Array.from(document.querySelectorAll('.stack-card'));
-    const bgCovered = () => {
-      for (const c of stackCards) {
-        if (c.style.transform) continue;
-        const r = c.getBoundingClientRect();
-        if (r.top <= 1 && r.bottom >= h - 1) return true;
-      }
-      return false;
-    };
-    let wasCovered = false;
-    const loop = (time) => {
-      const target = scrollProgress();
-      cur += (target - cur) * 0.08;
-      const covered = bgCovered();
-      if (covered) {
-        if (!wasCovered) ctx.clearRect(0, 0, w, h);
-      } else {
-        draw(cur, time);
-      }
-      wasCovered = covered;
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-
-    // Parallax on image
-    let parRaf = null;
-    const onScroll = () => {
-      if (parRaf) return;
-      parRaf = requestAnimationFrame(() => {
-        parRaf = null;
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const p = max > 0 ? window.scrollY / max : 0;
-        img.style.transform = `scale(1.12) translateY(${(-p * 5).toFixed(2)}%)`;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', resize);
   }
 
   initReveal() {
