@@ -269,8 +269,8 @@
     }
 
     .ynera-trace {
-      position: fixed;
-      inset: 0;
+      position: absolute;
+      inset: 0 0 auto;
       height: 100vh;
       z-index: 0;
       overflow: hidden;
@@ -1219,8 +1219,11 @@ class Component extends DCLogic {
         const visibleTop = Math.max(0, rect.top);
         const visibleBottom = Math.min(viewport, rect.bottom);
         const visible = visibleBottom > visibleTop;
-        trace.style.visibility = visible ? 'visible' : 'hidden';
-        if (!visible) return;
+        if (!visible) {
+          trace.style.clipPath = 'inset(0 0 100% 0)';
+          return;
+        }
+        trace.style.transform = `translateY(${(-rect.top).toFixed(1)}px)`;
         trace.style.clipPath = `inset(${visibleTop.toFixed(1)}px 0 ${(viewport - visibleBottom).toFixed(1)}px 0)`;
         trace.style.setProperty('--signal-progress', signal.toFixed(4));
         trace.style.setProperty('--shape-progress', shape.toFixed(4));
