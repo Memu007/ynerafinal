@@ -397,6 +397,18 @@
       .production-strip > p { width: auto !important; }
       .production-strip > div { width: 100%; }
 
+      main { padding-top: 0.75rem; }
+      main > .stack-card {
+        box-sizing: border-box;
+        width: calc(100% - 1rem);
+        margin: 0 0.5rem 1rem;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 1.75rem;
+        box-shadow: 0 18px 42px rgba(2, 1, 8, 0.48), inset 0 1px rgba(255, 255, 255, 0.035);
+      }
+
       #servicios,
       #proceso,
       #nosotros,
