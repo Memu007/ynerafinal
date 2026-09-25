@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ynera</title>
+<meta name="description" content="Ynera: datos, seguridad e IA aplicada para PyMEs. Construimos sistemas que siguen creciendo.">
+<link rel="icon" href="../src/assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=EB+Garamond:ital,wght@0,400;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --night:#070908;
+  --night-2:#0D110E;
+  --rule:#1F251F;
+  --rule-2:#333A33;
+  --bone:#E9E5D9;
+  --mute:#8F8D82;
+  --dim:#5E5D56;
+  --root:#FFB547;   /* raíces · datos */
+  --bark:#9B6BFF;   /* corteza · seguridad */
+  --leaf:#6F86FF;   /* copa · IA */
+  --f:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --serif:"EB Garamond", Garamond, "Times New Roman", serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --g:clamp(16px,4vw,48px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--night);color:var(--bone);font:400 17px/1.6 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+p{margin:0}
+h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-height:.93;text-wrap:balance}
+:focus-visible{outline:2px solid var(--root);outline-offset:3px}
+::selection{background:var(--bark);color:#fff}
+.wrap{max-width:1400px;margin-inline:auto;padding-inline:var(--g)}
+.mono{font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.latin{font:italic 400 1em/1.3 var(--serif);letter-spacing:0}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- NAV ---------- */
+.nav{position:fixed;inset:0 0 auto;z-index:40;padding-top:env(safe-area-inset-top,0px);background:linear-gradient(to bottom,rgba(7,9,8,.9),rgba(7,9,8,0))}
+.nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 20px/1 var(--f);font-stretch:85%}
+.brand img{width:26px;height:26px}
+.nav-mid{display:flex;gap:28px}
+.nav-mid a{text-decoration:none;font-size:14px;color:var(--mute)}
+.nav-mid a:hover{color:var(--bone)}
+.btn{display:inline-flex;align-items:center;gap:12px;font:600 15px/1 var(--f);text-decoration:none;padding:16px 22px;border:1px solid var(--bone);transition:background .2s,color .2s,border-color .2s}
+.btn-fill{background:var(--bone);color:var(--night)}
+.btn-fill:hover{background:var(--root);border-color:var(--root)}
+.btn-line:hover{background:var(--bone);color:var(--night)}
+.nav .btn{padding:11px 16px;font-size:14px}
+
+/* ---------- STORY: pinned plate + scrolling chapters ---------- */
+.story{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);position:relative}
+.plate{position:sticky;top:0;height:100vh;height:100svh;grid-column:2;grid-row:1;padding:84px var(--g) 24px 0}
+.plate-in{position:relative;height:100%;border:1px solid var(--rule)}
+#tree{position:absolute;inset:0;width:100%;height:100%}
+.corner{position:absolute;display:flex;gap:14px;align-items:baseline;pointer-events:none}
+.corner.tl{top:14px;left:16px}
+.corner.tr{top:14px;right:16px;text-align:right}
+.corner.bl{bottom:14px;left:16px}
+.corner.br{bottom:14px;right:16px}
+.specimen{font:italic 400 19px/1 var(--serif);color:var(--bone)}
+.scalebar{display:flex;align-items:center;gap:8px}
+.scalebar i{display:block;width:80px;height:6px;border:1px solid var(--dim);border-top:0;background:linear-gradient(90deg,var(--dim) 50%,transparent 50%) bottom/100% 1px no-repeat}
+.rings{position:absolute;right:16px;top:52px;width:112px;display:grid;gap:6px;justify-items:end;opacity:0;transition:opacity .5s;pointer-events:none}
+.rings.on{opacity:1}
+.rings svg{width:112px;height:112px}
+
+.chapters{grid-column:1;grid-row:1;padding-left:var(--g);padding-right:clamp(16px,3vw,48px)}
+.chap{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:120px 64px;max-width:560px}
+.chap .plate-no{display:flex;gap:14px;align-items:baseline}
+.chap .plate-no .latin{font-size:20px;color:var(--bone);text-transform:none}
+.chap h1{font-size:clamp(48px,5.4vw,92px);font-stretch:62%;font-weight:700;line-height:.86}
+.chap h2{font-size:clamp(40px,4.6vw,72px);font-stretch:64%;font-weight:700;line-height:.9}
+.chap .lede{color:var(--mute);font-size:clamp(17px,1.3vw,19px);max-width:46ch}
+.chap .cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.key{display:inline-flex;align-items:center;gap:10px}
+.key::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.did{display:grid;grid-template-columns:auto 1fr;gap:10px 20px;border-top:1px solid var(--rule);padding-top:22px;margin:0}
+.did dt{font:400 11.5px/1.7 var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.1em}
+.did dd{margin:0}
+.caption{font:italic 400 18px/1.4 var(--serif);color:var(--mute);max-width:44ch;border-left:1px solid var(--rule-2);padding-left:16px}
+.forest{display:grid;border-top:1px solid var(--rule)}
+.forest-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:6px 20px;padding-block:16px;border-bottom:1px solid var(--rule)}
+.forest-row h3{font-size:32px;font-stretch:72%}
+.forest-row p{color:var(--mute);font-size:15px;grid-column:2;grid-row:1 / span 2}
+
+/* ---------- SECTIONS AFTER THE STORY ---------- */
+.sec{padding-block:clamp(100px,13vw,190px);border-top:1px solid var(--rule)}
+.big{font-size:clamp(56px,10vw,160px);font-stretch:62%;font-weight:700;line-height:.86}
+.sec .lede{margin-top:26px;color:var(--mute);max-width:54ch;font-size:clamp(17px,1.4vw,20px)}
+
+.duo-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:clamp(48px,7vw,96px);border-top:1px solid var(--rule);position:relative}
+.person{padding:clamp(24px,3vw,40px) clamp(0px,3vw,40px) 0 0;display:grid;gap:18px;align-content:start}
+.person+.person{border-left:1px solid var(--rule);padding-left:clamp(20px,3vw,40px)}
+.frame{width:84px;height:84px;border-radius:1.25rem;border:1px solid var(--rule-2);display:grid;place-items:center;font:700 34px/1 var(--f);font-stretch:62%;color:var(--mute)}
+.person h3{font-size:clamp(40px,4.6vw,64px)}
+.person p{color:var(--mute);max-width:46ch}
+.person a{font-size:15px;text-decoration:none;border-bottom:1px solid var(--rule-2);justify-self:start}
+.person a:hover{border-color:var(--bone)}
+
+.voices-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px);margin-top:40px}
+.quote{margin:0;border-top:1px solid var(--bone);padding-top:24px;display:grid;gap:22px;align-content:start}
+.quote blockquote{margin:0;font:italic 400 clamp(22px,2vw,28px)/1.3 var(--serif)}
+.quote.todo blockquote{color:var(--dim)}
+.quote cite{font-style:normal}
+
+.check-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,5vw,80px);margin-top:clamp(48px,6vw,80px)}
+.list{border-top:1px solid var(--rule)}
+.item{display:flex;align-items:center;gap:16px;width:100%;padding:18px 0;background:none;border:0;border-bottom:1px solid var(--rule);color:var(--bone);font:400 clamp(17px,1.5vw,21px)/1.3 var(--f);text-align:left;cursor:pointer}
+.box{width:22px;height:22px;border:1px solid var(--rule-2);flex:none;display:grid;place-items:center;transition:background .2s,border-color .2s}
+.item:hover .box{border-color:var(--bone)}
+.item[aria-pressed="true"] .box{background:var(--bone);border-color:var(--bone)}
+.item[aria-pressed="true"] .box::after{content:"";width:10px;height:5px;border-left:2px solid var(--night);border-bottom:2px solid var(--night);transform:rotate(-45deg) translate(1px,-1px)}
+.reading{position:sticky;top:100px;align-self:start;display:grid;gap:24px}
+.meter{display:grid;gap:8px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline}
+.track{height:2px;background:var(--rule)}
+.track span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 10px var(--c);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.verdict{font:italic 400 clamp(22px,2vw,28px)/1.3 var(--serif)}
+.hint{color:var(--mute);font-size:15px}
+
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:40px;border-top:1px solid var(--rule)}
+.step{padding:26px 24px 0 0;display:grid;gap:12px;align-content:start}
+.step+.step{border-left:1px solid var(--rule);padding-left:24px}
+.step h3{font-size:clamp(30px,3vw,44px)}
+.step p{color:var(--mute);font-size:16px}
+
+.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,80px)}
+.faq h2{font-size:clamp(40px,5vw,72px)}
+details{border-bottom:1px solid var(--rule)}
+details:first-child{border-top:1px solid var(--rule)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;padding-block:24px;font:500 clamp(18px,1.6vw,22px)/1.3 var(--f)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:300 26px/1 var(--f);transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--mute);padding-bottom:24px;max-width:62ch}
+
+.close .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
+.limit{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);color:var(--mute);font-size:14px;max-width:60ch}
+
+footer{border-top:1px solid var(--rule);padding-block:28px 40px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 32px;align-items:center}
+.foot a{text-decoration:none;color:var(--mute)}
+.foot a:hover{color:var(--bone)}
+.foot-links{display:flex;flex-wrap:wrap;gap:8px 24px}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:980px){
+  .nav-mid{display:none}
+  .story{display:block}
+  .plate{padding:64px 0 0;height:100svh}
+  .plate-in{border:0;border-top:1px solid var(--rule)}
+  .chapters{margin-top:-100svh;position:relative;z-index:2;padding-inline:var(--g)}
+  .chap{max-width:none;justify-content:flex-end;padding-block:55svh 40px}
+  .chap>*{position:relative}
+  .chap::before{content:"";position:absolute;left:0;right:0;height:0}
+  .chap-card{background:rgba(7,9,8,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:22px;margin-inline:-6px;display:grid;gap:22px;border:1px solid var(--rule)}
+  .rings{top:auto;bottom:46px}
+  .check-grid,.faq{grid-template-columns:1fr}
+  .reading{position:static}
+  .voices-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .step:nth-child(3){border-left:0;padding-left:0}
+  .step{padding-bottom:26px}
+}
+@media (min-width:981px){ .chap-card{display:contents} }
+@media (max-width:640px){
+  body{font-size:16px}
+  .duo-grid{grid-template-columns:1fr}
+  .person+.person{border-left:0;padding-left:0;border-top:1px solid var(--rule);margin-top:32px}
+  .steps{grid-template-columns:1fr}
+  .step+.step{border-left:0;padding-left:0}
+  .did{grid-template-columns:1fr}
+  .corner.tr,.corner.br{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Ynera, inicio"><img src="../src/assets/logo.png" alt="" width="26" height="26">Ynera</a>
+    <nav class="nav-mid" aria-label="Secciones">
+      <a href="#raices">Datos</a>
+      <a href="#corteza">Seguridad</a>
+      <a href="#copa">IA</a>
+      <a href="#bosque">Sistemas</a>
+      <a href="#dupla">Nosotros</a>
+    </nav>
+    <a class="btn btn-fill" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Agendá 30 min</a>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="story" id="story" aria-label="Cómo crece un sistema">
+  <div class="plate" aria-hidden="true">
+    <div class="plate-in">
+      <canvas id="tree"></canvas>
+      <div class="corner tl"><span class="specimen">Ynera bifurcata</span></div>
+      <div class="corner tr"><span class="mono num" id="plateNo">Lám. I · Semilla</span></div>
+      <div class="corner bl"><span class="mono">Buenos Aires · 34°36′ S 58°22′ O</span></div>
+      <div class="corner br scalebar"><i></i><span class="mono">1 año</span></div>
+      <div class="rings" id="rings">
+        <svg viewBox="0 0 112 112" fill="none" stroke="#9B6BFF">
+          <circle cx="56" cy="56" r="52" stroke-opacity=".9"/>
+          <circle cx="57" cy="55" r="43" stroke-opacity=".7"/>
+          <circle cx="55" cy="57" r="34" stroke-opacity=".55"/>
+          <circle cx="56" cy="55" r="25" stroke-opacity=".45"/>
+          <circle cx="57" cy="56" r="16" stroke-opacity=".35"/>
+          <circle cx="56" cy="56" r="7" stroke-opacity=".3"/>
+        </svg>
+        <span class="mono">corte transversal · capas</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapters">
+    <article class="chap" data-plate="Lám. I · Semilla">
+      <div class="chap-card">
+        <span class="mono">Datos · Seguridad · IA aplicada · Buenos Aires</span>
+        <h1>Construimos sistemas que siguen creciendo.</h1>
+        <p class="lede">Una empresa funciona como un organismo vivo. Trabajamos sobre sus raíces, su corteza y su copa, y nos quedamos hasta que el sistema crece solo.</p>
+        <div class="cta-row">
+          <a class="btn btn-fill" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Agendá 30 minutos →</a>
+          <a class="btn btn-line" href="#raices">Ver cómo crece</a>
+        </div>
+        <p class="caption">Lám. I. Semilla. La Y es una bifurcación, el punto donde un problema se abre en caminos posibles. Ahí empieza nuestro trabajo.</p>
+      </div>
+    </article>
+
+    <article class="chap" id="raices" data-plate="Lám. II · Raíces">
+      <div class="chap-card">
+        <div class="plate-no"><span class="mono">Lám. II</span><span class="latin">Radix</span></div>
+        <span class="mono key" style="--c:var(--root)">Raíces · Datos</span>
+        <h2>Lo que no se ve alimenta todo lo demás.</h2>
+        <p class="lede">De las raíces depende todo lo que está arriba. Con los datos pasa lo mismo: si llegan tarde, incompletos o nadie confía en ellos, cada decisión se seca.</p>
+        <dl class="did">
+          <dt>Qué hacemos</dt><dd>Pipelines, calidad de datos y tableros que la gente usa.</dd>
+          <dt>Resultado</dt><dd>Datos para decidir, no para discutir.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="chap" id="corteza" data-plate="Lám. III · Corteza">
+      <div class="chap-card">
+        <div class="plate-no"><span class="mono">Lám. III</span><span class="latin">Cortex</span></div>
+        <span class="mono key" style="--c:var(--bark)">Corteza · Seguridad</span>
+        <h2>La corteza crece con el árbol. No se agrega al final.</h2>
+        <p class="lede">Cada año un árbol suma un anillo y una capa de protección. La seguridad se construye igual: desde el primer día, capa por capa, junto con el sistema.</p>
+        <dl class="did">
+          <dt>Qué hacemos</dt><dd>Auditoría, hardening, APIs seguras y protección de datos.</dd>
+          <dt>Resultado</dt><dd>Una operación preparada para crecer sin miedo.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="chap" id="copa" data-plate="Lám. IV · Copa">
+      <div class="chap-card">
+        <div class="plate-no"><span class="mono">Lám. IV</span><span class="latin">Coma</span></div>
+        <span class="mono key" style="--c:var(--leaf)">Copa · IA aplicada</span>
+        <h2>La copa convierte luz en energía.</h2>
+        <p class="lede">Las hojas transforman algo abundante en algo útil. La IA aplicada hace lo mismo con tus documentos y tus tareas repetitivas. Cada rama termina en un nodo, como en una red neuronal, y cada respuesta pasa por revisión humana.</p>
+        <dl class="did">
+          <dt>Qué hacemos</dt><dd>Automatizaciones con LLMs y asistentes sobre tus documentos.</dd>
+          <dt>Resultado</dt><dd>Procesos más rápidos, con revisión humana y trazabilidad.</dd>
+        </dl>
+      </div>
+    </article>
+
+    <article class="chap" id="bosque" data-plate="Lám. V · Bosque">
+      <div class="chap-card">
+        <div class="plate-no"><span class="mono">Lám. V</span><span class="latin">Silva</span></div>
+        <h2>Un bosque no se promete. Se planta.</h2>
+        <p class="lede">Aira, CDI y ReservaYá crecieron en tres industrias distintas. Los construimos, los operamos y los seguimos cuidando. De ahí sale nuestro criterio.</p>
+        <div class="forest">
+          <div class="forest-row"><h3>Aira</h3><span class="mono">Salud mental</span><p>Agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras independientes.</p></div>
+          <div class="forest-row"><h3>CDI</h3><span class="mono">Comercio exterior</span><p>Documentos, conversaciones y vencimientos de despachantes de aduana, en un solo lugar.</p></div>
+          <div class="forest-row"><h3>ReservaYá</h3><span class="mono">Hotelería</span><p>Reservas online, check-in digital y ocupación para hoteles de 10 a 40 habitaciones.</p></div>
+        </div>
+        <p class="caption">El próximo árbol puede ser el tuyo.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===== DUPLA ===== -->
+<section class="sec" id="dupla">
+  <div class="wrap">
+    <span class="mono">Quiénes somos</span>
+    <h2 class="big" style="margin-top:20px">Dos ramas.<br>Un mismo tronco.</h2>
+    <p class="lede">Ynera nació de una dupla: seguridad y datos. Uno asegura lo que se construye; el otro mide si sirve. Como la Y del logo, son dos ramas que salen del mismo tronco.</p>
+    <div class="duo-grid">
+      <article class="person">
+        <!-- TODO: reemplazar el marco por <img> de Emiliano (84×84, radio 1.25rem) -->
+        <div class="frame" aria-hidden="true">E</div>
+        <span class="mono key" style="--c:var(--bark)">Asegura</span>
+        <h3>Emiliano</h3>
+        <p>Construye sistemas desde la arquitectura hasta el despliegue. Para él, la seguridad es una condición para que algo salga a producción, no una capa que se agrega al final.</p>
+        <span class="mono">Ciberseguridad · Código · IA</span>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn →</a>
+      </article>
+      <article class="person">
+        <!-- TODO: reemplazar el marco por <img> de Mariano (84×84, radio 1.25rem) -->
+        <div class="frame" aria-hidden="true">M</div>
+        <span class="mono key" style="--c:var(--root)">Mide</span>
+        <h3>Mariano</h3>
+        <p>Convierte conversaciones de negocio en problemas que se pueden medir y resolver. Trabaja entre los datos, el contexto y las decisiones que el equipo necesita tomar.</p>
+        <span class="mono">Ciencia de datos · Negocio</span>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOCES (placeholders) ===== -->
+<section class="sec" aria-labelledby="vh" style="padding-block:clamp(80px,10vw,140px)">
+  <div class="wrap">
+    <span class="mono" id="vh">Quienes lo usan</span>
+    <div class="voices-grid">
+      <!-- TODO: testimonio real de Aira -->
+      <figure class="quote todo"><blockquote>[Testimonio de un profesional que usa Aira]</blockquote><figcaption class="mono"><cite>Nombre · rol</cite> · Aira</figcaption></figure>
+      <!-- TODO: testimonio real de CDI -->
+      <figure class="quote todo"><blockquote>[Testimonio de un despachante que usa CDI]</blockquote><figcaption class="mono"><cite>Nombre · rol</cite> · CDI</figcaption></figure>
+      <!-- TODO: testimonio real de ReservaYá -->
+      <figure class="quote todo"><blockquote>[Testimonio de un hotel que usa ReservaYá]</blockquote><figcaption class="mono"><cite>Nombre · rol</cite> · ReservaYá</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DIAGNÓSTICO ===== -->
+<section class="sec" id="diagnostico">
+  <div class="wrap">
+    <span class="mono">Diagnóstico</span>
+    <h2 class="big" style="margin-top:20px">¿Dónde está el problema?</h2>
+    <p class="lede">Marcá lo que te pasa. Te mostramos si el problema está en las raíces, en la corteza o en la copa, y con qué arrancaríamos.</p>
+    <div class="check-grid">
+      <div class="list" id="list" role="group" aria-label="Situaciones"></div>
+      <div class="reading" aria-live="polite">
+        <span class="mono">Lectura</span>
+        <div class="meter" style="--c:var(--root)"><div class="meter-top"><span class="key" style="--c:var(--root)">Raíces · Datos</span><span class="mono num" id="v-da">0%</span></div><div class="track"><span id="b-da"></span></div></div>
+        <div class="meter" style="--c:var(--bark)"><div class="meter-top"><span class="key" style="--c:var(--bark)">Corteza · Seguridad</span><span class="mono num" id="v-se">0%</span></div><div class="track"><span id="b-se"></span></div></div>
+        <div class="meter" style="--c:var(--leaf)"><div class="meter-top"><span class="key" style="--c:var(--leaf)">Copa · IA aplicada</span><span class="mono num" id="v-ia">0%</span></div><div class="track"><span id="b-ia"></span></div></div>
+        <p class="verdict" id="verdict">Marcá una o más situaciones.</p>
+        <p class="hint" id="hint">Esto no se envía a ningún lado hasta que vos lo mandes.</p>
+        <div><a class="btn btn-fill" id="wa" href="https://wa.me/5491100000000" target="_blank" rel="noopener">Mandanos esto por WhatsApp →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESO ===== -->
+<section class="sec" aria-labelledby="ph" style="padding-block:clamp(80px,10vw,140px)">
+  <div class="wrap">
+    <span class="mono" id="ph">Cómo trabajamos</span>
+    <div class="steps">
+      <div class="step"><span class="mono">1</span><h3>Escuchamos</h3><p>Traés el problema. Empieza con una conversación, no con una presentación comercial.</p></div>
+      <div class="step"><span class="mono">2</span><h3>Diagnosticamos</h3><p>Miramos impacto, datos y riesgos. Si no vale la pena, te lo decimos antes de cobrar.</p></div>
+      <div class="step"><span class="mono">3</span><h3>Construimos</h3><p>Con revisión humana y trazabilidad. Nada de cajas negras.</p></div>
+      <div class="step"><span class="mono">4</span><h3>Operamos</h3><p>Sale a producción y lo seguimos cuidando mientras crece.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="sec" aria-labelledby="fh" style="padding-block:clamp(80px,10vw,140px)">
+  <div class="wrap faq">
+    <h2 id="fh">Preguntas antes de empezar.</h2>
+    <div>
+      <details><summary>¿Puedo contratarlos solo para IA, datos o seguridad?</summary><p>Sí. Cada área se trabaja por separado. Si el problema se beneficia de combinar disciplinas, lo proponemos, pero no es condición.</p></details>
+      <details><summary>¿Cómo saben si vale la pena hacer el proyecto?</summary><p>Empezamos por el problema, no por la herramienta. En la primera conversación buscamos entender impacto, datos disponibles, riesgos y si tiene sentido avanzar.</p></details>
+      <details><summary>¿Trabajan con equipos chicos?</summary><p>Sí. Nuestros productos nacieron junto a profesionales independientes y PyMEs. El tamaño no define la oportunidad; el problema concreto sí.</p></details>
+      <details><summary>¿Cuánto cuesta?</summary><p>Depende del alcance y del punto de partida. Antes de cotizar, preferimos entender qué conviene resolver y qué no.</p></details>
+      <details><summary>¿Con quién voy a trabajar?</summary><p>Directo con Emiliano y Mariano. Sin capas comerciales entre el problema y quien lo resuelve.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section class="sec close" id="contacto">
+  <div class="wrap">
+    <span class="mono">Mesa de entrada</span>
+    <h2 class="big" style="margin-top:20px">Empecemos por la raíz.</h2>
+    <p class="lede">Treinta minutos para entender el problema de fondo. Si podemos ayudarte, te decimos cómo. Si no, también.</p>
+    <div class="cta-row">
+      <a class="btn btn-fill" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Agendá 30 minutos →</a>
+      <a class="btn btn-line" href="https://wa.me/5491100000000" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
+    </div>
+    <p class="limit">No trabajamos en apuestas online ni en productos que dañen a las personas.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top"><img src="../src/assets/logo.png" alt="" width="26" height="26">Ynera</a>
+    <nav class="foot-links" aria-label="Pie"><a href="#raices">Datos</a><a href="#corteza">Seguridad</a><a href="#copa">IA</a><a href="#bosque">Sistemas</a><a href="#dupla">Nosotros</a></nav>
+    <span class="mono num" id="today">Buenos Aires</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const ss = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ================= THE TREE ================= */
+  const cv = document.getElementById('tree');
+  const ctx = cv.getContext('2d');
+  const story = document.getElementById('story');
+  const plateNo = document.getElementById('plateNo');
+  const rings = document.getElementById('rings');
+  const chaps = [...document.querySelectorAll('.chap')];
+
+  const ROOT = [255,181,71], BARK = [155,107,255], LEAF = [111,134,255];
+  const mixc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  // canopy colour follows the logo: blue on the left, violet at the centre, amber on the right
+  const logoAt = u => u < .5 ? mixc(LEAF, BARK, u * 2) : mixc(BARK, ROOT, (u - .5) * 2);
+
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  // world units: ground at y=0, up is negative
+  function buildTree(seed, depthMax, rootDepth) {
+    const R = rng(seed), br = [], roots = [];
+    function grow(list, x, y, ang, len, d, max, parent, spread) {
+      const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
+      const b = {x, y, x2, y2, d, parent, kids: []};
+      list.push(b); if (parent) parent.kids.push(b);
+      if (d >= max) return;
+      const n = d > 2 && R() < .22 ? 3 : 2;
+      for (let k = 0; k < n; k++) {
+        const side = n === 2 ? (k ? 1 : -1) : k - 1;
+        const a = ang + side * (spread * (.75 + R() * .5)) + (R() - .5) * .18;
+        grow(list, x2, y2, a, len * (.7 + R() * .12), d + 1, max, b, spread);
+      }
+    }
+    // trunk + canopy: first fork is the Y
+    grow(br, 0, 0, -Math.PI / 2, 150, 0, depthMax, null, .46);
+    // roots grow down with a wider, flatter spread
+    grow(roots, 0, 0, Math.PI / 2, 46, 0, rootDepth, null, .62);
+    const tips = br.filter(b => !b.kids.length);
+    const rtips = roots.filter(b => !b.kids.length);
+    // neural links: each tip to its 2 nearest neighbours
+    const links = [];
+    tips.forEach((a, i) => {
+      tips.map((b, j) => [j, (a.x2 - b.x2) ** 2 + (a.y2 - b.y2) ** 2]).filter(([j]) => j > i)
+        .sort((p, q) => p[1] - q[1]).slice(0, 2).forEach(([j]) => links.push([a, tips[j]]));
+    });
+    const xs = br.map(b => b.x2); const minX = Math.min(...xs), maxX = Math.max(...xs);
+    br.forEach(b => { b.u = (b.x2 - minX) / (maxX - minX || 1); });
+    return {br, roots, tips, rtips, links};
+  }
+  const chain = b => { const c = []; while (b) { c.unshift(b); b = b.parent; } return c; };
+
+  const MAIN = buildTree(7, 7, 5);
+  const FOREST = [
+    {t: buildTree(21, 5, 3), x: -540, s: .5, name: 'Aira', ind: 'salud mental', dir: -1, dy: 24},
+    {t: buildTree(33, 5, 3), x: 520, s: .55, name: 'CDI', ind: 'comercio exterior', dir: -1, dy: 58},
+    {t: buildTree(48, 5, 3), x: -300, s: .38, name: 'ReservaYá', ind: 'hotelería', dir: 1, dy: 84}
+  ];
+
+  // travelling light: sap rises through roots, pulses run through the canopy
+  const sap = Array.from({length: 46}, (_, i) => ({path: chain(MAIN.rtips[i % MAIN.rtips.length]).reverse(), u: Math.random(), v: .12 + Math.random() * .12}));
+  const pulses = Array.from({length: 40}, (_, i) => ({path: chain(MAIN.tips[(i * 7) % MAIN.tips.length]), u: Math.random(), v: .16 + Math.random() * .14}));
+
+  let W = 0, H = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+  }
+
+  function storyProgress() {
+    const r = story.getBoundingClientRect();
+    return clamp(-r.top / Math.max(1, r.height - innerHeight));
+  }
+
+  function strokeSeg(x1, y1, x2, y2, w, c, a) {
+    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${a * .14})`;
+    ctx.lineWidth = w * 2.2 + 3;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+    ctx.lineWidth = w;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+
+  function drawTree(T, st) {
+    // st: {canopy, roots, bark, neural, alpha, logo}
+    const {canopy, roots, bark, neural, alpha} = st;
+    // roots
+    for (const b of T.roots) {
+      const f = clamp(roots - b.d); if (f <= 0) continue;
+      const w = Math.max(.6, 5.5 * Math.pow(.62, b.d));
+      strokeSeg(b.x, b.y, lerp(b.x, b.x2, f), lerp(b.y, b.y2, f), w, ROOT, .85 * alpha);
+    }
+    // trunk & canopy
+    for (const b of T.br) {
+      const f = clamp(canopy - b.d); if (f <= 0) continue;
+      let w = Math.max(.7, 13 * Math.pow(.64, b.d)) * (b.d === 0 ? 1 + bark * .9 : 1 + bark * .35);
+      const c = b.d === 0 ? BARK : (st.logo ? logoAt(b.u) : mixc(BARK, LEAF, clamp(b.d / 3)));
+      strokeSeg(b.x, b.y, lerp(b.x, b.x2, f), lerp(b.y, b.y2, f), w, c, .9 * alpha);
+    }
+    // bark hatching on the trunk: growth lines
+    if (bark > 0) {
+      const t = T.br[0], n = 9;
+      ctx.strokeStyle = `rgba(233,229,217,${.35 * bark * alpha})`; ctx.lineWidth = 1;
+      for (let i = 1; i < n; i++) {
+        const y = lerp(t.y, t.y2, i / n), hw = 13 * (1 + bark * .9) / 2;
+        ctx.beginPath(); ctx.moveTo(t.x - hw, y + (i % 2 ? 2 : -2)); ctx.lineTo(t.x + hw, y); ctx.stroke();
+      }
+    }
+    // neural layer
+    if (neural > 0) {
+      ctx.lineWidth = .7;
+      for (const [a, b] of T.links) {
+        const la = clamp(canopy - a.d) * clamp(canopy - b.d); if (la <= 0) continue;
+        ctx.strokeStyle = `rgba(111,134,255,${.28 * neural * alpha * la})`;
+        ctx.beginPath(); ctx.moveTo(a.x2, a.y2); ctx.lineTo(b.x2, b.y2); ctx.stroke();
+      }
+      for (const t of T.tips) {
+        const ta = clamp(canopy - t.d); if (ta < 1) continue;
+        const c = logoAt(t.u);
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${.95 * neural * alpha})`;
+        ctx.beginPath(); ctx.arc(t.x2, t.y2, 2.6, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${.14 * neural * alpha})`;
+        ctx.beginPath(); ctx.arc(t.x2, t.y2, 8, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  function travel(list, dt, amount, color, reverse, reach = 99) {
+    if (amount <= 0) return;
+    for (const p of list) {
+      if (p.path.length > reach) continue;
+      p.u += dt * p.v; if (p.u > 1) p.u -= 1;
+      const segs = p.path, n = segs.length, pos = p.u * n, i = Math.min(n - 1, Math.floor(pos)), f = pos - i;
+      const s = segs[i];
+      const x = reverse ? lerp(s.x2, s.x, f) : lerp(s.x, s.x2, f);
+      const y = reverse ? lerp(s.y2, s.y, f) : lerp(s.y, s.y2, f);
+      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${amount})`;
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${amount * .18})`;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function label(x, y, dx, dy, text, a) {
+    if (a <= 0) return;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = `rgba(143,141,130,${.7 * a})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + dx, y + dy); ctx.lineTo(x + dx + (dx > 0 ? 18 : -18), y + dy); ctx.stroke();
+    ctx.fillStyle = `rgba(233,229,217,${.85 * a})`;
+    ctx.font = '500 10.5px "IBM Plex Mono", monospace';
+    ctx.textAlign = dx > 0 ? 'left' : 'right';
+    ctx.fillText(text.toUpperCase(), x + dx + (dx > 0 ? 24 : -24), y + dy + 3.5);
+    ctx.globalCompositeOperation = 'lighter';
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const p = storyProgress();
+
+    // story timeline (5 plates, equal length)
+    const pI = ss(0, .14, p), pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
+    const st = {
+      canopy: lerp(1.35, 2, pIII) + pIV * 5.2,      // plate I shows trunk + first fork: the Y
+      roots: pII * 5.4,
+      bark: pIII,
+      neural: pIV,
+      alpha: 1,
+      logo: true
+    };
+    const idx = Math.min(4, Math.floor(p * 5 + .04));
+    const plateLabel = chaps[idx].dataset.plate;
+    if (plateNo.textContent !== plateLabel) plateNo.textContent = plateLabel;
+    rings.classList.toggle('on', pIII > .5 && pIV < .15);
+
+    // camera
+    const mobile = W < 700;
+    const growScale = lerp(.95, .62, pII) * lerp(1, .74, pIV);
+    const zoom = lerp(1, .58, pV);
+    const base = Math.min(W, H) / 560;
+    const S = base * growScale * zoom * (mobile ? .95 : 1);
+    const groundY = H * lerp(lerp(lerp(.62, .56, pII), .7, pIV), .66, pV) + (mobile ? -H * .08 : 0);
+    const cx = W / 2;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    // ground line
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = 'rgba(143,141,130,.35)'; ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
+    ctx.beginPath(); ctx.moveTo(24, groundY); ctx.lineTo(W - 24, groundY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(143,141,130,.8)'; ctx.font = '400 10px "IBM Plex Mono", monospace'; ctx.textAlign = 'left';
+    ctx.fillText('NIVEL DEL SUELO', 24, groundY - 8);
+
+    ctx.lineCap = 'round';
+    ctx.globalCompositeOperation = 'lighter';
+
+    // forest (plate V)
+    if (pV > 0) {
+      for (const f of FOREST) {
+        ctx.save();
+        ctx.translate(cx + f.x * S, groundY); ctx.scale(S * f.s, S * f.s);
+        drawTree(f.t, {canopy: 6, roots: 3.5, bark: .6, neural: 1, alpha: pV * .8, logo: true});
+        ctx.restore();
+      }
+    }
+
+    // main tree
+    ctx.save();
+    ctx.translate(cx, groundY); ctx.scale(S, S);
+    drawTree(MAIN, st);
+    travel(sap, reduce ? 0 : dt, pII * .9 * (1 - pV * .4), ROOT, true);
+    travel(pulses, reduce ? 0 : dt, pIV * .95, [233,229,217], false, st.canopy);
+    // seed glow (plate I)
+    const seedA = 1 - pII;
+    if (seedA > 0) {
+      ctx.fillStyle = `rgba(255,181,71,${.9 * seedA})`; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(255,181,71,${.12 * seedA})`; ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+
+    // annotations in screen space
+    const toS = (x, y) => [cx + x * S, groundY + y * S];
+    const tA = 1 - pII * 1.5, fig = mobile ? 0 : 1;
+    { const [x, y] = toS(MAIN.br[0].x2, MAIN.br[0].y2); label(x, y, 60, -40, 'fig. 1 · primera bifurcación', clamp(tA) * fig); }
+    { const r = MAIN.roots[MAIN.roots.length - 1]; const [x, y] = toS(r.x2, r.y2); label(x, y, 50, 24, 'fig. 2 · raíces · datos', pII * (1 - pIII) * fig); }
+    { const [x, y] = toS(0, -80); label(x, y, -70, -10, 'fig. 3 · corteza · seguridad', pIII * (1 - pIV) * fig); }
+    { const t = MAIN.tips[MAIN.tips.length - 3]; const [x, y] = toS(t.x2, t.y2); label(x, y, 40, -30, 'fig. 4 · nodos · ia', pIV * (1 - pV) * fig); }
+    if (pV > 0) {
+      for (const f of FOREST) { const [x, y] = toS(f.x, 18); label(x, y, f.dir * 20, f.dy, mobile ? f.name : `${f.name} · ${f.ind}`, pV); }
+      const [x, y] = toS(0, 18); label(x, y, 22, 40, 'el próximo · el tuyo', pV);
+    }
+
+    if (!reduce) requestAnimationFrame(frame);
+  }
+
+  resize();
+  addEventListener('resize', resize);
+  if (reduce) {
+    const redraw = () => frame(performance.now());
+    addEventListener('scroll', redraw, {passive: true});
+    redraw();
+  } else requestAnimationFrame(frame);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => reduce && frame(performance.now()));
+
+  /* ================= DIAGNÓSTICO ================= */
+  const ITEMS = [
+    ['Armamos reportes a mano todas las semanas', {da: 3, ia: 1, se: 0}],
+    ['La información está repartida en varias planillas', {da: 3, ia: 0, se: 1}],
+    ['En las reuniones discutimos qué número es el correcto', {da: 3, ia: 0, se: 0}],
+    ['Varias personas comparten el mismo usuario', {da: 0, ia: 0, se: 3}],
+    ['Manejamos datos sensibles de clientes o pacientes', {da: 1, ia: 0, se: 3}],
+    ['No sabemos qué tan expuestos estamos', {da: 0, ia: 0, se: 3}],
+    ['Se nos pasan vencimientos', {da: 2, ia: 2, se: 0}],
+    ['Cargamos lo mismo en dos o tres sistemas', {da: 2, ia: 2, se: 0}],
+    ['Respondemos las mismas consultas todo el día', {da: 0, ia: 3, se: 0}],
+    ['Queremos usar IA pero no sabemos por dónde empezar', {da: 1, ia: 3, se: 0}]
+  ];
+  const START = {
+    da: 'El problema está en las raíces. Empezaríamos por juntar las fuentes en un solo lugar y armar el primer tablero que tu equipo use de verdad.',
+    se: 'El problema está en la corteza. Empezaríamos por una auditoría corta: qué está expuesto, quién accede a qué y qué se arregla primero.',
+    ia: 'El problema está en la copa. Empezaríamos por un asistente sobre tus documentos, con revisión humana antes de cada respuesta.'
+  };
+  const NAME = {da: 'las raíces (datos)', se: 'la corteza (seguridad)', ia: 'la copa (IA)'};
+  const list = document.getElementById('list'), sel = new Set();
+  ITEMS.forEach(([txt], i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'item'; b.id = 'item-' + i; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `<span class="box" aria-hidden="true"></span><span>${txt}</span>`;
+    b.onclick = () => { sel.has(i) ? sel.delete(i) : sel.add(i); b.setAttribute('aria-pressed', sel.has(i)); render(); };
+    list.appendChild(b);
+  });
+  function render() {
+    const sum = {da: 0, se: 0, ia: 0};
+    sel.forEach(i => { for (const k in sum) sum[k] += ITEMS[i][1][k]; });
+    const tot = sum.da + sum.se + sum.ia;
+    for (const k in sum) {
+      const pct = tot ? Math.round(sum[k] / tot * 100) : 0;
+      document.getElementById('v-' + k).textContent = pct + '%';
+      document.getElementById('b-' + k).style.width = pct + '%';
+    }
+    const v = document.getElementById('verdict'), h = document.getElementById('hint'), wa = document.getElementById('wa');
+    if (!tot) {
+      v.textContent = 'Marcá una o más situaciones.';
+      h.textContent = 'Esto no se envía a ningún lado hasta que vos lo mandes.';
+      wa.href = 'https://wa.me/5491100000000';
+      return;
+    }
+    const order = Object.keys(sum).sort((a, b) => sum[b] - sum[a]);
+    v.textContent = START[order[0]];
+    const second = sum[order[1]] > 0 && sum[order[1]] >= sum[order[0]] * .6;
+    h.textContent = second ? `Probablemente también haya que trabajar ${NAME[order[1]]}. Lo vemos en la primera charla.` : 'El foco está claro.';
+    const msg = 'Hola Ynera, hice el diagnóstico en la web. Nos pasa esto:\n' + [...sel].sort((a, b) => a - b).map(i => '• ' + ITEMS[i][0]).join('\n');
+    wa.href = 'https://wa.me/5491100000000?text=' + encodeURIComponent(msg);
+  }
+
+  /* ================= FOOTER CLOCK ================= */
+  const fmt = new Intl.DateTimeFormat('es-AR', {hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires'});
+  const today = document.getElementById('today');
+  const tick = () => { today.textContent = '© 2026 · Buenos Aires · ' + fmt.format(new Date()) + ' ART'; };
+  tick(); setInterval(tick, 20000);
+})();
+</script>
+</body>
+</html>
