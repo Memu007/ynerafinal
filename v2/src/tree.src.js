@@ -150,7 +150,7 @@ function buildTree(seed, o) {
     const sx = k ? 1 : -1;
     const side = new THREE.Vector3(sx, 0, .15).normalize();
     const cd = tv.clone().multiplyScalar(Math.cos(.5)).addScaledVector(side, Math.sin(.5)).normalize();
-    limb(top.clone().addScaledVector(cd, -trunk.r1 * .6), cd, L0 * o.arm, trunk.r1 * .71, 1, trunk, trunk.g1 - trunk.r1 * .6, sx, new THREE.Vector3(-sx * .03, 0, 0));
+    limb(top.clone().addScaledVector(tv, -trunk.r1 * 1.1).addScaledVector(side, trunk.r1 * .38), cd, L0 * o.arm, trunk.r1 * .71, 1, trunk, trunk.g1 - trunk.r1 * 1.1, sx, new THREE.Vector3(-sx * .03, 0, 0));
   }
   // short surface roots that snake over the island, continuing the buttresses
   for (let k = 0; k < (o.surf || 0); k++) {
@@ -285,7 +285,7 @@ function run() {
 
   /* ---------- tree ---------- */
   function tubeGeometry(T, radialFor) {
-    const P = [], G = [], K = [], B = [], U = [], I = [];
+    const P = [], G = [], K = [], B = [], U = [], Th = [], I = [];
     let vi = 0;
     const pt = new THREE.Vector3(), tg = new THREE.Vector3(), off = new THREE.Vector3(), bin = new THREE.Vector3();
     const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -304,28 +304,32 @@ function run() {
         nrm.addScaledVector(tg, -nrm.dot(tg)).normalize();       // parallel transport
         bin.crossVectors(tg, nrm).normalize();
         r = b.r1 + (b.r0 - b.r1) * Math.pow(1 - t, 1.6);
-        if (b.parent && !root) r *= 1 + .35 * Math.pow(Math.max(0, 1 - t / .12), 2);   // branch collar
-        if (b.guided) r *= 1 + .06 * sm(.92, 1, t);
+        if (b.parent && !root) r *= b.d === 1 && !b.surf ? 1 + .18 * Math.pow(Math.max(0, 1 - t / .22), 2) : 1 + .35 * Math.pow(Math.max(0, 1 - t / .12), 2);   // branch collar
+        if (b.guided && !trunk) r *= 1 + .06 * sm(.92, 1, t);
+        if (trunk) r *= 1 - .3 * sm(.9, 1, t);   // round shoulder tucked inside the collars of the Y arms
         const s = t * L;
         const g = (b.g0 + t * L) / norm;
         const hue = b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y);
+        const thin = sm(.075, .014, r);
         for (let j = 0; j < radial; j++) {
           const a = j / radial * Math.PI * 2;
           off.copy(nrm).multiplyScalar(Math.cos(a)).addScaledVector(bin, Math.sin(a));
           const th = trunk ? Math.atan2(off.z, off.x) : a;   // world azimuth on the trunk so the buttresses meet the roots
           const c = Math.cos(th), sn = Math.sin(th);
-          const q = Math.sin(F * th + .35 * s + 2.5 * noise(c * 2 + b.id * 3.1, s * 1.8, sn * 2));
-          const ridge = sm(-.2, .8, q);
+          // ridges wander, split and merge instead of running as regular flutes
+          const q = Math.sin(F * th + .35 * s + 2.5 * noise(c * 2 + b.id * 3.1, s * 1.8, sn * 2) + 2.2 * (noise(c * 4 + 9, s * 3.2, sn * 4) - .5));
+          const ridge = sm(-.2, .8, q), furrow = sm(-.8, .1, q);
           let rr = r;
           if (trunk) {
             const e = Math.exp(-Math.max(0, s - T.ground) / (.09 * L));
-            rr *= 1 + .9 * e * (.45 + .55 * Math.pow(.5 + .5 * Math.cos(6 * (th - .4)), 3));
+            rr *= 1 + .75 * e * (.45 + .55 * Math.pow(.5 + .5 * Math.cos(6 * (th - .4)), 1.6));
             rr -= r * .03 * (noise(c * 3 + 7, s * 6, sn * 3) > .72 ? 1 : 0);   // horizontal fissures
+            rr *= 1 + .12 * sm(.75, .97, t) * c * c;   // the crotch widens slightly along the plane of the fork
           }
           rr += r * A * (ridge - .5);
           rr *= 1 + .1 * (noise(c * 1.3 + b.id, s * 1.2 + 5, sn * 1.3) - .5);   // bumps ±5%
           P.push(pt.x + off.x * rr, pt.y + off.y * rr, pt.z + off.z * rr);
-          G.push(g); K.push(root ? 1 : 0); B.push(F || A ? ridge : .45 + .25 * ridge); U.push(hue);
+          G.push(g); K.push(root ? 1 : 0); B.push(trunk && t > .93 ? .7 : F || A ? furrow : .5 + .3 * ridge); U.push(hue); Th.push(thin);
         }
         if (i > 0) {
           const s0 = vi + (i - 1) * radial, s1 = vi + i * radial;
@@ -338,9 +342,15 @@ function run() {
       // close the tip with a small dome so no cut-off ends show
       const last = vi + rings * radial, cap = last + radial;
       P.push(pt.x + tg.x * r * .6, pt.y + tg.y * r * .6, pt.z + tg.z * r * .6);
-      G.push(b.g1 / norm); K.push(root ? 1 : 0); B.push(.5); U.push(b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y));
+      G.push(b.g1 / norm); K.push(root ? 1 : 0); B.push(.6); U.push(b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y)); Th.push(sm(.075, .014, r));
+      if (b.parent) {   // and plug the base, which sits inside the parent
+        b.curve.getPointAt(0, off); b.curve.getTangentAt(0, bin);
+        P.push(off.x - bin.x * b.r0 * .5, off.y - bin.y * b.r0 * .5, off.z - bin.z * b.r0 * .5);
+        G.push(b.g0 / norm); K.push(root ? 1 : 0); B.push(.6); U.push(0); Th.push(0);
+      }
       for (let j = 0; j < radial; j++) I.push(last + j, cap, last + (j + 1) % radial);
-      vi = cap + 1;
+      if (b.parent) for (let j = 0; j < radial; j++) I.push(vi + j, vi + (j + 1) % radial, cap + 1);
+      vi = cap + 1 + (b.parent ? 1 : 0);
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
@@ -348,6 +358,7 @@ function run() {
     geo.setAttribute('aKind', new THREE.Float32BufferAttribute(K, 1));
     geo.setAttribute('aBark', new THREE.Float32BufferAttribute(B, 1));
     geo.setAttribute('aHue', new THREE.Float32BufferAttribute(U, 1));
+    geo.setAttribute('aThin', new THREE.Float32BufferAttribute(Th, 1));
     geo.setIndex(I);
     geo.computeVertexNormals();
     return geo;
@@ -357,21 +368,21 @@ function run() {
     return new THREE.ShaderMaterial({
       uniforms: u,
       vertexShader: `${SWAY}
-        attribute float aGrow, aKind, aBark, aHue;
-        varying float vGrow, vKind, vH, vX, vB, vHue; varying vec3 vN, vV;
+        attribute float aGrow, aKind, aBark, aHue, aThin;
+        varying float vGrow, vKind, vH, vX, vB, vHue, vThin; varying vec3 vN, vV;
         void main(){
           vec3 p = aKind > .5 ? position : sway(position);
           vX = position.x;
           vec4 wp = modelMatrix * vec4(p, 1.);
           vN = normalize(mat3(modelMatrix) * normal);
           vV = normalize(cameraPosition - wp.xyz);
-          vGrow = aGrow; vKind = aKind; vH = position.y; vB = aBark; vHue = aHue;
+          vGrow = aGrow; vKind = aKind; vH = position.y; vB = aBark; vHue = aHue; vThin = aThin;
           gl_Position = projectionMatrix * viewMatrix * wp;
         }`,
       fragmentShader: `
         uniform float uGrow, uRoot, uBark, uTime, uFade;
         uniform vec3 cRoot, cBark, cLeaf;
-        varying float vGrow, vKind, vH, vX, vB, vHue; varying vec3 vN, vV;
+        varying float vGrow, vKind, vH, vX, vB, vHue, vThin; varying vec3 vN, vV;
         void main(){
           float lim = vKind > .5 ? uRoot : uGrow;
           if (vGrow > lim + .0001) discard;
@@ -389,8 +400,10 @@ function run() {
           float groove = pow(1. - vB, 3.);
           // light running up the furrows like sap
           float sap = .35 + .35 * sin(vH * 3. - uTime * .8 + vX);
-          float glow = groove * sap * (vKind > .5 ? 2.2 : 1.) + (vKind > .5 ? .1 : .035);
-          float rim = fres * (vKind > .5 ? 1.6 : .7) * (.25 + .75 * vB);
+          float glow = groove * sap * (vKind > .5 ? 1.5 : 1.2) + (vKind > .5 ? .1 : .04);
+          // twigs become filaments of light where the wood is too thin to read as bark
+          glow += vThin * (.4 + .25 * sap) * (vKind > .5 ? .5 : 1.);
+          float rim = fres * (vKind > .5 ? 1.25 : .7) * (.25 + .75 * vB);
           // bark "layers": slow bands of light climbing the trunk during the security plate
           float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 24.) * uBark * (1. - smoothstep(2., 3.4, vH)) * (.35 + 1.2 * (1. - vB)) : 0.;
           // growth front: a bright tip where the tree is currently growing
@@ -442,7 +455,7 @@ function run() {
           float on = smoothstep(aGrow, aGrow + .04, uGrow) * uLeaf;
           vA = on * (.55 + .45*sin(uTime*2. + aR*50.));
           vC = aColor;
-          gl_PointSize = uSize * (.5 + aR) * uPR * on / -mv.z;
+          gl_PointSize = uSize * (.5 + aR) * uPR * on * clamp(length(modelMatrix[0].xyz) * 2.2, 0., 1.) / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`,
       fragmentShader: `varying vec3 vC; varying float vA;
@@ -522,7 +535,7 @@ function run() {
     const topH = (a, r) => (1 - (r / R0) ** 2) * .22 + (noise(Math.cos(a) * 5 + seed, 0, Math.sin(a) * 5) - .5) * .08 * (r / R0)
       + (noise(Math.cos(a) * r * 1.6 + seed, 3, Math.sin(a) * r * 1.6) - .5) * .05 * (r / R0);
     const P = [], col = [], I = [];
-    const moss = new THREE.Color('#123a2c'), mossHi = new THREE.Color('#1f5a41'), lip = new THREE.Color('#2b7454'), tuck = new THREE.Color('#081712');
+    const moss = new THREE.Color('#123a2c'), mossHi = new THREE.Color('#1f5a41'), lip = new THREE.Color('#2b7454'), tuck = new THREE.Color('#0d231b');
     const stone = new THREE.Color('#2e2640'), band = new THREE.Color('#4a3b5e'), deep = new THREE.Color('#150f22');
     const c = new THREE.Color();
     for (let i = 0; i < prof.length; i++) {
@@ -542,11 +555,11 @@ function run() {
           const n1 = noise(Math.cos(a) * 2 + seed, y0 * .9, Math.sin(a) * 2);
           const n2 = noise(Math.cos(a) * 5 + seed, y0 * 2.2, Math.sin(a) * 5);
           const n3 = noise(Math.cos(a) * 9 + seed, y0 * 14, Math.sin(a) * 9);
-          const strata = Math.sin(y0 * 26 + n1 * 6);
+          const strata = Math.sin(y0 * 26 + n1 * 6 + n3 * 5);
           rr = r0 * (1 + (na - .5) * .3 * (1 - t) + (n1 - .5) * .35 * t + (n2 - .5) * .2) * (1 - t * .1);
-          rr *= 1 + .035 * strata + .03 * (n3 - .5);   // horizontal rock strata
+          rr *= 1 + .012 * strata + .03 * (n3 - .5);   // horizontal rock strata
           y = y0 - Math.pow(n2, 3) * .8 * t;           // stalactite-like drips underneath
-          c.copy(stone).lerp(band, .55 * clamp(strata * .5 + .5) ** 3).lerp(deep, clamp(t * 1.2 + (n1 - .5) * .4));
+          c.copy(stone).lerp(band, .35 * clamp(strata * .5 + .5) ** 3).lerp(deep, clamp(t * 1.2 + (n1 - .5) * .4));
         }
         P.push(Math.cos(a) * rr, y, Math.sin(a) * rr);
         col.push(c.r, c.g, c.b);
@@ -628,7 +641,7 @@ function run() {
   const mainIsland = island(1.7);
   world.add(mainIsland);
   const main = makeTree(11, {len: 2.1, r: .27, arm: .8, crown: .7, open: 2, depth: mobile() ? 6 : 7, roots: 6, rootLen: 1.9, rootDepth: mobile() ? 4 : 5,
-    surf: 5, surfLen: .7, hang: mobile() ? 5 : 7, hangLen: 1.6, hangY: -1.6, hangDepth: 4}, mobile() ? 6 : 4);
+    surf: 5, surfLen: .7, hang: mobile() ? 5 : 7, hangLen: 1.6, hangY: -1.6, hangDepth: 4}, mobile() ? 7 : 6);
   world.add(main.grp);
   const rootMotes = motes(main.T, main.u); world.add(rootMotes);
 
@@ -720,7 +733,7 @@ function run() {
     {p: 0,    r: 9.8,  th: .15, y: 2.4,  ty: 1.5},
     {p: .25,  r: 11,   th: .75, y: -5.2, ty: -4.6},
     {p: .47,  r: 11,   th: 1.35, y: 2.8, ty: 2.1},
-    {p: .68,  r: 15.5, th: 2.05, y: 5.8, ty: 3.8},
+    {p: .68,  r: 13.5, th: 2.05, y: 5.4, ty: 3.6},
     {p: .9,   r: 27,   th: 2.55, y: 7.5, ty: 1.2},
     {p: 1,    r: 28,   th: 2.65, y: 7.5, ty: 1.2}
   ];
