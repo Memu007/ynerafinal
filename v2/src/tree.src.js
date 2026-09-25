@@ -110,7 +110,7 @@ function buildTree(seed, o) {
       const ld = vt.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(side, Math.sin(tilt)).normalize();
       const rp = rAt(b, t);
       // the first laterals of the Y arms wait for the arm to finish, so the hero sprout stays a clean Y
-      const lg0 = d === 1 ? b.g1 : b.g0 + t * b.len;
+      const lg0 = d === 1 ? b.g1 + .03 : b.g0 + t * b.len;
       limb(p.clone().addScaledVector(ld, -rp * .6), ld, len * .62 * (d === 1 ? o.crown || 1 : 1), Math.max(.012, b.r1 * lF), cd, b, lg0, hue);
     }
     return b;
@@ -150,7 +150,7 @@ function buildTree(seed, o) {
     const sx = k ? 1 : -1;
     const side = new THREE.Vector3(sx, 0, .15).normalize();
     const cd = tv.clone().multiplyScalar(Math.cos(.5)).addScaledVector(side, Math.sin(.5)).normalize();
-    limb(top.clone().addScaledVector(tv, -trunk.r1 * 1.1).addScaledVector(side, trunk.r1 * .38), cd, L0 * o.arm, trunk.r1 * .71, 1, trunk, trunk.g1 - trunk.r1 * 1.1, sx, new THREE.Vector3(-sx * .03, 0, 0));
+    limb(top.clone().addScaledVector(tv, -trunk.r1 * .45).addScaledVector(side, trunk.r1 * .4), cd, L0 * o.arm, trunk.r1 * .71, 1, trunk, trunk.g1 - trunk.r1 * .45, sx, new THREE.Vector3(-sx * .03, 0, 0));
   }
   // short surface roots that snake over the island, continuing the buttresses
   for (let k = 0; k < (o.surf || 0); k++) {
@@ -304,9 +304,9 @@ function run() {
         nrm.addScaledVector(tg, -nrm.dot(tg)).normalize();       // parallel transport
         bin.crossVectors(tg, nrm).normalize();
         r = b.r1 + (b.r0 - b.r1) * Math.pow(1 - t, 1.6);
-        if (b.parent && !root) r *= b.d === 1 && !b.surf ? 1 + .18 * Math.pow(Math.max(0, 1 - t / .22), 2) : 1 + .35 * Math.pow(Math.max(0, 1 - t / .12), 2);   // branch collar
+        if (b.parent && !root) r *= b.d === 1 && !b.surf ? 1 + .06 * Math.pow(Math.max(0, 1 - t / .22), 2) : 1 + .35 * Math.pow(Math.max(0, 1 - t / .12), 2);   // branch collar
         if (b.guided && !trunk) r *= 1 + .06 * sm(.92, 1, t);
-        if (trunk) r *= 1 - .3 * sm(.9, 1, t);   // round shoulder tucked inside the collars of the Y arms
+        if (trunk) r *= 1 - .1 * sm(.9, 1, t);   // round shoulder tucked inside the collars of the Y arms
         const s = t * L;
         const g = (b.g0 + t * L) / norm;
         const hue = b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y);
@@ -324,7 +324,7 @@ function run() {
             const e = Math.exp(-Math.max(0, s - T.ground) / (.09 * L));
             rr *= 1 + .75 * e * (.45 + .55 * Math.pow(.5 + .5 * Math.cos(6 * (th - .4)), 1.6));
             rr -= r * .03 * (noise(c * 3 + 7, s * 6, sn * 3) > .72 ? 1 : 0);   // horizontal fissures
-            rr *= 1 + .12 * sm(.75, .97, t) * c * c;   // the crotch widens slightly along the plane of the fork
+            rr *= 1 + sm(.72, .97, t) * (.14 * c * c - .3 * sn * sn);   // the crotch turns elliptical along the plane of the fork
           }
           rr += r * A * (ridge - .5);
           rr *= 1 + .1 * (noise(c * 1.3 + b.id, s * 1.2 + 5, sn * 1.3) - .5);   // bumps ±5%
@@ -341,12 +341,13 @@ function run() {
       }
       // close the tip with a small dome so no cut-off ends show
       const last = vi + rings * radial, cap = last + radial;
-      P.push(pt.x + tg.x * r * .6, pt.y + tg.y * r * .6, pt.z + tg.z * r * .6);
+      const dome = trunk ? .15 : .6;
+      P.push(pt.x + tg.x * r * dome, pt.y + tg.y * r * dome, pt.z + tg.z * r * dome);
       G.push(b.g1 / norm); K.push(root ? 1 : 0); B.push(.6); U.push(b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y)); Th.push(sm(.075, .014, r));
       if (b.parent) {   // and plug the base, which sits inside the parent
         b.curve.getPointAt(0, off); b.curve.getTangentAt(0, bin);
         P.push(off.x - bin.x * b.r0 * .5, off.y - bin.y * b.r0 * .5, off.z - bin.z * b.r0 * .5);
-        G.push(b.g0 / norm); K.push(root ? 1 : 0); B.push(.6); U.push(0); Th.push(0);
+        G.push(b.g0 / norm + .002); K.push(root ? 1 : 0); B.push(.6); U.push(0); Th.push(0);
       }
       for (let j = 0; j < radial; j++) I.push(last + j, cap, last + (j + 1) % radial);
       if (b.parent) for (let j = 0; j < radial; j++) I.push(vi + j, vi + (j + 1) % radial, cap + 1);
