@@ -425,56 +425,65 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   const rings = document.getElementById('rings');
   const chaps = [...document.querySelectorAll('.chap')];
 
-  const ROOT = [255,181,71], BARK = [155,107,255], LEAF = [111,134,255];
-  const mixc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  // canopy colour follows the logo: blue on the left, violet at the centre, amber on the right
-  const logoAt = u => u < .5 ? mixc(LEAF, BARK, u * 2) : mixc(BARK, ROOT, (u - .5) * 2);
 
   function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   // world units: ground at y=0, up is negative
-  function buildTree(seed, depthMax, rootDepth) {
+  const SEG = 7;
+  function buildTree(seed, o) {
     const R = rng(seed), br = [], roots = [];
-    function grow(list, x, y, ang, len, d, max, parent, spread) {
-      const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
-      const b = {x, y, x2, y2, d, parent, kids: []};
+    function grow(list, x, y, ang, len, d, max, parent, w0, isRoot) {
+      const bend = (R() - .5) * (isRoot ? 1.2 : .6);
+      const target = isRoot ? Math.PI / 2 : -Math.PI / 2;
+      const pts = [[x, y]];
+      let a = ang, px = x, py = y;
+      for (let i = 1; i <= SEG; i++) {
+        a += bend / SEG + (R() - .5) * (isRoot ? .26 : .09);
+        a += (target - a) * (isRoot ? .045 : .02);          // tropism: roots seek down, branches seek light
+        px += Math.cos(a) * len / SEG; py += Math.sin(a) * len / SEG;
+        pts.push([px, py]);
+      }
+      const w1 = w0 * (d === 0 && !isRoot ? .6 : .72);
+      const b = {pts, d, parent, kids: [], w0, w1, x2: px, y2: py};
       list.push(b); if (parent) parent.kids.push(b);
       if (d >= max) return;
-      const n = d > 2 && R() < .22 ? 3 : 2;
+      let n = 2;
+      if (d > 2 && R() < .16) n = 3;
+      if (d > 3 && R() < .1) n = 1;
+      const spread = isRoot ? .72 : d === 0 ? .52 : .4;
       for (let k = 0; k < n; k++) {
-        const side = n === 2 ? (k ? 1 : -1) : k - 1;
-        const a = ang + side * (spread * (.75 + R() * .5)) + (R() - .5) * .18;
-        grow(list, x2, y2, a, len * (.7 + R() * .12), d + 1, max, b, spread);
+        const side = n === 1 ? (R() - .5) * .5 : n === 2 ? (k ? 1 : -1) : k - 1;
+        grow(list, px, py, a + side * spread * (.7 + R() * .6),
+          len * (isRoot ? .66 + R() * .22 : .7 + R() * .14),
+          d + 1, max, b, n === 1 ? w1 : w1 * (n === 3 ? .7 : .8), isRoot);
       }
     }
-    // trunk + canopy: first fork is the Y
-    grow(br, 0, 0, -Math.PI / 2, 150, 0, depthMax, null, .46);
-    // roots grow down with a wider, flatter spread
-    grow(roots, 0, 0, Math.PI / 2, 46, 0, rootDepth, null, .62);
-    const tips = br.filter(b => !b.kids.length);
-    const rtips = roots.filter(b => !b.kids.length);
-    // neural links: each tip to its 2 nearest neighbours
+    grow(br, 0, 0, -Math.PI / 2, o.len, 0, o.depth, null, o.w, false);
+    for (let k = 0; k < 3; k++) grow(roots, (k - 1) * o.w * .25, 0, Math.PI / 2 + (k - 1) * 1.05, o.len * .42, 0, o.rootDepth, null, o.w * .5, true);
+    const tips = br.filter(b => !b.kids.length), rtips = roots.filter(b => !b.kids.length);
     const links = [];
     tips.forEach((a, i) => {
-      tips.map((b, j) => [j, (a.x2 - b.x2) ** 2 + (a.y2 - b.y2) ** 2]).filter(([j]) => j > i)
-        .sort((p, q) => p[1] - q[1]).slice(0, 2).forEach(([j]) => links.push([a, tips[j]]));
+      let best = null, bd = 1e9;
+      tips.forEach((b, j) => { if (j === i) return; const dd = (a.x2 - b.x2) ** 2 + (a.y2 - b.y2) ** 2; if (dd < bd && dd > 60) { bd = dd; best = b; } });
+      if (best && i % 2 === 0) links.push([a, best]);
     });
-    const xs = br.map(b => b.x2); const minX = Math.min(...xs), maxX = Math.max(...xs);
-    br.forEach(b => { b.u = (b.x2 - minX) / (maxX - minX || 1); });
-    return {br, roots, tips, rtips, links};
+    const xs = tips.map(b => b.x2), minX = Math.min(...xs), maxX = Math.max(...xs);
+    const R2 = rng(seed + 99);
+    const pollen = tips.filter((_, i) => i % 2 === 0).map(t => ({x: t.x2 + (R2() - .5) * 30, y: t.y2 + (R2() - .5) * 30, ph: R2() * 6.28, d: t.d}));
+    return {br, roots, tips, rtips, links, pollen, minX, maxX, len: o.len};
   }
   const chain = b => { const c = []; while (b) { c.unshift(b); b = b.parent; } return c; };
 
-  const MAIN = buildTree(7, 7, 5);
+  const MAIN = buildTree(11, {len: 150, w: 15, depth: 9, rootDepth: 6});
   const FOREST = [
-    {t: buildTree(21, 5, 3), x: -540, s: .5, name: 'Aira', ind: 'salud mental', dir: -1, dy: 24},
-    {t: buildTree(33, 5, 3), x: 520, s: .55, name: 'CDI', ind: 'comercio exterior', dir: -1, dy: 58},
-    {t: buildTree(48, 5, 3), x: -300, s: .38, name: 'ReservaYá', ind: 'hotelería', dir: 1, dy: 84}
+    {t: buildTree(21, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: -540, s: .5, name: 'Aira', ind: 'salud mental', dir: -1, dy: 60},
+    {t: buildTree(33, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: 520, s: .55, name: 'CDI', ind: 'comercio exterior', dir: 1, dy: 30},
+    {t: buildTree(48, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: -300, s: .38, name: 'ReservaYá', ind: 'hotelería', dir: -1, dy: 100}
   ];
 
-  // travelling light: sap rises through roots, pulses run through the canopy
-  const sap = Array.from({length: 46}, (_, i) => ({path: chain(MAIN.rtips[i % MAIN.rtips.length]).reverse(), u: Math.random(), v: .12 + Math.random() * .12}));
-  const pulses = Array.from({length: 40}, (_, i) => ({path: chain(MAIN.tips[(i * 7) % MAIN.tips.length]), u: Math.random(), v: .16 + Math.random() * .14}));
+  // travelling light: sap rises through the roots, impulses run out to the canopy
+  const sap = Array.from({length: 36}, (_, i) => ({path: chain(MAIN.rtips[(i * 5) % MAIN.rtips.length]), u: Math.random(), v: .09 + Math.random() * .08}));
+  const pulses = Array.from({length: 34}, (_, i) => ({path: chain(MAIN.tips[(i * 13) % MAIN.tips.length]), u: Math.random(), v: .1 + Math.random() * .1}));
 
   let W = 0, H = 0, dpr = 1;
   function resize() {
@@ -482,88 +491,108 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
     W = cv.clientWidth; H = cv.clientHeight;
     cv.width = W * dpr; cv.height = H * dpr;
   }
-
   function storyProgress() {
     const r = story.getBoundingClientRect();
     return clamp(-r.top / Math.max(1, r.height - innerHeight));
   }
 
-  function strokeSeg(x1, y1, x2, y2, w, c, a) {
-    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${a * .14})`;
-    ctx.lineWidth = w * 2.2 + 3;
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-    ctx.lineWidth = w;
-    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-  }
+  // wind: canopy sways, more at the top, never at the trunk base
+  let time = 0;
+  const sway = (T, y, amt) => Math.sin(time * .55 + y * .006) * Math.pow(Math.max(0, -y - T.len * .9) / 320, 2) * 7 * amt;
 
-  function drawTree(T, st) {
-    // st: {canopy, roots, bark, neural, alpha, logo}
-    const {canopy, roots, bark, neural, alpha} = st;
-    // roots
-    for (const b of T.roots) {
-      const f = clamp(roots - b.d); if (f <= 0) continue;
-      const w = Math.max(.6, 5.5 * Math.pow(.62, b.d));
-      strokeSeg(b.x, b.y, lerp(b.x, b.x2, f), lerp(b.y, b.y2, f), w, ROOT, .85 * alpha);
+  // adds a branch as a bundle of thin fibres (engraving style), up to fraction f of its length
+  function addBranch(path, T, b, f, wind) {
+    if (f <= 0) return;
+    const n = Math.max(1, Math.round(b.w0 / 2.3));
+    const upto = f * SEG, last = Math.floor(upto);
+    const P = [];
+    for (let i = 0; i <= Math.min(SEG, last + 1); i++) {
+      let [x, y] = b.pts[Math.min(i, SEG)];
+      if (i > upto) { const [x0, y0] = b.pts[i - 1], t = upto - (i - 1); x = x0 + (x - x0) * t; y = y0 + (y - y0) * t; }
+      P.push([x + sway(T, y, wind), y]);
     }
-    // trunk & canopy
-    for (const b of T.br) {
-      const f = clamp(canopy - b.d); if (f <= 0) continue;
-      let w = Math.max(.7, 13 * Math.pow(.64, b.d)) * (b.d === 0 ? 1 + bark * .9 : 1 + bark * .35);
-      const c = b.d === 0 ? BARK : (st.logo ? logoAt(b.u) : mixc(BARK, LEAF, clamp(b.d / 3)));
-      strokeSeg(b.x, b.y, lerp(b.x, b.x2, f), lerp(b.y, b.y2, f), w, c, .9 * alpha);
-    }
-    // bark hatching on the trunk: growth lines
-    if (bark > 0) {
-      const t = T.br[0], n = 9;
-      ctx.strokeStyle = `rgba(233,229,217,${.35 * bark * alpha})`; ctx.lineWidth = 1;
-      for (let i = 1; i < n; i++) {
-        const y = lerp(t.y, t.y2, i / n), hw = 13 * (1 + bark * .9) / 2;
-        ctx.beginPath(); ctx.moveTo(t.x - hw, y + (i % 2 ? 2 : -2)); ctx.lineTo(t.x + hw, y); ctx.stroke();
+    if (P.length < 2) return;
+    for (let k = 0; k < n; k++) {
+      const off = n === 1 ? 0 : ((k + .5) / n - .5);
+      for (let i = 0; i < P.length; i++) {
+        const a = P[Math.max(0, i - 1)], c = P[Math.min(P.length - 1, i + 1)];
+        let nx = -(c[1] - a[1]), ny = c[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+        const w = b.w0 + (b.w1 - b.w0) * (i / SEG);
+        const o = off * w + Math.sin(i * 1.7 + k * 2.3) * .18 * (w / n);
+        const x = P[i][0] + nx * o, y = P[i][1] + ny * o;
+        i ? path.lineTo(x, y) : path.moveTo(x, y);
       }
     }
-    // neural layer
+  }
+
+  function strokeTwice(path, style, alpha, px) {
+    ctx.strokeStyle = style;
+    ctx.globalAlpha = alpha * .07; ctx.lineWidth = 4 * px; ctx.stroke(path);
+    ctx.globalAlpha = alpha; ctx.lineWidth = .8 * px; ctx.stroke(path);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawTree(T, st, px) {
+    const {canopy, roots, bark, neural, alpha, wind} = st;
+    const pr = new Path2D(), pt = new Path2D(), pc = new Path2D();
+    for (const b of T.roots) addBranch(pr, T, b, clamp(roots - b.d), 0);
+    for (const b of T.br) addBranch(b.d === 0 ? pt : pc, T, b, clamp(canopy - b.d), wind);
+
+    const g = ctx.createLinearGradient(T.minX, 0, T.maxX, 0);
+    g.addColorStop(0, 'rgb(111,134,255)'); g.addColorStop(.5, 'rgb(155,107,255)'); g.addColorStop(1, 'rgb(255,181,71)');
+    strokeTwice(pr, 'rgb(255,181,71)', .55 * alpha * (st.rootDim ?? 1), px);
+    strokeTwice(pt, bark > 0 ? `rgb(${Math.round(lerp(233, 155, bark))},${Math.round(lerp(229, 107, bark))},${Math.round(lerp(217, 255, bark))})` : 'rgb(233,229,217)', (.5 + .35 * bark) * alpha, px);
+    strokeTwice(pc, g, .78 * alpha, px);
+
     if (neural > 0) {
-      ctx.lineWidth = .7;
+      const nl = new Path2D();
       for (const [a, b] of T.links) {
-        const la = clamp(canopy - a.d) * clamp(canopy - b.d); if (la <= 0) continue;
-        ctx.strokeStyle = `rgba(111,134,255,${.28 * neural * alpha * la})`;
-        ctx.beginPath(); ctx.moveTo(a.x2, a.y2); ctx.lineTo(b.x2, b.y2); ctx.stroke();
+        if (canopy - a.d < 1 || canopy - b.d < 1) continue;
+        nl.moveTo(a.x2 + sway(T, a.y2, wind), a.y2); nl.lineTo(b.x2 + sway(T, b.y2, wind), b.y2);
       }
+      ctx.strokeStyle = 'rgb(160,175,255)'; ctx.globalAlpha = .16 * neural * alpha; ctx.lineWidth = .6 * px; ctx.stroke(nl);
+      ctx.globalAlpha = 1;
       for (const t of T.tips) {
-        const ta = clamp(canopy - t.d); if (ta < 1) continue;
-        const c = logoAt(t.u);
-        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${.95 * neural * alpha})`;
-        ctx.beginPath(); ctx.arc(t.x2, t.y2, 2.6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${.14 * neural * alpha})`;
-        ctx.beginPath(); ctx.arc(t.x2, t.y2, 8, 0, Math.PI * 2); ctx.fill();
+        if (canopy - t.d < 1) continue;
+        ctx.fillStyle = `rgba(233,229,217,${.8 * neural * alpha})`;
+        ctx.beginPath(); ctx.arc(t.x2 + sway(T, t.y2, wind), t.y2, 1.1 * px, 0, 6.283); ctx.fill();
+      }
+      for (const q of T.pollen) {
+        if (canopy - q.d < 1) continue;
+        const tw = .5 + .5 * Math.sin(time * 1.3 + q.ph);
+        ctx.fillStyle = `rgba(200,190,255,${.55 * tw * neural * alpha})`;
+        ctx.fillRect(q.x + sway(T, q.y, wind) + Math.sin(time * .4 + q.ph) * 4, q.y - ((time * 6 + q.ph * 20) % 40), .9 * px, .9 * px);
       }
     }
   }
 
-  function travel(list, dt, amount, color, reverse, reach = 99) {
+  function posOn(path, u) {
+    const n = path.length, s = u * n, i = Math.min(n - 1, Math.floor(s)), b = path[i];
+    const q = (s - i) * SEG, j = Math.min(SEG - 1, Math.floor(q)), t = q - j;
+    const [x0, y0] = b.pts[j], [x1, y1] = b.pts[j + 1];
+    return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
+  }
+  function travel(list, dt, amount, rgb, reverse, px, T, wind, reach = 99) {
     if (amount <= 0) return;
     for (const p of list) {
       if (p.path.length > reach) continue;
-      p.u += dt * p.v; if (p.u > 1) p.u -= 1;
-      const segs = p.path, n = segs.length, pos = p.u * n, i = Math.min(n - 1, Math.floor(pos)), f = pos - i;
-      const s = segs[i];
-      const x = reverse ? lerp(s.x2, s.x, f) : lerp(s.x, s.x2, f);
-      const y = reverse ? lerp(s.y2, s.y, f) : lerp(s.y, s.y2, f);
-      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${amount})`;
-      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${amount * .18})`;
-      ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+      p.u = (p.u + dt * p.v) % 1;
+      for (let k = 0; k < 6; k++) {
+        const u = p.u - k * .012; if (u < 0) break;
+        const [x, y] = posOn(p.path, reverse ? 1 - u : u);
+        ctx.fillStyle = `rgba(${rgb},${amount * (1 - k / 6) * (k ? .5 : 1)})`;
+        ctx.beginPath(); ctx.arc(x + sway(T, y, wind), y, (k ? 1 : 1.5) * px, 0, 6.283); ctx.fill();
+      }
     }
   }
 
   function label(x, y, dx, dy, text, a) {
     if (a <= 0) return;
     ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = `rgba(143,141,130,${.7 * a})`; ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(143,141,130,${.6 * a})`; ctx.lineWidth = .75;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + dx, y + dy); ctx.lineTo(x + dx + (dx > 0 ? 18 : -18), y + dy); ctx.stroke();
-    ctx.fillStyle = `rgba(233,229,217,${.85 * a})`;
-    ctx.font = '500 10.5px "IBM Plex Mono", monospace';
+    ctx.fillStyle = `rgba(233,229,217,${.8 * a})`;
+    ctx.font = '400 10px "IBM Plex Mono", monospace';
     ctx.textAlign = dx > 0 ? 'left' : 'right';
     ctx.fillText(text.toUpperCase(), x + dx + (dx > 0 ? 24 : -24), y + dy + 3.5);
     ctx.globalCompositeOperation = 'lighter';
@@ -572,17 +601,20 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!reduce) time += dt;
     const p = storyProgress();
 
     // story timeline (5 plates, equal length)
-    const pI = ss(0, .14, p), pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
+    const pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
+    const wind = reduce ? 0 : 1;
     const st = {
-      canopy: lerp(1.35, 2, pIII) + pIV * 5.2,      // plate I shows trunk + first fork: the Y
-      roots: pII * 5.4,
+      canopy: lerp(1.45, 2.4, pIII) + pIV * 7.9,   // plate I: trunk + first fork, the Y
+      roots: pII * 7.2,
       bark: pIII,
       neural: pIV,
       alpha: 1,
-      logo: true
+      rootDim: lerp(1, .6, pIV),
+      wind
     };
     const idx = Math.min(4, Math.floor(p * 5 + .04));
     const plateLabel = chaps[idx].dataset.plate;
@@ -591,60 +623,71 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
 
     // camera
     const mobile = W < 700;
-    const growScale = lerp(.95, .62, pII) * lerp(1, .74, pIV);
-    const zoom = lerp(1, .58, pV);
-    const base = Math.min(W, H) / 560;
-    const S = base * growScale * zoom * (mobile ? .95 : 1);
-    const groundY = H * lerp(lerp(lerp(.62, .56, pII), .7, pIV), .66, pV) + (mobile ? -H * .08 : 0);
-    const cx = W / 2;
+    const growScale = lerp(1.05, .66, pII) * lerp(1, .72, pIV);
+    const zoom = lerp(1, .6, pV);
+    const S = Math.min(W, H) / 560 * growScale * zoom;
+    const groundY = H * lerp(lerp(lerp(.64, .54, pII), .7, pIV), .66, pV) + (mobile ? -H * .08 : 0);
+    const cx = W / 2, px = 1 / S;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-
-    // ground line
     ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = 'rgba(143,141,130,.35)'; ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
-    ctx.beginPath(); ctx.moveTo(24, groundY); ctx.lineTo(W - 24, groundY); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(143,141,130,.8)'; ctx.font = '400 10px "IBM Plex Mono", monospace'; ctx.textAlign = 'left';
+
+    // faint light behind the canopy
+    if (pIV > 0) {
+      const gy = groundY - MAIN.len * 2.3 * S;
+      const rg = ctx.createRadialGradient(cx, gy, 0, cx, gy, 360 * S);
+      rg.addColorStop(0, `rgba(111,134,255,${.09 * pIV})`); rg.addColorStop(1, 'rgba(111,134,255,0)');
+      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+    }
+    // soil: warm haze below the ground line
+    if (pII > 0) {
+      const sg = ctx.createLinearGradient(0, groundY, 0, groundY + 220 * S);
+      sg.addColorStop(0, `rgba(255,181,71,${.05 * pII})`); sg.addColorStop(1, 'rgba(255,181,71,0)');
+      ctx.fillStyle = sg; ctx.fillRect(0, groundY, W, 220 * S);
+    }
+    // ground line, fading at the edges
+    const gl = ctx.createLinearGradient(0, 0, W, 0);
+    gl.addColorStop(0, 'rgba(143,141,130,0)'); gl.addColorStop(.5, 'rgba(143,141,130,.45)'); gl.addColorStop(1, 'rgba(143,141,130,0)');
+    ctx.fillStyle = gl; ctx.fillRect(0, Math.round(groundY), W, 1);
+    ctx.fillStyle = 'rgba(143,141,130,.7)'; ctx.font = '400 10px "IBM Plex Mono", monospace'; ctx.textAlign = 'left';
     ctx.fillText('NIVEL DEL SUELO', 24, groundY - 8);
 
-    ctx.lineCap = 'round';
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.globalCompositeOperation = 'lighter';
 
-    // forest (plate V)
     if (pV > 0) {
       for (const f of FOREST) {
         ctx.save();
         ctx.translate(cx + f.x * S, groundY); ctx.scale(S * f.s, S * f.s);
-        drawTree(f.t, {canopy: 6, roots: 3.5, bark: .6, neural: 1, alpha: pV * .8, logo: true});
+        drawTree(f.t, {canopy: 9, roots: 6, bark: .5, neural: 1, alpha: pV * .75, wind}, px / f.s);
         ctx.restore();
       }
     }
 
-    // main tree
     ctx.save();
     ctx.translate(cx, groundY); ctx.scale(S, S);
-    drawTree(MAIN, st);
-    travel(sap, reduce ? 0 : dt, pII * .9 * (1 - pV * .4), ROOT, true);
-    travel(pulses, reduce ? 0 : dt, pIV * .95, [233,229,217], false, st.canopy);
-    // seed glow (plate I)
+    drawTree(MAIN, st, px);
+    travel(sap, reduce ? 0 : dt, pII * .85 * (1 - pV * .4), '255,181,71', true, px, MAIN, 0);
+    travel(pulses, reduce ? 0 : dt, pIV * .9, '233,229,217', false, px, MAIN, wind, st.canopy);
     const seedA = 1 - pII;
     if (seedA > 0) {
-      ctx.fillStyle = `rgba(255,181,71,${.9 * seedA})`; ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = `rgba(255,181,71,${.12 * seedA})`; ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+      const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, 26 * px);
+      sg.addColorStop(0, `rgba(255,181,71,${.8 * seedA})`); sg.addColorStop(1, 'rgba(255,181,71,0)');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(0, 0, 26 * px, 0, 6.283); ctx.fill();
     }
     ctx.restore();
 
     // annotations in screen space
     const toS = (x, y) => [cx + x * S, groundY + y * S];
-    const tA = 1 - pII * 1.5, fig = mobile ? 0 : 1;
-    { const [x, y] = toS(MAIN.br[0].x2, MAIN.br[0].y2); label(x, y, 60, -40, 'fig. 1 · primera bifurcación', clamp(tA) * fig); }
-    { const r = MAIN.roots[MAIN.roots.length - 1]; const [x, y] = toS(r.x2, r.y2); label(x, y, 50, 24, 'fig. 2 · raíces · datos', pII * (1 - pIII) * fig); }
-    { const [x, y] = toS(0, -80); label(x, y, -70, -10, 'fig. 3 · corteza · seguridad', pIII * (1 - pIV) * fig); }
-    { const t = MAIN.tips[MAIN.tips.length - 3]; const [x, y] = toS(t.x2, t.y2); label(x, y, 40, -30, 'fig. 4 · nodos · ia', pIV * (1 - pV) * fig); }
+    const fig = mobile ? 0 : 1;
+    { const [x, y] = toS(MAIN.br[0].x2, MAIN.br[0].y2); label(x, y, 60, -40, 'fig. 1 · primera bifurcación', clamp(1 - pII * 1.5) * fig); }
+    { const r = MAIN.rtips[MAIN.rtips.length - 1]; const [x, y] = toS(r.x2, r.y2); label(x, y, 40, 20, 'fig. 2 · raíces · datos', pII * (1 - pIII) * fig); }
+    { const [x, y] = toS(0, -MAIN.len * .5); label(x, y, -70, -10, 'fig. 3 · corteza · seguridad', pIII * (1 - pIV) * fig); }
+    { const t = MAIN.tips.reduce((a, b) => b.x2 > a.x2 ? b : a); const [x, y] = toS(t.x2, t.y2); label(x, y, 30, -30, 'fig. 4 · nodos · ia', pIV * clamp(1 - pV * 2.5) * fig); }
     if (pV > 0) {
-      for (const f of FOREST) { const [x, y] = toS(f.x, 18); label(x, y, f.dir * 20, f.dy, mobile ? f.name : `${f.name} · ${f.ind}`, pV); }
-      const [x, y] = toS(0, 18); label(x, y, 22, 40, 'el próximo · el tuyo', pV);
+      for (const f of FOREST) { const [x, y] = toS(f.x, 18); label(x, y, f.dir * 20, f.dy, f.name, pV); }
+      const [x, y] = toS(0, 18); label(x, y, 22, 125, 'el próximo: el tuyo', pV);
     }
 
     if (!reduce) requestAnimationFrame(frame);
