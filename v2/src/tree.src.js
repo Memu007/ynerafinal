@@ -29,6 +29,156 @@ function noise(x, y, z) {
   return lerp(lerp(x00, x10, v), lerp(x01, x11, v), w);
 }
 
+// <tree-build>
+/* ---------- tree structure ----------
+   Trunk with a gentle S curve and a planar Y fork (the logo); above it every limb keeps a
+   leader (apical dominance) and sprouts laterals along its length with 137.5° phyllotaxis.
+   Radii follow da Vinci's rule (area is conserved at each fork). */
+const SEG = 6;
+const GOLD = 137.5 * Math.PI / 180;
+function buildTree(seed, o) {
+  const R = rng(seed);
+  const branches = [];
+  const up = new THREE.Vector3(0, 1, 0);
+  function basis(v, ref) {
+    const a = ref || (Math.abs(v.y) < .9 ? up : new THREE.Vector3(1, 0, 0));
+    const u = new THREE.Vector3().crossVectors(v, a).normalize();
+    const w = new THREE.Vector3().crossVectors(v, u).normalize();
+    return [u, w];
+  }
+  function add(b, parent) {
+    b.id = branches.length; b.kids = []; b.parent = parent || null;
+    b.curve = new THREE.CatmullRomCurve3(b.pts, false, 'centripetal');
+    b.len = b.curve.getLength(); b.g1 = b.g0 + b.len;
+    branches.push(b); if (parent) parent.kids.push(b);
+    return b;
+  }
+  const rAt = (b, t) => b.r1 + (b.r0 - b.r1) * Math.pow(1 - t, 1.6);
+  function path(start, dir, len, wob, trop, bend) {
+    const pts = [start.clone()], p = start.clone(), v = dir.clone();
+    for (let i = 1; i <= SEG; i++) {
+      v.x += (R() - .5) * wob / SEG * 2; v.z += (R() - .5) * wob / SEG * 2; v.y += (R() - .5) * wob / SEG;
+      v.y += trop; if (bend) v.add(bend);
+      v.normalize();
+      p.addScaledVector(v, len / SEG);
+      pts.push(p.clone());
+    }
+    return pts;
+  }
+  const endDir = b => b.curve.getTangentAt(1).normalize();
+
+  // limbs above the fork
+  function limb(start, dir, len, r0, d, parent, g0, hue, bend) {
+    const wob = d === 1 ? .12 : .45;
+    const trop = d <= 2 ? .04 : d <= 4 ? 0 : -.035;
+    const pts = path(start, dir, len, wob, trop, bend);
+    const leaf = d >= o.depth;
+    const b = add({pts, r0, r1: leaf ? r0 * .35 : Math.max(.012, r0 * .82), d, isRoot: false, g0, hue}, parent);
+    if (leaf) return b;
+    const nLat = d <= 3 ? 2 : d === 4 && R() < .4 ? 2 : 1;
+    const gF = nLat === 2 ? .72 : .80, lF = nLat === 2 ? .48 : .58;
+    // leader: keeps going, slightly deflected
+    const v = endDir(b), [u, w] = basis(v);
+    const ga = R() * Math.PI * 2, gt = .15 + (R() - .5) * .16;
+    // leaders lean away from the crown's axis: an open, umbrella-shaped crown
+    const e = b.pts[SEG], out = new THREE.Vector3(e.x, 0, e.z);
+    const gs = u.clone().multiplyScalar(Math.cos(ga)).addScaledVector(w, Math.sin(ga));
+    if (out.lengthSq() > 1e-4) { out.normalize().addScaledVector(v, -out.dot(v)); gs.addScaledVector(out.normalize(), o.open || 0).normalize(); }
+    const gd = v.clone().multiplyScalar(Math.cos(gt)).addScaledVector(gs, Math.sin(gt)).normalize();
+    const gr = Math.max(.012, b.r1 * gF);
+    b.guided = true;
+    limb(b.pts[SEG].clone().addScaledVector(gd, -b.r1 * .6), gd, len * (d < 4 ? .88 : .8) * (d === 1 ? o.crown || 1 : 1), gr, d + 1, b, b.g1 - b.r1 * .6, hue);
+    // laterals along the limb
+    let az = R() * Math.PI * 2;
+    const ts = nLat === 2 ? [.45 + R() * .15, .68 + R() * .17] : [.5 + R() * .35];
+    if (d === 1) { ts[0] = .56 + R() * .1; ts[1] = .72 + R() * .12; }
+    for (let k = 0; k < nLat; k++) {
+      const t = ts[k];
+      const p = b.curve.getPointAt(t), vt = b.curve.getTangentAt(t).normalize();
+      let side;
+      if (d === 1) {
+        // keep the first laterals of each Y arm out of the XY plane so the Y still reads from the front
+        const [uu, ww] = basis(vt, new THREE.Vector3(0, 0, 1));
+        const a = (k ? 1 : -1) * Math.PI / 2 + (R() - .5) * 1.0;
+        side = uu.multiplyScalar(Math.cos(a)).addScaledVector(ww, Math.sin(a));
+      } else {
+        az += GOLD;
+        const [uu, ww] = basis(vt);
+        side = uu.multiplyScalar(Math.cos(az)).addScaledVector(ww, Math.sin(az));
+      }
+      const cd = d + 1, tilt = (cd === 2 ? .75 : cd <= 4 ? .85 : 1.0) + (R() - .5) * .3;
+      const ld = vt.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(side, Math.sin(tilt)).normalize();
+      const rp = rAt(b, t);
+      // the first laterals of the Y arms wait for the arm to finish, so the hero sprout stays a clean Y
+      const lg0 = d === 1 ? b.g1 : b.g0 + t * b.len;
+      limb(p.clone().addScaledVector(ld, -rp * .6), ld, len * .62 * (d === 1 ? o.crown || 1 : 1), Math.max(.012, b.r1 * lF), cd, b, lg0, hue);
+    }
+    return b;
+  }
+
+  // roots: the original forking cascade (kept as is), plus a gravity/wobble override for hanging roots
+  function root(start, dir, len, r0, d, max, g0, parent, wob = .9, grav = .16) {
+    const pts = path(start, dir, len, wob, -grav);
+    const r1 = r0 * .6;
+    const b = add({pts, r0, r1, d, isRoot: true, g0, hue: 0}, parent);
+    if (d >= max) { b.r1 = r0 * .3; return b; }
+    const n = d > 1 && R() < .28 ? 3 : 2;
+    const v = endDir(b), [u, w] = basis(v);
+    const az0 = R() * Math.PI * 2;
+    for (let k = 0; k < n; k++) {
+      const az = az0 + k * (Math.PI * 2 / n) + (R() - .5) * .8;
+      const tilt = .6 + (R() - .5) * .3;
+      const side = u.clone().multiplyScalar(Math.cos(az)).addScaledVector(w, Math.sin(az));
+      const cd = v.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(side, Math.sin(tilt)).normalize();
+      root(b.pts[SEG].clone().addScaledVector(cd, -r1 * .5), cd, len * (.72 + R() * .16), r1 * (n === 2 ? .84 : .74), d + 1, max, b.g1, b, wob, grav);
+    }
+    return b;
+  }
+
+  // trunk: gentle S curve plus a 3–4° lean
+  const L0 = o.len, sDir = new THREE.Vector3(Math.cos(.9), 0, Math.sin(.9)), lean = new THREE.Vector3(-.06, 1, .025).normalize();
+  const tp = [];
+  for (let i = 0; i <= SEG; i++) {
+    const p = new THREE.Vector3(0, -.05, 0).addScaledVector(lean, L0 * i / SEG);
+    p.addScaledVector(sDir, L0 * .045 * Math.sin(Math.PI * 2 * i / SEG * .75));
+    tp.push(p);
+  }
+  const trunk = add({pts: tp, r0: o.r, r1: o.r * .8, d: 0, isRoot: false, g0: 0, hue: 0, trunk: true, guided: true});
+  const top = tp[SEG], tv = endDir(trunk);
+  // the Y: planar and symmetric, each arm with da Vinci's .71
+  for (let k = 0; k < 2; k++) {
+    const sx = k ? 1 : -1;
+    const side = new THREE.Vector3(sx, 0, .15).normalize();
+    const cd = tv.clone().multiplyScalar(Math.cos(.5)).addScaledVector(side, Math.sin(.5)).normalize();
+    limb(top.clone().addScaledVector(cd, -trunk.r1 * .6), cd, L0 * o.arm, trunk.r1 * .71, 1, trunk, trunk.g1 - trunk.r1 * .6, sx, new THREE.Vector3(-sx * .03, 0, 0));
+  }
+  // short surface roots that snake over the island, continuing the buttresses
+  for (let k = 0; k < (o.surf || 0); k++) {
+    const az = .4 + k * Math.PI / 3 + (R() - .5) * .25;
+    const d0 = new THREE.Vector3(Math.cos(az), -.15, Math.sin(az)).normalize();
+    const st = new THREE.Vector3(Math.cos(az) * o.r * .9, .2, Math.sin(az) * o.r * .9);
+    const pts = path(st, d0, o.surfLen || .7, .7, -.02);
+    add({pts, r0: o.r * .38, r1: o.r * .05, d: 1, isRoot: false, surf: true, g0: 0, hue: 0}, trunk);
+  }
+  for (let k = 0; k < o.roots; k++) {
+    const az = k / o.roots * Math.PI * 2 + .4;
+    root(new THREE.Vector3(0, -.05, 0), new THREE.Vector3(Math.cos(az) * .7, -1, Math.sin(az) * .7).normalize(), o.rootLen, o.r * .6, 0, o.rootDepth, 0, null);
+  }
+  // roots hanging from the underside of the island: the part of the cascade you actually see
+  for (let k = 0; k < (o.hang || 0); k++) {
+    const az = k / o.hang * Math.PI * 2 + R() * .6, rad = .2 + R() * .8;
+    const st = new THREE.Vector3(Math.cos(az) * rad, o.hangY || -1.6, Math.sin(az) * rad);
+    const dv = new THREE.Vector3(Math.cos(az) * .35, -1, Math.sin(az) * .35).normalize();
+    root(st, dv, o.hangLen, o.hangR || .09, 1, o.hangDepth || 4, R() * .3, null, .5, .25);
+  }
+  const tree = branches.filter(b => !b.isRoot);
+  const gMax = Math.max(...tree.map(b => b.g1));
+  const rMax = Math.max(...branches.filter(b => b.isRoot).map(b => b.g1));
+  const gY = Math.max(...tree.filter(b => b.d <= 1 && !b.surf).map(b => b.g1)) / gMax;
+  return {branches, gMax, rMax, gY, trunk, forkY: top.y, ground: .27};
+}
+// </tree-build>
+
 /* ---------- smooth, weighted scrolling ---------- */
 let lenis = null;
 if (!reduce) {
@@ -59,7 +209,7 @@ function run() {
   const mobile = () => innerWidth < 980;
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile() ? 1.5 : 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.0;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, .1, 200);
@@ -134,91 +284,48 @@ function run() {
     }`;
 
   /* ---------- tree ---------- */
-  const SEG = 6;
-  function buildTree(seed, o) {
-    const R = rng(seed);
-    const branches = [];
-    const up = new THREE.Vector3(0, 1, 0);
-    function basis(v) {
-      const a = Math.abs(v.y) < .9 ? up : new THREE.Vector3(1, 0, 0);
-      const u = new THREE.Vector3().crossVectors(v, a).normalize();
-      const w = new THREE.Vector3().crossVectors(v, u).normalize();
-      return [u, w];
-    }
-    function grow(start, dir, len, r0, d, max, isRoot, g0, parent, planar) {
-      const pts = [start.clone()];
-      const p = start.clone(), v = dir.clone();
-      const wob = isRoot ? .9 : .26;
-      for (let i = 1; i <= SEG; i++) {
-        v.x += (R() - .5) * wob / SEG * 2; v.z += (R() - .5) * wob / SEG * 2; v.y += (R() - .5) * wob / SEG;
-        if (isRoot) v.y -= .16; else if (d > 0) v.y += d < 4 ? .06 : -.012;
-        v.normalize();
-        p.addScaledVector(v, len / SEG);
-        pts.push(p.clone());
-      }
-      const r1 = r0 * (isRoot ? .6 : d === 0 ? .7 : .64);
-      const b = {pts, r0, r1, d, isRoot, g0, g1: g0 + len, parent, kids: []};
-      branches.push(b); if (parent) parent.kids.push(b);
-      if (d >= max) return b;
-      let n = 2;
-      if (!planar && d > 1 && R() < .28) n = 3;
-      const [u, w] = basis(v);
-      const az0 = R() * Math.PI * 2;
-      for (let k = 0; k < n; k++) {
-        // the trunk's first fork is kept planar so the sprout reads as a Y from the front
-        const az = planar ? (k ? 0 : Math.PI) : az0 + k * (Math.PI * 2 / n) + (R() - .5) * .8;
-        const tilt = (isRoot ? .6 : .38 + d * .07) + (R() - .5) * .3;
-        const side = u.clone().multiplyScalar(Math.cos(az)).addScaledVector(w, Math.sin(az));
-        const cd = v.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(side, Math.sin(tilt)).normalize();
-        grow(p, cd, len * (isRoot ? .72 + R() * .16 : .76 + R() * .1), r1 * (n === 2 ? .84 : .74), d + 1, max, isRoot, b.g1, b, false);
-      }
-      return b;
-    }
-    const trunk = grow(new THREE.Vector3(0, -.05, 0), new THREE.Vector3(0, 1, 0), o.len, o.r, 0, 0, false, 0, null, false);
-    // rebuild from the trunk with a planar first fork, so the sprout reads as a Y from the front
-    branches.length = 0;
-    const t2 = (function () {
-      const pts = trunk.pts, b = {pts, r0: trunk.r0, r1: trunk.r1, d: 0, isRoot: false, g0: 0, g1: trunk.g1, parent: null, kids: []};
-      branches.push(b);
-      const v = pts[SEG].clone().sub(pts[SEG - 1]).normalize();
-      for (let k = 0; k < 2; k++) {
-        const side = new THREE.Vector3(k ? 1 : -1, 0, .15);
-        const cd = v.clone().multiplyScalar(Math.cos(.5)).addScaledVector(side.normalize(), Math.sin(.5)).normalize();
-        grow(pts[SEG], cd, o.len * .8, b.r1 * .84, 1, o.depth, false, b.g1, b, false);
-      }
-      return b;
-    })();
-    for (let k = 0; k < o.roots; k++) {
-      const az = k / o.roots * Math.PI * 2 + .4;
-      grow(new THREE.Vector3(0, -.05, 0), new THREE.Vector3(Math.cos(az) * .7, -1, Math.sin(az) * .7).normalize(), o.rootLen, o.r * .6, 0, o.rootDepth, true, 0, null, false);
-    }
-    const gMax = Math.max(...branches.filter(b => !b.isRoot).map(b => b.g1));
-    const rMax = Math.max(...branches.filter(b => b.isRoot).map(b => b.g1));
-    const gY = Math.max(...branches.filter(b => !b.isRoot && b.d <= 1).map(b => b.g1)) / gMax;
-    return {branches, gMax, rMax, gY, trunk: t2};
-  }
-
   function tubeGeometry(T, radialFor) {
-    const P = [], N = [], G = [], K = [], I = [];
+    const P = [], G = [], K = [], B = [], U = [], I = [];
     let vi = 0;
-    const tmp = new THREE.Vector3();
+    const pt = new THREE.Vector3(), tg = new THREE.Vector3(), off = new THREE.Vector3(), bin = new THREE.Vector3();
+    const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
     for (const b of T.branches) {
-      const radial = radialFor(b);
-      const pts = b.pts;
-      let nrm = null;
-      for (let i = 0; i <= SEG; i++) {
-        const t = pts[Math.min(SEG, i + 1)].clone().sub(pts[Math.max(0, i - 1)]).normalize();
-        if (!nrm) { nrm = Math.abs(t.y) < .9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0); }
-        nrm = nrm.clone().sub(t.clone().multiplyScalar(nrm.dot(t))).normalize();  // parallel transport
-        const bin = new THREE.Vector3().crossVectors(t, nrm).normalize();
-        const r = lerp(b.r0, b.r1, i / SEG);
-        const g = lerp(b.g0, b.g1, i / SEG) / (b.isRoot ? T.rMax : T.gMax);
+      const radial = radialFor(b), d = b.d, root = b.isRoot, trunk = !!b.trunk;
+      const rings = trunk ? 40 : root ? (d <= 1 ? 14 : d <= 3 ? 9 : 6) : b.surf ? 12 : d <= 1 ? 24 : d <= 3 ? 12 : 6;
+      // bark: vertical ridges (cantos) that fade out on thin twigs
+      const F = root ? (d <= 1 ? 5 : 0) : b.surf ? 6 : d === 0 ? 14 : d === 1 ? 9 : d <= 3 ? 6 : 0;
+      const A = root ? (d <= 1 ? .07 : 0) : b.surf ? .06 : d === 0 ? .10 : d <= 2 ? .06 : d === 3 ? .04 : 0;
+      const L = b.len, norm = root ? T.rMax : T.gMax;
+      let nrm = null, r = 0;
+      for (let i = 0; i <= rings; i++) {
+        const u = i / rings, t = trunk ? Math.pow(u, 1.45) : u;  // the trunk packs rings near its flared base
+        b.curve.getPointAt(t, pt); b.curve.getTangentAt(t, tg).normalize();
+        if (!nrm) nrm = Math.abs(tg.y) < .9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+        nrm.addScaledVector(tg, -nrm.dot(tg)).normalize();       // parallel transport
+        bin.crossVectors(tg, nrm).normalize();
+        r = b.r1 + (b.r0 - b.r1) * Math.pow(1 - t, 1.6);
+        if (b.parent && !root) r *= 1 + .35 * Math.pow(Math.max(0, 1 - t / .12), 2);   // branch collar
+        if (b.guided) r *= 1 + .06 * sm(.92, 1, t);
+        const s = t * L;
+        const g = (b.g0 + t * L) / norm;
+        const hue = b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y);
         for (let j = 0; j < radial; j++) {
           const a = j / radial * Math.PI * 2;
-          tmp.copy(nrm).multiplyScalar(Math.cos(a)).addScaledVector(bin, Math.sin(a));
-          P.push(pts[i].x + tmp.x * r, pts[i].y + tmp.y * r, pts[i].z + tmp.z * r);
-          N.push(tmp.x, tmp.y, tmp.z);
-          G.push(g); K.push(b.isRoot ? 1 : 0);
+          off.copy(nrm).multiplyScalar(Math.cos(a)).addScaledVector(bin, Math.sin(a));
+          const th = trunk ? Math.atan2(off.z, off.x) : a;   // world azimuth on the trunk so the buttresses meet the roots
+          const c = Math.cos(th), sn = Math.sin(th);
+          const q = Math.sin(F * th + .35 * s + 2.5 * noise(c * 2 + b.id * 3.1, s * 1.8, sn * 2));
+          const ridge = sm(-.2, .8, q);
+          let rr = r;
+          if (trunk) {
+            const e = Math.exp(-Math.max(0, s - T.ground) / (.09 * L));
+            rr *= 1 + .9 * e * (.45 + .55 * Math.pow(.5 + .5 * Math.cos(6 * (th - .4)), 3));
+            rr -= r * .03 * (noise(c * 3 + 7, s * 6, sn * 3) > .72 ? 1 : 0);   // horizontal fissures
+          }
+          rr += r * A * (ridge - .5);
+          rr *= 1 + .1 * (noise(c * 1.3 + b.id, s * 1.2 + 5, sn * 1.3) - .5);   // bumps ±5%
+          P.push(pt.x + off.x * rr, pt.y + off.y * rr, pt.z + off.z * rr);
+          G.push(g); K.push(root ? 1 : 0); B.push(F || A ? ridge : .45 + .25 * ridge); U.push(hue);
         }
         if (i > 0) {
           const s0 = vi + (i - 1) * radial, s1 = vi + i * radial;
@@ -228,14 +335,21 @@ function run() {
           }
         }
       }
-      vi += (SEG + 1) * radial;
+      // close the tip with a small dome so no cut-off ends show
+      const last = vi + rings * radial, cap = last + radial;
+      P.push(pt.x + tg.x * r * .6, pt.y + tg.y * r * .6, pt.z + tg.z * r * .6);
+      G.push(b.g1 / norm); K.push(root ? 1 : 0); B.push(.5); U.push(b.hue * sm(T.forkY - .15, T.forkY + 1.1, pt.y));
+      for (let j = 0; j < radial; j++) I.push(last + j, cap, last + (j + 1) % radial);
+      vi = cap + 1;
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
-    geo.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3));
     geo.setAttribute('aGrow', new THREE.Float32BufferAttribute(G, 1));
     geo.setAttribute('aKind', new THREE.Float32BufferAttribute(K, 1));
+    geo.setAttribute('aBark', new THREE.Float32BufferAttribute(B, 1));
+    geo.setAttribute('aHue', new THREE.Float32BufferAttribute(U, 1));
     geo.setIndex(I);
+    geo.computeVertexNormals();
     return geo;
   }
 
@@ -243,37 +357,45 @@ function run() {
     return new THREE.ShaderMaterial({
       uniforms: u,
       vertexShader: `${SWAY}
-        attribute float aGrow, aKind;
-        varying float vGrow, vKind, vH, vX; varying vec3 vN, vV;
+        attribute float aGrow, aKind, aBark, aHue;
+        varying float vGrow, vKind, vH, vX, vB, vHue; varying vec3 vN, vV;
         void main(){
           vec3 p = aKind > .5 ? position : sway(position);
           vX = position.x;
           vec4 wp = modelMatrix * vec4(p, 1.);
           vN = normalize(mat3(modelMatrix) * normal);
           vV = normalize(cameraPosition - wp.xyz);
-          vGrow = aGrow; vKind = aKind; vH = position.y;
+          vGrow = aGrow; vKind = aKind; vH = position.y; vB = aBark; vHue = aHue;
           gl_Position = projectionMatrix * viewMatrix * wp;
         }`,
       fragmentShader: `
         uniform float uGrow, uRoot, uBark, uTime, uFade;
         uniform vec3 cRoot, cBark, cLeaf;
-        varying float vGrow, vKind, vH, vX; varying vec3 vN, vV;
+        varying float vGrow, vKind, vH, vX, vB, vHue; varying vec3 vN, vV;
         void main(){
           float lim = vKind > .5 ? uRoot : uGrow;
           if (vGrow > lim + .0001) discard;
           vec3 N = normalize(vN), V = normalize(vV);
+          if (!gl_FrontFacing) N = -N;
           float fres = pow(1. - abs(dot(N, V)), 2.4);
-          float lit = max(dot(N, normalize(vec3(-.5,.9,.5))), 0.) * .55 + .2;
-          vec3 base = vec3(.05,.042,.06) * lit;
-          // above the fork the wood takes the logo gradient: blue on the left, amber on the right
-          vec3 logo = vX < 0. ? mix(cBark, cLeaf, smoothstep(0., 1.1, -vX)) : mix(cBark, cRoot, smoothstep(0., 1.1, vX));
-          vec3 tint = vKind > .5 ? cRoot : mix(cBark, logo, smoothstep(1.9, 2.8, vH));
-          float rim = fres * (vKind > .5 ? 2.8 : 1.5 + uBark * .8) + (vKind > .5 ? 0. : .12);
+          // moonlit wood: dark in the furrows, pale on the ridges
+          float lit = clamp((dot(N, normalize(vec3(-6.,10.,6.))) + .35) / 1.35, 0., 1.);
+          float ao = mix(.45, 1., smoothstep(0., .5, vH));
+          vec3 wood = mix(vec3(.018,.014,.022), vec3(.13,.10,.12), vB);
+          vec3 base = wood * (.25 + lit * 1.05) * vec3(.92,.95,1.1) * ao;
+          // logo gradient carried by each arm of the Y: blue on the left, violet trunk, amber on the right
+          vec3 logo = vHue < 0. ? mix(cBark, cLeaf, -vHue) : mix(cBark, cRoot, vHue);
+          vec3 tint = vKind > .5 ? cRoot : logo;
+          float groove = pow(1. - vB, 3.);
+          // light running up the furrows like sap
+          float sap = .35 + .35 * sin(vH * 3. - uTime * .8 + vX);
+          float glow = groove * sap * (vKind > .5 ? 2.2 : 1.) + (vKind > .5 ? .1 : .035);
+          float rim = fres * (vKind > .5 ? 1.6 : .7) * (.25 + .75 * vB);
           // bark "layers": slow bands of light climbing the trunk during the security plate
-          float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 40.) * uBark * (1. - smoothstep(2., 3.4, vH)) * .9 : 0.;
+          float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 24.) * uBark * (1. - smoothstep(2., 3.4, vH)) * (.35 + 1.2 * (1. - vB)) : 0.;
           // growth front: a bright tip where the tree is currently growing
           float front = (1. - smoothstep(0., .018, lim - vGrow)) * (1. - step(.999, lim));
-          vec3 col = base + tint * (rim + bands) + vec3(1.,.9,.75) * front * .9;
+          vec3 col = base + tint * (rim + glow + bands) + vec3(1.,.9,.75) * front * .35;
           gl_FragColor = vec4(col * uFade, 1.);
         }`
     });
@@ -282,7 +404,7 @@ function run() {
   function leaves(T, count, seed, u) {
     const R = rng(seed);
     const maxD = Math.max(...T.branches.map(b => b.d));
-    const tips = T.branches.filter(b => !b.isRoot && b.d >= maxD - 3);
+    const tips = T.branches.filter(b => !b.isRoot && !b.surf && b.d >= maxD - 2);
     const n = tips.length * count;
     const pos = new Float32Array(n * 3), col = new Float32Array(n * 3), gr = new Float32Array(n), rd = new Float32Array(n);
     let xmin = 1e9, xmax = -1e9;
@@ -293,7 +415,7 @@ function run() {
       const e = t.pts[SEG];
       const k = ((e.x - e.z * .3) - xmin) / (xmax - xmin || 1);
       for (let j = 0; j < count; j++, i++) {
-        const r = Math.cbrt(R()) * .62, th = R() * Math.PI * 2, ph = Math.acos(2 * R() - 1);
+        const r = Math.cbrt(R()) * .42, th = R() * Math.PI * 2, ph = Math.acos(2 * R() - 1);
         pos.set([e.x + r * Math.sin(ph) * Math.cos(th), e.y + r * Math.cos(ph) * .8 + .08, e.z + r * Math.sin(ph) * Math.sin(th)], i * 3);
         const kk = clamp(k + (R() - .5) * .25);
         // logo gradient across the crown: blue → violet → amber
@@ -327,14 +449,14 @@ function run() {
         void main(){
           float d = length(gl_PointCoord - .5);
           float a = smoothstep(.5, .0, d), core = smoothstep(.16, .0, d);
-          gl_FragColor = vec4((vC * a * .95 + vec3(1.) * core * .18) * vA, 1.);
+          gl_FragColor = vec4((vC * a * .95 * .6 + vec3(1.) * core * .08) * vA, 1.);
         }`
     });
     return new THREE.Points(g, m);
   }
 
   function neural(T, u) {
-    const tips = T.branches.filter(b => !b.isRoot && !b.kids.length).map(b => b.pts[SEG]);
+    const tips = T.branches.filter(b => !b.isRoot && !b.surf && !b.kids.length).map(b => b.pts[SEG]);
     const P = [], A = [], Rr = [];
     const R = rng(9);
     tips.forEach((a, i) => {
@@ -388,65 +510,97 @@ function run() {
   /* ---------- floating island ---------- */
   const grassU = {uTime: {value: 0}, cCyan: {value: null}, uGlow: {value: 1.05}};
   function island(seed, R0 = 3.3, H0 = 2.4) {
-    const geo = new THREE.CylinderGeometry(R0, .3, H0, 72, 18, false);
-    geo.translate(0, -H0 / 2, 0);
-    const p = geo.attributes.position, col = [];
-    const moss = new THREE.Color('#123a2c'), mossHi = new THREE.Color('#1f5a41'), stone = new THREE.Color('#2e2640'), deep = new THREE.Color('#150f22');
+    // a lathe-like grid: domed mossy top, an overhanging moss lip, then a stratified rock cone
+    const cols = 96, prof = [];
+    const TOP = 14, SIDE = 46;
+    for (let k = 0; k <= TOP; k++) prof.push([R0 * k / TOP, null, 0]);
+    prof.push([R0 * 1.04, -.035, 1]);           // moss lip, slightly proud of the edge
+    prof.push([R0 * .975, -.14, 2]);            // tucked under the lip
+    for (let m = 1; m <= SIDE; m++) { const t = m / SIDE; prof.push([lerp(R0 * .95, .3, Math.pow(t, .9)), -.14 - t * (H0 - .14), 3]); }
+    prof.push([0, -H0 - .15, 3]);
+    const angN = a => noise(Math.cos(a) * 2 + seed, 0, Math.sin(a) * 2);
+    const topH = (a, r) => (1 - (r / R0) ** 2) * .22 + (noise(Math.cos(a) * 5 + seed, 0, Math.sin(a) * 5) - .5) * .08 * (r / R0)
+      + (noise(Math.cos(a) * r * 1.6 + seed, 3, Math.sin(a) * r * 1.6) - .5) * .05 * (r / R0);
+    const P = [], col = [], I = [];
+    const moss = new THREE.Color('#123a2c'), mossHi = new THREE.Color('#1f5a41'), lip = new THREE.Color('#2b7454'), tuck = new THREE.Color('#081712');
+    const stone = new THREE.Color('#2e2640'), band = new THREE.Color('#4a3b5e'), deep = new THREE.Color('#150f22');
     const c = new THREE.Color();
-    for (let i = 0; i < p.count; i++) {
-      let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-      const r = Math.hypot(x, z) || 1e-6, a = Math.atan2(z, x);
-      const t = -y / H0;                                  // 0 top → 1 bottom
-      const n1 = noise(Math.cos(a) * 2 + seed, y * .9, Math.sin(a) * 2);
-      const n2 = noise(Math.cos(a) * 5 + seed, y * 2.2, Math.sin(a) * 5);
-      let rr = r;
-      if (y > -.01) {                                     // top: gentle dome with small bumps
-        y = (1 - (r / R0) ** 2) * .22 + (n2 - .5) * .08 * (r / R0);
-        rr = r * (1 + (n1 - .5) * .12);
-      } else {
-        rr = r * (1 + (n1 - .5) * .45 + (n2 - .5) * .2) * (1 - t * .1);
-        y -= Math.pow(n2, 3) * .8 * t;                     // stalactite-like drips underneath
+    for (let i = 0; i < prof.length; i++) {
+      const [r0, y0, kind] = prof[i];
+      for (let j = 0; j < cols; j++) {
+        const a = j / cols * Math.PI * 2, na = angN(a);
+        let rr, y;
+        if (kind === 0) {
+          const k = r0 / R0;
+          rr = r0 * (1 + (na - .5) * .3 * k * k); y = topH(a, r0);
+          c.copy(moss).lerp(mossHi, noise(Math.cos(a) * 5 + seed, 0, Math.sin(a) * 5));
+        } else if (kind === 1 || kind === 2) {
+          rr = r0 * (1 + (na - .5) * .3); y = topH(a, R0) + y0;
+          if (kind === 1) c.copy(lip).lerp(mossHi, noise(Math.cos(a) * 9, 1, Math.sin(a) * 9)); else c.copy(tuck);
+        } else {
+          const t = clamp(-y0 / H0);
+          const n1 = noise(Math.cos(a) * 2 + seed, y0 * .9, Math.sin(a) * 2);
+          const n2 = noise(Math.cos(a) * 5 + seed, y0 * 2.2, Math.sin(a) * 5);
+          const n3 = noise(Math.cos(a) * 9 + seed, y0 * 14, Math.sin(a) * 9);
+          const strata = Math.sin(y0 * 26 + n1 * 6);
+          rr = r0 * (1 + (na - .5) * .3 * (1 - t) + (n1 - .5) * .35 * t + (n2 - .5) * .2) * (1 - t * .1);
+          rr *= 1 + .035 * strata + .03 * (n3 - .5);   // horizontal rock strata
+          y = y0 - Math.pow(n2, 3) * .8 * t;           // stalactite-like drips underneath
+          c.copy(stone).lerp(band, .55 * clamp(strata * .5 + .5) ** 3).lerp(deep, clamp(t * 1.2 + (n1 - .5) * .4));
+        }
+        P.push(Math.cos(a) * rr, y, Math.sin(a) * rr);
+        col.push(c.r, c.g, c.b);
+        if (i > 0) {
+          const s0 = (i - 1) * cols, s1 = i * cols, j2 = (j + 1) % cols;
+          I.push(s0 + j, s1 + j2, s1 + j, s0 + j, s0 + j2, s1 + j2);
+        }
       }
-      p.setXYZ(i, Math.cos(a) * rr, y, Math.sin(a) * rr);
-      if (y > -.02) c.copy(moss).lerp(mossHi, n2);
-      else c.copy(stone).lerp(deep, clamp(t * 1.2 + (n1 - .5) * .4));
-      col.push(c.r, c.g, c.b);
     }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    const g2 = geo.toNonIndexed(); g2.computeVertexNormals();
-    const mesh = new THREE.Mesh(g2, new THREE.MeshStandardMaterial({vertexColors: true, flatShading: true, roughness: .92, metalness: 0}));
+    geo.setIndex(I); geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({vertexColors: true, roughness: .92, metalness: 0}));
     const grp = new THREE.Group(); grp.add(mesh);
 
-    // grass blades on top
-    const R = rng(seed * 7 + 1), n = Math.round(R0 * R0 * 70);
-    const blade = new THREE.ConeGeometry(.014, .16, 3); blade.translate(0, .08, 0);
+    // grass: short blades in clumps; a quarter of them carry the cyan glow
+    const R = rng(seed * 7 + 1), n = Math.round(R0 * R0 * 150);
+    const blade = new THREE.ConeGeometry(.011, .09, 3); blade.translate(0, .045, 0);
+    const glowA = new Float32Array(n);
     const gm = new THREE.ShaderMaterial({
       uniforms: grassU,
-      vertexShader: `uniform float uTime; varying float vH;
+      vertexShader: `uniform float uTime; attribute float aG; varying float vH, vG;
         void main(){
-          vH = clamp(position.y / .16, 0., 1.);
+          vH = clamp(position.y / .09, 0., 1.); vG = aG;
           vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.);
           float w = sin(uTime*1.4 + wp.x*1.7 + wp.z*1.3) + .5*sin(uTime*2.3 + wp.x*3.1);
-          wp.x += w * vH * vH * .05; wp.z += w * vH * vH * .03;
+          wp.x += w * vH * vH * .03; wp.z += w * vH * vH * .02;
           gl_Position = projectionMatrix * viewMatrix * wp;
         }`,
-      fragmentShader: `uniform vec3 cCyan; uniform float uGlow; varying float vH;
+      fragmentShader: `uniform vec3 cCyan; uniform float uGlow; varying float vH, vG;
         void main(){
-          vec3 c = mix(vec3(.02,.07,.05), vec3(.05,.2,.13), vH);
-          c += cCyan * pow(vH, 5.) * uGlow;
+          vec3 c = mix(vec3(.015,.05,.035), vec3(.05,.19,.12), vH);
+          c += cCyan * pow(vH, 4.) * uGlow * vG;
           gl_FragColor = vec4(c, 1.);
         }`
     });
     const inst = new THREE.InstancedMesh(blade, gm, n);
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), v = new THREE.Vector3();
-    for (let i = 0; i < n; i++) {
-      const rr = Math.sqrt(.02 + R() * .95) * R0 * .92, a = R() * Math.PI * 2;
+    let placed = 0;
+    for (let tries = 0; placed < n && tries < n * 12; tries++) {
+      const rr = Math.sqrt(R()) * R0 * .9, a = R() * Math.PI * 2;
       const x = Math.cos(a) * rr, z = Math.sin(a) * rr;
-      const y = (1 - (rr / R0) ** 2) * .22;
-      q.setFromEuler(new THREE.Euler((R() - .5) * .5, R() * 6, (R() - .5) * .5));
-      const k = .6 + R() * 1.1; s.set(k, k * (.7 + R() * .8), k);
-      m4.compose(v.set(x, y - .01, z), q, s); inst.setMatrixAt(i, m4);
+      if (rr < .5 || rr > R0 * .88) continue;
+      const clump = noise(x * 1.2 + seed, 7, z * 1.2);
+      if (R() > Math.pow(clump, 2.2) * 2.2) continue;
+      q.setFromEuler(new THREE.Euler((R() - .5) * .6, R() * 6, (R() - .5) * .6));
+      const k = .7 + R() * .9; s.set(k, k * (.6 + R() * .9) * (.7 + clump * .6), k);
+      m4.compose(v.set(x, topH(a, rr) - .01, z), q, s); inst.setMatrixAt(placed, m4);
+      glowA[placed] = R() < .25 ? .8 + R() * .7 : 0;
+      placed++;
     }
+    inst.count = placed;
+    blade.setAttribute('aG', new THREE.InstancedBufferAttribute(glowA, 1));
     grp.add(inst);
     return grp;
   }
@@ -454,12 +608,14 @@ function run() {
   function makeTree(seed, o, leafCount) {
     const u = {
       uTime: {value: 0}, uWind: {value: reduce ? 0 : 1}, uGrow: {value: 1}, uRoot: {value: 1}, uBark: {value: 0},
-      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 150},
+      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 120},
       cRoot: {value: C.root}, cBark: {value: C.bark}, cLeaf: {value: C.leaf}
     };
     const T = buildTree(seed, o);
     const grp = new THREE.Group();
-    grp.add(new THREE.Mesh(tubeGeometry(T, b => b.d < 2 && !b.isRoot ? 12 : b.d < 4 ? 7 : 4), treeMaterial(u)));
+    const radial = b => b.isRoot ? (b.d === 0 ? 12 : b.d === 1 ? 10 : b.d <= 3 ? 7 : 5)
+      : b.surf ? 16 : b.d === 0 ? 48 : b.d === 1 ? 32 : b.d <= 3 ? 16 : b.d <= 5 ? 7 : 5;
+    grp.add(new THREE.Mesh(tubeGeometry(T, radial), treeMaterial(u)));
     grp.add(leaves(T, leafCount, seed + 1, u));
     grp.add(neural(T, u));
     return {T, u, grp};
@@ -471,31 +627,18 @@ function run() {
   const world = new THREE.Group(); scene.add(world);
   const mainIsland = island(1.7);
   world.add(mainIsland);
-  const main = makeTree(11, {len: 2.1, r: .27, depth: 8, roots: 6, rootLen: 1.9, rootDepth: 5}, mobile() ? 6 : 8);
+  const main = makeTree(11, {len: 2.1, r: .27, arm: .8, crown: .7, open: 2, depth: mobile() ? 6 : 7, roots: 6, rootLen: 1.9, rootDepth: mobile() ? 4 : 5,
+    surf: 5, surfLen: .7, hang: mobile() ? 5 : 7, hangLen: 1.6, hangY: -1.6, hangDepth: 4}, mobile() ? 6 : 4);
   world.add(main.grp);
   const rootMotes = motes(main.T, main.u); world.add(rootMotes);
 
-  // security: rings of light around the trunk + a faint protective shell
-  const secU = {uTime: main.u.uTime, uShield: {value: 0}, cBark: {value: C.bark}};
+  // security: thin rings of light hugging the trunk, like the growth layers of the bark itself
   const rings = new THREE.Group();
-  [[1.05, .5, .15], [1.45, 1.2, -.12], [1.9, 1.9, .1]].forEach(([r, y, tilt]) => {
-    const t = new THREE.Mesh(new THREE.TorusGeometry(r, .006, 6, 160), new THREE.MeshBasicMaterial({color: C.bark, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false}));
-    t.rotation.x = Math.PI / 2 + tilt; t.position.y = y; rings.add(t);
+  [[.62, .55, .06], [.58, 1.1, -.05], [.54, 1.62, .04]].forEach(([r, y, tilt]) => {
+    const t = new THREE.Mesh(new THREE.TorusGeometry(r, .007, 6, 120), new THREE.MeshBasicMaterial({color: C.bark, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false}));
+    t.rotation.x = Math.PI / 2 + tilt; t.position.set(-.06 * y / 2.1, y, .025 * y / 2.1); rings.add(t);
   });
   world.add(rings);
-  const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(4.2, 5), new THREE.ShaderMaterial({
-    uniforms: secU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    vertexShader: 'varying vec3 vN, vV, vP; void main(){ vec4 wp = modelMatrix*vec4(position,1.); vN = normalize(mat3(modelMatrix)*normal); vV = normalize(cameraPosition-wp.xyz); vP = position; gl_Position = projectionMatrix*viewMatrix*wp; }',
-    fragmentShader: `uniform float uShield, uTime; uniform vec3 cBark; varying vec3 vN, vV, vP;
-      void main(){
-        float f = pow(1. - abs(dot(normalize(vN), normalize(vV))), 3.);
-        float scan = smoothstep(.06, 0., abs(fract(vP.y*.18 - uTime*.12) - .5));
-        float grid = smoothstep(.97, 1., abs(sin(vP.y*9.))) * .25;
-        gl_FragColor = vec4(cBark * (f * .45 + scan * .12 + grid * f * .5) * uShield, 1.);
-      }`
-  }));
-  shell.scale.set(1, 1.12, 1); shell.position.y = 3.2;
-  world.add(shell);
 
   // sparks spiralling around the sprout: the hero's living moment
   const heroU = {uTime: main.u.uTime, uPR: main.u.uPR, uHero: {value: 1}, cA: {value: C.cyan}, cB: {value: C.root}, cC: {value: C.bark}};
@@ -550,12 +693,13 @@ function run() {
   const FOREST = [
     {name: 'Aira', seed: 21, pos: [-10, 1.5, 3], s: .55},
     {name: 'CDI', seed: 33, pos: [-2.8, 1, 15], s: .62},
-    {name: 'ReservaYá', seed: 48, pos: [-4, -2.5, 9], s: .45}
+    {name: 'ReservaYá', seed: 48, pos: [3.5, -3, 8], s: .45}
   ].map(f => {
     const grp = new THREE.Group();
     grp.add(island(f.seed * .37, 3, 2.2));
-    const t = makeTree(f.seed, {len: 1.9, r: .18, depth: 6, roots: 4, rootLen: 1.2, rootDepth: 4}, 10);
-    t.u.uNeural.value = .5; t.u.uSize.value = 170;
+    const t = makeTree(f.seed, {len: 1.9, r: .22, arm: .8, crown: .7, open: 2, depth: 6, roots: 4, rootLen: 1.2, rootDepth: 4,
+      surf: 4, surfLen: .6, hang: 3, hangLen: 1.1, hangY: -1.4, hangDepth: 3}, 6);
+    t.u.uNeural.value = .5; t.u.uSize.value = 90;
     grp.add(t.grp);
     grp.position.set(...f.pos); grp.scale.setScalar(.0001); grp.visible = false;
     scene.add(grp);
@@ -567,14 +711,14 @@ function run() {
   /* ---------- post ---------- */
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .85, .65, .18);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .65, .55, .32);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
   /* ---------- camera path, one key per plate ---------- */
   const KEYS = [
     {p: 0,    r: 9.8,  th: .15, y: 2.4,  ty: 1.5},
-    {p: .25,  r: 11,   th: .75, y: -3.8, ty: -2.9},
+    {p: .25,  r: 11,   th: .75, y: -5.2, ty: -4.6},
     {p: .47,  r: 11,   th: 1.35, y: 2.8, ty: 2.1},
     {p: .68,  r: 15.5, th: 2.05, y: 5.8, ty: 3.8},
     {p: .9,   r: 27,   th: 2.55, y: 7.5, ty: 1.2},
@@ -599,7 +743,7 @@ function run() {
     if (mobile()) camera.setViewOffset(W, H, 0, H * .2, W, H);
     else camera.setViewOffset(W, H, -W * .2, 0, W, H);
     camera.updateProjectionMatrix();
-    [main, ...FOREST.map(f => f.t)].forEach(t => { t.u.uPR.value = renderer.getPixelRatio(); t.u.uSize.value = (t === main ? 150 : 170) * (H / 900); });
+    [main, ...FOREST.map(f => f.t)].forEach(t => { t.u.uPR.value = renderer.getPixelRatio(); t.u.uSize.value = (t === main ? 120 : 90) * (H / 900); });
   }
   resize();
   addEventListener('resize', resize);
@@ -639,7 +783,7 @@ function run() {
     ptr.sx += (ptr.x - ptr.sx) * (1 - Math.exp(-dt * 3)); ptr.sy += (ptr.y - ptr.sy) * (1 - Math.exp(-dt * 3));
     const heroK = 1 - ss(0, .14, p);
     if (hero) hero.style.setProperty('--out', (1 - ss(0, .12, raw)).toFixed(3));
-    const pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
+    const pII = ss(.12, .28, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
     const idx = Math.min(4, Math.floor(p * 5 + .04));
     const lab = chaps[idx].dataset.plate; if (plateNo.textContent !== lab) plateNo.textContent = lab;
 
@@ -651,9 +795,8 @@ function run() {
     u.uBark.value = pIII * (1 - ss(0, .5, pIV));
     u.uLeaf.value = pIV;
     u.uNeural.value = pIV * (1 - pV * .3);
-    secU.uShield.value = pIII * (1 - ss(0, .35, pIV));
-    rings.children.forEach((r, i) => { r.material.opacity = pIII * (1 - ss(0, .35, pIV)) * .7; r.rotation.z = time * (.15 + i * .07) * (i % 2 ? -1 : 1); });
-    rings.visible = shell.visible = pIII > .01 && pIV < .99;
+    rings.children.forEach((r, i) => { r.material.opacity = pIII * (1 - ss(0, .35, pIV)) * (.55 + .45 * Math.sin(time * 1.3 - i * 1.4)); r.rotation.z = time * (.15 + i * .07) * (i % 2 ? -1 : 1); });
+    rings.visible = pIII > .01 && pIV < .99;
     rootMotes.visible = pII > .01;
     under.intensity = 40 * pII + 6;
     crown.intensity = 30 * pIV;
