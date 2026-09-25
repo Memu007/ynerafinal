@@ -56,23 +56,21 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 .nav .btn{padding:11px 16px;font-size:14px}
 
 /* ---------- STORY: pinned plate + scrolling chapters ---------- */
-.story{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);position:relative}
-.plate{position:sticky;top:0;height:100vh;height:100svh;grid-column:2;grid-row:1;padding:84px var(--g) 24px 0}
-.plate-in{position:relative;height:100%;border:1px solid var(--rule)}
-#tree{position:absolute;inset:0;width:100%;height:100%}
-.corner{position:absolute;display:flex;gap:14px;align-items:baseline;pointer-events:none}
-.corner.tl{top:14px;left:16px}
-.corner.tr{top:14px;right:16px;text-align:right}
-.corner.bl{bottom:14px;left:16px}
-.corner.br{bottom:14px;right:16px}
+.story{position:relative}
+.plate{position:sticky;top:0;height:100vh;height:100svh;z-index:0;overflow:hidden;background:#05060a}
+.plate-in{position:absolute;inset:0}
+#tree{position:absolute;inset:0;width:100%;height:100%;display:block}
+.plate::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(7,9,8,.92) 0,rgba(7,9,8,.7) 26%,rgba(7,9,8,0) 52%)}
+.corner{position:absolute;display:flex;gap:14px;align-items:baseline;pointer-events:none;z-index:2}
+.corner.tr{top:90px;right:var(--g);text-align:right}
+.corner.br{bottom:22px;right:var(--g);flex-direction:column;align-items:flex-end;gap:6px}
 .specimen{font:italic 400 19px/1 var(--serif);color:var(--bone)}
-.scalebar{display:flex;align-items:center;gap:8px}
-.scalebar i{display:block;width:80px;height:6px;border:1px solid var(--dim);border-top:0;background:linear-gradient(90deg,var(--dim) 50%,transparent 50%) bottom/100% 1px no-repeat}
-.rings{position:absolute;right:16px;top:52px;width:112px;display:grid;gap:6px;justify-items:end;opacity:0;transition:opacity .5s;pointer-events:none}
-.rings.on{opacity:1}
-.rings svg{width:112px;height:112px}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:1}
+.tag3d{position:absolute;left:0;top:0;white-space:nowrap;color:var(--bone);opacity:0;padding:6px 10px;border:1px solid rgba(233,229,217,.25);background:rgba(7,9,8,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);translate:-50% 0;will-change:transform}
+.no-webgl .plate{background:radial-gradient(60% 50% at 70% 45%,#1a1535,#05060a)}
 
-.chapters{grid-column:1;grid-row:1;padding-left:var(--g);padding-right:clamp(16px,3vw,48px)}
+.chapters{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh;padding-left:var(--g);padding-right:var(--g);pointer-events:none}
+.chap *{pointer-events:auto}
 .chap{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:120px 64px;max-width:560px}
 .chap .plate-no{display:flex;gap:14px;align-items:baseline}
 .chap .plate-no .latin{font-size:20px;color:var(--bone);text-transform:none}
@@ -154,15 +152,11 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
 /* ---------- RESPONSIVE ---------- */
 @media (max-width:980px){
   .nav-mid{display:none}
-  .story{display:block}
-  .plate{padding:64px 0 0;height:100svh}
-  .plate-in{border:0;border-top:1px solid var(--rule)}
-  .chapters{margin-top:-100svh;position:relative;z-index:2;padding-inline:var(--g)}
-  .chap{max-width:none;justify-content:flex-end;padding-block:55svh 40px}
-  .chap>*{position:relative}
-  .chap::before{content:"";position:absolute;left:0;right:0;height:0}
-  .chap-card{background:rgba(7,9,8,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:22px;margin-inline:-6px;display:grid;gap:22px;border:1px solid var(--rule)}
-  .rings{top:auto;bottom:46px}
+  .plate::after{background:linear-gradient(180deg,rgba(7,9,8,0) 30%,rgba(7,9,8,.85) 80%)}
+  .corner.tr{top:74px}
+  .corner.br{display:none}
+  .chap{max-width:none;justify-content:flex-end;padding-block:52svh 40px}
+  .chap-card{background:rgba(7,9,8,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:22px;margin-inline:-6px;display:grid;gap:22px;border:1px solid var(--rule)}
   .check-grid,.faq{grid-template-columns:1fr}
   .reading{position:static}
   .voices-grid{grid-template-columns:1fr}
@@ -178,7 +172,6 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   .steps{grid-template-columns:1fr}
   .step+.step{border-left:0;padding-left:0}
   .did{grid-template-columns:1fr}
-  .corner.tr,.corner.br{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important;animation:none!important}
@@ -207,21 +200,9 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   <div class="plate" aria-hidden="true">
     <div class="plate-in">
       <canvas id="tree"></canvas>
-      <div class="corner tl"><span class="specimen">Ynera bifurcata</span></div>
+      <div id="labels"></div>
       <div class="corner tr"><span class="mono num" id="plateNo">Lám. I · Semilla</span></div>
-      <div class="corner bl"><span class="mono">Buenos Aires · 34°36′ S 58°22′ O</span></div>
-      <div class="corner br scalebar"><i></i><span class="mono">1 año</span></div>
-      <div class="rings" id="rings">
-        <svg viewBox="0 0 112 112" fill="none" stroke="#9B6BFF">
-          <circle cx="56" cy="56" r="52" stroke-opacity=".9"/>
-          <circle cx="57" cy="55" r="43" stroke-opacity=".7"/>
-          <circle cx="55" cy="57" r="34" stroke-opacity=".55"/>
-          <circle cx="56" cy="55" r="25" stroke-opacity=".45"/>
-          <circle cx="57" cy="56" r="16" stroke-opacity=".35"/>
-          <circle cx="56" cy="56" r="7" stroke-opacity=".3"/>
-        </svg>
-        <span class="mono">corte transversal · capas</span>
-      </div>
+      <div class="corner br"><span class="specimen">Ynera bifurcata</span><span class="mono">Buenos Aires · 34°36′ S 58°22′ O</span></div>
     </div>
   </div>
 
@@ -410,298 +391,9 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   </div>
 </footer>
 
+<script src="tree.js" defer></script>
 <script>
 (() => {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
-  const ss = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
-  const lerp = (a, b, t) => a + (b - a) * t;
-
-  /* ================= THE TREE ================= */
-  const cv = document.getElementById('tree');
-  const ctx = cv.getContext('2d');
-  const story = document.getElementById('story');
-  const plateNo = document.getElementById('plateNo');
-  const rings = document.getElementById('rings');
-  const chaps = [...document.querySelectorAll('.chap')];
-
-
-  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
-  // world units: ground at y=0, up is negative
-  const SEG = 7;
-  function buildTree(seed, o) {
-    const R = rng(seed), br = [], roots = [];
-    function grow(list, x, y, ang, len, d, max, parent, w0, isRoot) {
-      const bend = (R() - .5) * (isRoot ? 1.2 : .6);
-      const target = isRoot ? Math.PI / 2 : -Math.PI / 2;
-      const pts = [[x, y]];
-      let a = ang, px = x, py = y;
-      for (let i = 1; i <= SEG; i++) {
-        a += bend / SEG + (R() - .5) * (isRoot ? .26 : .09);
-        a += (target - a) * (isRoot ? .045 : .02);          // tropism: roots seek down, branches seek light
-        px += Math.cos(a) * len / SEG; py += Math.sin(a) * len / SEG;
-        pts.push([px, py]);
-      }
-      const w1 = w0 * (d === 0 && !isRoot ? .6 : .72);
-      const b = {pts, d, parent, kids: [], w0, w1, x2: px, y2: py};
-      list.push(b); if (parent) parent.kids.push(b);
-      if (d >= max) return;
-      let n = 2;
-      if (d > 2 && R() < .16) n = 3;
-      if (d > 3 && R() < .1) n = 1;
-      const spread = isRoot ? .72 : d === 0 ? .52 : .4;
-      for (let k = 0; k < n; k++) {
-        const side = n === 1 ? (R() - .5) * .5 : n === 2 ? (k ? 1 : -1) : k - 1;
-        grow(list, px, py, a + side * spread * (.7 + R() * .6),
-          len * (isRoot ? .66 + R() * .22 : .7 + R() * .14),
-          d + 1, max, b, n === 1 ? w1 : w1 * (n === 3 ? .7 : .8), isRoot);
-      }
-    }
-    grow(br, 0, 0, -Math.PI / 2, o.len, 0, o.depth, null, o.w, false);
-    for (let k = 0; k < 3; k++) grow(roots, (k - 1) * o.w * .25, 0, Math.PI / 2 + (k - 1) * 1.05, o.len * .42, 0, o.rootDepth, null, o.w * .5, true);
-    const tips = br.filter(b => !b.kids.length), rtips = roots.filter(b => !b.kids.length);
-    const links = [];
-    tips.forEach((a, i) => {
-      let best = null, bd = 1e9;
-      tips.forEach((b, j) => { if (j === i) return; const dd = (a.x2 - b.x2) ** 2 + (a.y2 - b.y2) ** 2; if (dd < bd && dd > 60) { bd = dd; best = b; } });
-      if (best && i % 2 === 0) links.push([a, best]);
-    });
-    const xs = tips.map(b => b.x2), minX = Math.min(...xs), maxX = Math.max(...xs);
-    const R2 = rng(seed + 99);
-    const pollen = tips.filter((_, i) => i % 2 === 0).map(t => ({x: t.x2 + (R2() - .5) * 30, y: t.y2 + (R2() - .5) * 30, ph: R2() * 6.28, d: t.d}));
-    return {br, roots, tips, rtips, links, pollen, minX, maxX, len: o.len};
-  }
-  const chain = b => { const c = []; while (b) { c.unshift(b); b = b.parent; } return c; };
-
-  const MAIN = buildTree(11, {len: 150, w: 15, depth: 9, rootDepth: 6});
-  const FOREST = [
-    {t: buildTree(21, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: -540, s: .5, name: 'Aira', ind: 'salud mental', dir: -1, dy: 60},
-    {t: buildTree(33, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: 520, s: .55, name: 'CDI', ind: 'comercio exterior', dir: 1, dy: 30},
-    {t: buildTree(48, {len: 150, w: 13, depth: 7, rootDepth: 4}), x: -300, s: .38, name: 'ReservaYá', ind: 'hotelería', dir: -1, dy: 100}
-  ];
-
-  // travelling light: sap rises through the roots, impulses run out to the canopy
-  const sap = Array.from({length: 36}, (_, i) => ({path: chain(MAIN.rtips[(i * 5) % MAIN.rtips.length]), u: Math.random(), v: .09 + Math.random() * .08}));
-  const pulses = Array.from({length: 34}, (_, i) => ({path: chain(MAIN.tips[(i * 13) % MAIN.tips.length]), u: Math.random(), v: .1 + Math.random() * .1}));
-
-  let W = 0, H = 0, dpr = 1;
-  function resize() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    W = cv.clientWidth; H = cv.clientHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-  }
-  function storyProgress() {
-    const r = story.getBoundingClientRect();
-    return clamp(-r.top / Math.max(1, r.height - innerHeight));
-  }
-
-  // wind: canopy sways, more at the top, never at the trunk base
-  let time = 0;
-  const sway = (T, y, amt) => Math.sin(time * .55 + y * .006) * Math.pow(Math.max(0, -y - T.len * .9) / 320, 2) * 7 * amt;
-
-  // adds a branch as a bundle of thin fibres (engraving style), up to fraction f of its length
-  function addBranch(path, T, b, f, wind) {
-    if (f <= 0) return;
-    const n = Math.max(1, Math.round(b.w0 / 2.3));
-    const upto = f * SEG, last = Math.floor(upto);
-    const P = [];
-    for (let i = 0; i <= Math.min(SEG, last + 1); i++) {
-      let [x, y] = b.pts[Math.min(i, SEG)];
-      if (i > upto) { const [x0, y0] = b.pts[i - 1], t = upto - (i - 1); x = x0 + (x - x0) * t; y = y0 + (y - y0) * t; }
-      P.push([x + sway(T, y, wind), y]);
-    }
-    if (P.length < 2) return;
-    for (let k = 0; k < n; k++) {
-      const off = n === 1 ? 0 : ((k + .5) / n - .5);
-      for (let i = 0; i < P.length; i++) {
-        const a = P[Math.max(0, i - 1)], c = P[Math.min(P.length - 1, i + 1)];
-        let nx = -(c[1] - a[1]), ny = c[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
-        const w = b.w0 + (b.w1 - b.w0) * (i / SEG);
-        const o = off * w + Math.sin(i * 1.7 + k * 2.3) * .18 * (w / n);
-        const x = P[i][0] + nx * o, y = P[i][1] + ny * o;
-        i ? path.lineTo(x, y) : path.moveTo(x, y);
-      }
-    }
-  }
-
-  function strokeTwice(path, style, alpha, px) {
-    ctx.strokeStyle = style;
-    ctx.globalAlpha = alpha * .07; ctx.lineWidth = 4 * px; ctx.stroke(path);
-    ctx.globalAlpha = alpha; ctx.lineWidth = .8 * px; ctx.stroke(path);
-    ctx.globalAlpha = 1;
-  }
-
-  function drawTree(T, st, px) {
-    const {canopy, roots, bark, neural, alpha, wind} = st;
-    const pr = new Path2D(), pt = new Path2D(), pc = new Path2D();
-    for (const b of T.roots) addBranch(pr, T, b, clamp(roots - b.d), 0);
-    for (const b of T.br) addBranch(b.d === 0 ? pt : pc, T, b, clamp(canopy - b.d), wind);
-
-    const g = ctx.createLinearGradient(T.minX, 0, T.maxX, 0);
-    g.addColorStop(0, 'rgb(111,134,255)'); g.addColorStop(.5, 'rgb(155,107,255)'); g.addColorStop(1, 'rgb(255,181,71)');
-    strokeTwice(pr, 'rgb(255,181,71)', .55 * alpha * (st.rootDim ?? 1), px);
-    strokeTwice(pt, bark > 0 ? `rgb(${Math.round(lerp(233, 155, bark))},${Math.round(lerp(229, 107, bark))},${Math.round(lerp(217, 255, bark))})` : 'rgb(233,229,217)', (.5 + .35 * bark) * alpha, px);
-    strokeTwice(pc, g, .78 * alpha, px);
-
-    if (neural > 0) {
-      const nl = new Path2D();
-      for (const [a, b] of T.links) {
-        if (canopy - a.d < 1 || canopy - b.d < 1) continue;
-        nl.moveTo(a.x2 + sway(T, a.y2, wind), a.y2); nl.lineTo(b.x2 + sway(T, b.y2, wind), b.y2);
-      }
-      ctx.strokeStyle = 'rgb(160,175,255)'; ctx.globalAlpha = .16 * neural * alpha; ctx.lineWidth = .6 * px; ctx.stroke(nl);
-      ctx.globalAlpha = 1;
-      for (const t of T.tips) {
-        if (canopy - t.d < 1) continue;
-        ctx.fillStyle = `rgba(233,229,217,${.8 * neural * alpha})`;
-        ctx.beginPath(); ctx.arc(t.x2 + sway(T, t.y2, wind), t.y2, 1.1 * px, 0, 6.283); ctx.fill();
-      }
-      for (const q of T.pollen) {
-        if (canopy - q.d < 1) continue;
-        const tw = .5 + .5 * Math.sin(time * 1.3 + q.ph);
-        ctx.fillStyle = `rgba(200,190,255,${.55 * tw * neural * alpha})`;
-        ctx.fillRect(q.x + sway(T, q.y, wind) + Math.sin(time * .4 + q.ph) * 4, q.y - ((time * 6 + q.ph * 20) % 40), .9 * px, .9 * px);
-      }
-    }
-  }
-
-  function posOn(path, u) {
-    const n = path.length, s = u * n, i = Math.min(n - 1, Math.floor(s)), b = path[i];
-    const q = (s - i) * SEG, j = Math.min(SEG - 1, Math.floor(q)), t = q - j;
-    const [x0, y0] = b.pts[j], [x1, y1] = b.pts[j + 1];
-    return [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
-  }
-  function travel(list, dt, amount, rgb, reverse, px, T, wind, reach = 99) {
-    if (amount <= 0) return;
-    for (const p of list) {
-      if (p.path.length > reach) continue;
-      p.u = (p.u + dt * p.v) % 1;
-      for (let k = 0; k < 6; k++) {
-        const u = p.u - k * .012; if (u < 0) break;
-        const [x, y] = posOn(p.path, reverse ? 1 - u : u);
-        ctx.fillStyle = `rgba(${rgb},${amount * (1 - k / 6) * (k ? .5 : 1)})`;
-        ctx.beginPath(); ctx.arc(x + sway(T, y, wind), y, (k ? 1 : 1.5) * px, 0, 6.283); ctx.fill();
-      }
-    }
-  }
-
-  function label(x, y, dx, dy, text, a) {
-    if (a <= 0) return;
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = `rgba(143,141,130,${.6 * a})`; ctx.lineWidth = .75;
-    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + dx, y + dy); ctx.lineTo(x + dx + (dx > 0 ? 18 : -18), y + dy); ctx.stroke();
-    ctx.fillStyle = `rgba(233,229,217,${.8 * a})`;
-    ctx.font = '400 10px "IBM Plex Mono", monospace';
-    ctx.textAlign = dx > 0 ? 'left' : 'right';
-    ctx.fillText(text.toUpperCase(), x + dx + (dx > 0 ? 24 : -24), y + dy + 3.5);
-    ctx.globalCompositeOperation = 'lighter';
-  }
-
-  let last = performance.now();
-  function frame(now) {
-    const dt = Math.min(.05, (now - last) / 1000); last = now;
-    if (!reduce) time += dt;
-    const p = storyProgress();
-
-    // story timeline (5 plates, equal length)
-    const pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
-    const wind = reduce ? 0 : 1;
-    const st = {
-      canopy: lerp(1.45, 2.4, pIII) + pIV * 7.9,   // plate I: trunk + first fork, the Y
-      roots: pII * 7.2,
-      bark: pIII,
-      neural: pIV,
-      alpha: 1,
-      rootDim: lerp(1, .6, pIV),
-      wind
-    };
-    const idx = Math.min(4, Math.floor(p * 5 + .04));
-    const plateLabel = chaps[idx].dataset.plate;
-    if (plateNo.textContent !== plateLabel) plateNo.textContent = plateLabel;
-    rings.classList.toggle('on', pIII > .5 && pIV < .15);
-
-    // camera
-    const mobile = W < 700;
-    const growScale = lerp(1.05, .66, pII) * lerp(1, .72, pIV);
-    const zoom = lerp(1, .6, pV);
-    const S = Math.min(W, H) / 560 * growScale * zoom;
-    const groundY = H * lerp(lerp(lerp(.64, .54, pII), .7, pIV), .66, pV) + (mobile ? -H * .08 : 0);
-    const cx = W / 2, px = 1 / S;
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'source-over';
-
-    // faint light behind the canopy
-    if (pIV > 0) {
-      const gy = groundY - MAIN.len * 2.3 * S;
-      const rg = ctx.createRadialGradient(cx, gy, 0, cx, gy, 360 * S);
-      rg.addColorStop(0, `rgba(111,134,255,${.09 * pIV})`); rg.addColorStop(1, 'rgba(111,134,255,0)');
-      ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
-    }
-    // soil: warm haze below the ground line
-    if (pII > 0) {
-      const sg = ctx.createLinearGradient(0, groundY, 0, groundY + 220 * S);
-      sg.addColorStop(0, `rgba(255,181,71,${.05 * pII})`); sg.addColorStop(1, 'rgba(255,181,71,0)');
-      ctx.fillStyle = sg; ctx.fillRect(0, groundY, W, 220 * S);
-    }
-    // ground line, fading at the edges
-    const gl = ctx.createLinearGradient(0, 0, W, 0);
-    gl.addColorStop(0, 'rgba(143,141,130,0)'); gl.addColorStop(.5, 'rgba(143,141,130,.45)'); gl.addColorStop(1, 'rgba(143,141,130,0)');
-    ctx.fillStyle = gl; ctx.fillRect(0, Math.round(groundY), W, 1);
-    ctx.fillStyle = 'rgba(143,141,130,.7)'; ctx.font = '400 10px "IBM Plex Mono", monospace'; ctx.textAlign = 'left';
-    ctx.fillText('NIVEL DEL SUELO', 24, groundY - 8);
-
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    ctx.globalCompositeOperation = 'lighter';
-
-    if (pV > 0) {
-      for (const f of FOREST) {
-        ctx.save();
-        ctx.translate(cx + f.x * S, groundY); ctx.scale(S * f.s, S * f.s);
-        drawTree(f.t, {canopy: 9, roots: 6, bark: .5, neural: 1, alpha: pV * .75, wind}, px / f.s);
-        ctx.restore();
-      }
-    }
-
-    ctx.save();
-    ctx.translate(cx, groundY); ctx.scale(S, S);
-    drawTree(MAIN, st, px);
-    travel(sap, reduce ? 0 : dt, pII * .85 * (1 - pV * .4), '255,181,71', true, px, MAIN, 0);
-    travel(pulses, reduce ? 0 : dt, pIV * .9, '233,229,217', false, px, MAIN, wind, st.canopy);
-    const seedA = 1 - pII;
-    if (seedA > 0) {
-      const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, 26 * px);
-      sg.addColorStop(0, `rgba(255,181,71,${.8 * seedA})`); sg.addColorStop(1, 'rgba(255,181,71,0)');
-      ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(0, 0, 26 * px, 0, 6.283); ctx.fill();
-    }
-    ctx.restore();
-
-    // annotations in screen space
-    const toS = (x, y) => [cx + x * S, groundY + y * S];
-    const fig = mobile ? 0 : 1;
-    { const [x, y] = toS(MAIN.br[0].x2, MAIN.br[0].y2); label(x, y, 60, -40, 'fig. 1 · primera bifurcación', clamp(1 - pII * 1.5) * fig); }
-    { const r = MAIN.rtips[MAIN.rtips.length - 1]; const [x, y] = toS(r.x2, r.y2); label(x, y, 40, 20, 'fig. 2 · raíces · datos', pII * (1 - pIII) * fig); }
-    { const [x, y] = toS(0, -MAIN.len * .5); label(x, y, -70, -10, 'fig. 3 · corteza · seguridad', pIII * (1 - pIV) * fig); }
-    { const t = MAIN.tips.reduce((a, b) => b.x2 > a.x2 ? b : a); const [x, y] = toS(t.x2, t.y2); label(x, y, 30, -30, 'fig. 4 · nodos · ia', pIV * clamp(1 - pV * 2.5) * fig); }
-    if (pV > 0) {
-      for (const f of FOREST) { const [x, y] = toS(f.x, 18); label(x, y, f.dir * 20, f.dy, f.name, pV); }
-      const [x, y] = toS(0, 18); label(x, y, 22, 125, 'el próximo: el tuyo', pV);
-    }
-
-    if (!reduce) requestAnimationFrame(frame);
-  }
-
-  resize();
-  addEventListener('resize', resize);
-  if (reduce) {
-    const redraw = () => frame(performance.now());
-    addEventListener('scroll', redraw, {passive: true});
-    redraw();
-  } else requestAnimationFrame(frame);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => reduce && frame(performance.now()));
-
   /* ================= DIAGNÓSTICO ================= */
   const ITEMS = [
     ['Armamos reportes a mano todas las semanas', {da: 3, ia: 1, se: 0}],
