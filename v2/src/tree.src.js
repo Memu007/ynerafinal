@@ -5,6 +5,7 @@ import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer.j
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/examples/jsm/postprocessing/OutputPass.js';
+import Lenis from 'lenis';
 
 const canvas = document.getElementById('tree');
 const story = document.getElementById('story');
@@ -28,6 +29,21 @@ function noise(x, y, z) {
   return lerp(lerp(x00, x10, v), lerp(x01, x11, v), w);
 }
 
+/* ---------- smooth, weighted scrolling ---------- */
+let lenis = null;
+if (!reduce) {
+  lenis = new Lenis({lerp: .085, wheelMultiplier: .9, smoothWheel: true});
+  const loop = t => { lenis.raf(t); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const id = a.getAttribute('href'); if (id.length < 2) return;
+    const el = document.querySelector(id); if (!el) return;
+    e.preventDefault(); lenis.scrollTo(el, {offset: 0, duration: 1.6});
+  });
+}
+const hero = document.querySelector('.chap.hero');
+
 let webgl = true;
 let renderer;
 try {
@@ -49,9 +65,10 @@ function run() {
   const camera = new THREE.PerspectiveCamera(38, 1, .1, 200);
 
   const C = {
-    root: new THREE.Color('#FFB547'),
-    bark: new THREE.Color('#9B6BFF'),
-    leaf: new THREE.Color('#6F86FF'),
+    root: new THREE.Color('#FF9A1F'),
+    bark: new THREE.Color('#B25BFF'),
+    leaf: new THREE.Color('#3F7BFF'),
+    cyan: new THREE.Color('#27F0D2'),
     white: new THREE.Color('#F4EEFF')
   };
 
@@ -64,11 +81,15 @@ function run() {
       fragmentShader: `varying vec3 vP;
         void main(){
           float h = normalize(vP).y;
-          vec3 top = vec3(.018,.022,.06), mid = vec3(.03,.028,.06), low = vec3(.012,.01,.014);
+          vec3 top = vec3(.012,.014,.06), mid = vec3(.035,.02,.075), low = vec3(.01,.008,.02);
           vec3 c = mix(mid, top, smoothstep(0., .8, h));
           c = mix(c, low, smoothstep(0., -.6, h));
-          // soft violet glow near the horizon behind the island
-          c += vec3(.05,.03,.09) * exp(-abs(h - .05) * 7.);
+          // magenta-violet band on the horizon and a cold cyan haze below it
+          c += vec3(.14,.035,.2) * exp(-abs(h - .06) * 6.);
+          c += vec3(.0,.06,.07) * exp(-abs(h + .12) * 5.);
+          // nebula wisps
+          float a = atan(vP.z, vP.x);
+          c += vec3(.06,.02,.1) * pow(max(0., sin(a*3. + h*6.)), 6.) * smoothstep(-.1,.5,h) * .8;
           gl_FragColor = vec4(c, 1.);
         }`
     });
@@ -223,9 +244,10 @@ function run() {
       uniforms: u,
       vertexShader: `${SWAY}
         attribute float aGrow, aKind;
-        varying float vGrow, vKind, vH; varying vec3 vN, vV;
+        varying float vGrow, vKind, vH, vX; varying vec3 vN, vV;
         void main(){
           vec3 p = aKind > .5 ? position : sway(position);
+          vX = position.x;
           vec4 wp = modelMatrix * vec4(p, 1.);
           vN = normalize(mat3(modelMatrix) * normal);
           vV = normalize(cameraPosition - wp.xyz);
@@ -235,7 +257,7 @@ function run() {
       fragmentShader: `
         uniform float uGrow, uRoot, uBark, uTime, uFade;
         uniform vec3 cRoot, cBark, cLeaf;
-        varying float vGrow, vKind, vH; varying vec3 vN, vV;
+        varying float vGrow, vKind, vH, vX; varying vec3 vN, vV;
         void main(){
           float lim = vKind > .5 ? uRoot : uGrow;
           if (vGrow > lim + .0001) discard;
@@ -243,8 +265,10 @@ function run() {
           float fres = pow(1. - abs(dot(N, V)), 2.4);
           float lit = max(dot(N, normalize(vec3(-.5,.9,.5))), 0.) * .55 + .2;
           vec3 base = vec3(.05,.042,.06) * lit;
-          vec3 tint = vKind > .5 ? cRoot : mix(cBark, cLeaf, smoothstep(2.6, 5.6, vH));
-          float rim = fres * (vKind > .5 ? 2.6 : 1.1 + uBark * .8);
+          // above the fork the wood takes the logo gradient: blue on the left, amber on the right
+          vec3 logo = vX < 0. ? mix(cBark, cLeaf, smoothstep(0., 1.1, -vX)) : mix(cBark, cRoot, smoothstep(0., 1.1, vX));
+          vec3 tint = vKind > .5 ? cRoot : mix(cBark, logo, smoothstep(1.9, 2.8, vH));
+          float rim = fres * (vKind > .5 ? 2.8 : 1.5 + uBark * .8) + (vKind > .5 ? 0. : .12);
           // bark "layers": slow bands of light climbing the trunk during the security plate
           float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 40.) * uBark * (1. - smoothstep(2., 3.4, vH)) * .9 : 0.;
           // growth front: a bright tip where the tree is currently growing
@@ -362,11 +386,12 @@ function run() {
   }
 
   /* ---------- floating island ---------- */
+  const grassU = {uTime: {value: 0}, cCyan: {value: null}, uGlow: {value: 1.05}};
   function island(seed, R0 = 3.3, H0 = 2.4) {
     const geo = new THREE.CylinderGeometry(R0, .3, H0, 72, 18, false);
     geo.translate(0, -H0 / 2, 0);
     const p = geo.attributes.position, col = [];
-    const moss = new THREE.Color('#1c3326'), mossHi = new THREE.Color('#2d4f37'), stone = new THREE.Color('#2a2531'), deep = new THREE.Color('#141019');
+    const moss = new THREE.Color('#123a2c'), mossHi = new THREE.Color('#1f5a41'), stone = new THREE.Color('#2e2640'), deep = new THREE.Color('#150f22');
     const c = new THREE.Color();
     for (let i = 0; i < p.count; i++) {
       let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
@@ -395,7 +420,23 @@ function run() {
     // grass blades on top
     const R = rng(seed * 7 + 1), n = Math.round(R0 * R0 * 70);
     const blade = new THREE.ConeGeometry(.014, .16, 3); blade.translate(0, .08, 0);
-    const gm = new THREE.MeshStandardMaterial({color: '#3c7a52', emissive: '#0d2a1a', roughness: .8, flatShading: true});
+    const gm = new THREE.ShaderMaterial({
+      uniforms: grassU,
+      vertexShader: `uniform float uTime; varying float vH;
+        void main(){
+          vH = clamp(position.y / .16, 0., 1.);
+          vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.);
+          float w = sin(uTime*1.4 + wp.x*1.7 + wp.z*1.3) + .5*sin(uTime*2.3 + wp.x*3.1);
+          wp.x += w * vH * vH * .05; wp.z += w * vH * vH * .03;
+          gl_Position = projectionMatrix * viewMatrix * wp;
+        }`,
+      fragmentShader: `uniform vec3 cCyan; uniform float uGlow; varying float vH;
+        void main(){
+          vec3 c = mix(vec3(.02,.07,.05), vec3(.05,.2,.13), vH);
+          c += cCyan * pow(vH, 5.) * uGlow;
+          gl_FragColor = vec4(c, 1.);
+        }`
+    });
     const inst = new THREE.InstancedMesh(blade, gm, n);
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), v = new THREE.Vector3();
     for (let i = 0; i < n; i++) {
@@ -423,6 +464,8 @@ function run() {
     grp.add(neural(T, u));
     return {T, u, grp};
   }
+
+  grassU.cCyan.value = C.cyan;
 
   /* ---------- main island ---------- */
   const world = new THREE.Group(); scene.add(world);
@@ -454,6 +497,37 @@ function run() {
   shell.scale.set(1, 1.12, 1); shell.position.y = 3.2;
   world.add(shell);
 
+  // sparks spiralling around the sprout: the hero's living moment
+  const heroU = {uTime: main.u.uTime, uPR: main.u.uPR, uHero: {value: 1}, cA: {value: C.cyan}, cB: {value: C.root}, cC: {value: C.bark}};
+  const sparks = (() => {
+    const n = 260, R = rng(31), rd = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) rd.set([R(), R(), R()], i * 3);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    g.setAttribute('aR', new THREE.BufferAttribute(rd, 3));
+    const m = new THREE.ShaderMaterial({
+      uniforms: heroU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: `uniform float uTime, uPR, uHero; attribute vec3 aR; varying float vA; varying float vK;
+        void main(){
+          float ph = fract(uTime * (.05 + aR.y*.07) + aR.x);
+          float ang = aR.x * 6.2832 + uTime * (.25 + aR.z * .35);
+          float rad = .35 + ph * (1.2 + aR.z * 1.4);
+          vec3 p = vec3(cos(ang) * rad, .1 + ph * (3.2 + aR.y), sin(ang) * rad);
+          vA = sin(ph * 3.1416) * uHero; vK = aR.z;
+          vec4 mv = modelViewMatrix * vec4(p, 1.);
+          gl_PointSize = (10. + aR.y * 16.) * uPR / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: `uniform vec3 cA, cB, cC; varying float vA, vK;
+        void main(){ float d = length(gl_PointCoord - .5);
+          vec3 c = vK < .33 ? cA : vK < .66 ? cB : cC;
+          gl_FragColor = vec4(c * smoothstep(.5, 0., d) * vA * 1.5, 1.); }`
+    });
+    return new THREE.Points(g, m);
+  })();
+  sparks.frustumCulled = false;
+  world.add(sparks);
+
   // fireflies drifting around the island
   const ff = (() => {
     const n = 220, R = rng(77), pos = new Float32Array(n * 3), rd = new Float32Array(n);
@@ -466,7 +540,7 @@ function run() {
           vA = pow(.5 + .5*sin(uTime*(.6+aR) + aR*40.), 3.); vR = aR;
           vec4 mv = modelViewMatrix*vec4(p,1.); gl_PointSize = (14. + aR*10.)*uPR / -mv.z; gl_Position = projectionMatrix*mv; }`,
       fragmentShader: `uniform float uA; varying float vA, vR; void main(){ float d = length(gl_PointCoord-.5);
-        vec3 c = mix(vec3(1.,.72,.3), vec3(.55,.6,1.), step(.5, vR)); gl_FragColor = vec4(c*smoothstep(.5,0.,d)*vA*uA, 1.); }`
+        vec3 c = vR < .33 ? vec3(1.,.62,.15) : vR < .66 ? vec3(.3,.5,1.) : vec3(.2,1.,.85); gl_FragColor = vec4(c*smoothstep(.5,0.,d)*vA*uA, 1.); }`
     });
     return new THREE.Points(g, m);
   })();
@@ -493,7 +567,7 @@ function run() {
   /* ---------- post ---------- */
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .7, .6, .2);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .85, .65, .18);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
@@ -534,8 +608,11 @@ function run() {
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(story);
 
   const clock = new THREE.Clock();
-  let time = 0, intro = reduce ? 1 : 0;
+  let time = 0, intro = reduce ? 1 : 0, pS = progress();
   const v3 = new THREE.Vector3();
+  // pointer parallax, eased
+  const ptr = {x: 0, y: 0, sx: 0, sy: 0};
+  addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = e.clientY / innerHeight * 2 - 1; }, {passive: true});
 
   function progress() {
     const r = story.getBoundingClientRect();
@@ -555,7 +632,13 @@ function run() {
     requestAnimationFrame(frame);
     if (!visible) return;
 
-    const p = progress();
+    // the camera trails the scroll with a little weight instead of jumping
+    const raw = progress();
+    pS += (raw - pS) * (reduce ? 1 : 1 - Math.exp(-dt * 5.5));
+    const p = pS;
+    ptr.sx += (ptr.x - ptr.sx) * (1 - Math.exp(-dt * 3)); ptr.sy += (ptr.y - ptr.sy) * (1 - Math.exp(-dt * 3));
+    const heroK = 1 - ss(0, .14, p);
+    if (hero) hero.style.setProperty('--out', (1 - ss(0, .12, raw)).toFixed(3));
     const pII = ss(.16, .36, p), pIII = ss(.38, .56, p), pIV = ss(.58, .76, p), pV = ss(.8, .96, p);
     const idx = Math.min(4, Math.floor(p * 5 + .04));
     const lab = chaps[idx].dataset.plate; if (plateNo.textContent !== lab) plateNo.textContent = lab;
@@ -575,6 +658,9 @@ function run() {
     under.intensity = 40 * pII + 6;
     crown.intensity = 30 * pIV;
     scene.userData.stars.uniforms.uTime.value = time;
+    grassU.uTime.value = time;
+    heroU.uHero.value = heroK * ie;
+    sparks.visible = heroK > .01;
 
     // gentle float of the whole island
     world.position.y = Math.sin(time * .5) * .12;
@@ -593,7 +679,11 @@ function run() {
     const th = k.th + Math.sin(time * .08) * .06;
     // narrow screens need a wider shot to fit the tree horizontally
     const rm = W / H < .8 ? 1.75 : W / H < 1.2 ? 1.3 : 1;
-    camera.position.set(Math.sin(th) * k.r * rm, lerp(k.ty, k.y, rm > 1 ? .85 : 1) + (rm - 1) * 1.5, Math.cos(th) * k.r * rm);
+    const par = reduce ? 0 : .35 + heroK * .65;
+    const th2 = th + ptr.sx * .12 * par;
+    camera.position.set(Math.sin(th2) * k.r * rm, lerp(k.ty, k.y, rm > 1 ? .85 : 1) + (rm - 1) * 1.5 - ptr.sy * .5 * par, Math.cos(th2) * k.r * rm);
+    // a slow push-in while the hero is on screen
+    camera.position.multiplyScalar(1 - heroK * (1 - Math.exp(-time * .08)) * .12);
     camera.lookAt(0, k.ty, 0);
 
     composer.render();
