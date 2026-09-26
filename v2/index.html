@@ -132,25 +132,25 @@ html.lenis,html.lenis body{height:auto}
 .chap .did dt{color:var(--c,var(--mute));filter:brightness(1.25) saturate(.85)}
 .chap .did dt.you{color:var(--bone);filter:none}
 /* Lámina V: tres fichas compactas */
-#bosque{max-width:780px;gap:22px}
+#bosque{max-width:600px;gap:22px}
 #bosque h2,#bosque .lede{max-width:560px}
-.forest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:0}
-.case{display:grid;gap:10px;align-content:start;padding:16px 16px 18px;border-top:1px solid var(--cyan);background:rgb(6 7 12/.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.case h3{font-size:30px;font-stretch:72%;font-weight:600;line-height:1}
-.case .mono.key{font-size:10.5px;letter-spacing:.09em}
+.forest{display:grid;grid-template-columns:1fr;gap:8px;border:0;max-width:560px}
+.case{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:6px 20px;align-items:start;padding:13px 16px 14px;border-left:1px solid var(--cyan);background:rgb(6 7 12/.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.case h3{grid-column:1;font-size:28px;font-stretch:72%;font-weight:600;line-height:1}
+.case .mono.key{grid-column:1;font-size:10.5px;letter-spacing:.09em}
 .case .key::before{width:6px;height:6px;box-shadow:0 0 8px var(--c)}
-.case .res{color:var(--bone);font-size:15px;line-height:1.4}
-.case .desc{color:var(--mute);font-size:13.5px;line-height:1.45;border-top:1px solid var(--rule);padding-top:10px}
+.case .res{grid-column:2;grid-row:1 / span 2;align-self:center;color:var(--bone);font-size:15px;line-height:1.4}
+.case .desc{display:none} /* descripción larga: secundaria, fuera de la lámina para que entre en una pantalla */
 
 /* ---------- TRANSICIÓN: la escena se funde en la noche ---------- */
-.story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:40vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.45) 45%,rgb(6 7 12/.88) 78%,var(--night))}
+.story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:25vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.55) 50%,var(--night))}
 /* cielo fijo muy tenue detrás de toda la bajada (la escena lo tapa arriba) */
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;
   background-image:radial-gradient(circle at 331px 154px,rgb(233 229 217/0.6) 0 0.9px,transparent 1.6px),radial-gradient(circle at 548px 96px,rgb(233 229 217/0.6) 0 0.7px,transparent 1.4px),radial-gradient(circle at 219px 38px,rgb(127 164 255/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 71px 246px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 579px 126px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 599px 406px,rgb(233 229 217/0.75) 0 0.5px,transparent 1.2px),radial-gradient(circle at 570px 136px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 553px 120px,rgb(233 229 217/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 595px 584px,rgb(233 229 217/0.9) 0 0.6px,transparent 1.3px),radial-gradient(circle at 560px 729px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 210px 508px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 599px 464px,rgb(233 229 217/0.9) 0 0.7px,transparent 1.4px),radial-gradient(circle at 184px 715px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 307px 537px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 294px 623px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 428px 168px,rgb(127 164 255/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 431px 40px,rgb(233 229 217/0.9) 0 0.5px,transparent 1.2px),radial-gradient(circle at 711px 358px,rgb(233 229 217/1) 0 0.9px,transparent 1.6px),radial-gradient(circle at 860px 95px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 62px 317px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 908px 355px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 400px 300px,rgb(39 240 210/.6) 0 .6px,transparent 1.3px);
   background-size:613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,1301px 1117px}
 
 /* ---------- SECCIONES DE LA BAJADA ---------- */
-.sec{position:relative;padding-block:clamp(96px,12vw,180px) clamp(48px,6vw,90px)}
+.sec{position:relative;padding-block:clamp(72px,8vw,120px) clamp(48px,6vw,96px)}
 .lam{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:16px;margin-bottom:clamp(36px,5vw,64px)}
 .lam-no{display:flex;gap:14px;align-items:baseline}
 .lam .latin{font-size:20px;color:var(--bone)}
@@ -190,10 +190,10 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 .item[aria-pressed="true"]::after{color:var(--c)}
 .reading{position:sticky;top:96px;align-self:start;display:grid;gap:22px;border-top:1px solid var(--rule);padding-top:16px}
 .reading-hd{display:flex;justify-content:space-between;align-items:baseline}
-.reading-body{display:grid;grid-template-columns:118px minmax(0,1fr);gap:24px;align-items:center}
-.spec{width:118px;height:auto;display:block;overflow:visible}
+.reading-body{display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px;align-items:center}
+.spec{width:180px;height:auto;display:block;overflow:visible}
 .spec path{fill:none;stroke-linecap:round}
-.spec .ghost path{stroke:var(--rule-2);stroke-width:1}
+.spec .ghost path{stroke:var(--rule-2);stroke-width:1.5;opacity:1}
 .spec .ground{stroke:var(--rule-2);stroke-dasharray:2 4}
 .spec .org path{stroke:var(--c);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0));transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px var(--c))}
 .spec .org circle{fill:var(--c);opacity:var(--p,0);transition:opacity .6s}
@@ -232,7 +232,7 @@ html.js .steps:not(.done) .step:not(.on) .node{background:var(--night);box-shado
 .step h3{font-size:clamp(26px,2.3vw,38px);font-stretch:72%;font-weight:600;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
 .step p{color:var(--mute);font-size:16px}
 .pledges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,48px);margin-top:clamp(64px,8vw,120px)}
-.pledge{margin:0;border-top:1px solid var(--c);padding-top:20px;display:grid;gap:14px;align-content:start}
+.pledges .pledge{margin:0;border-top:1px solid var(--c);padding-top:20px;display:grid;gap:14px;align-content:start}
 .pledge blockquote{margin:0;font:italic 400 clamp(22px,2vw,28px)/1.28 var(--serif)}
 
 /* X · FAQ */
@@ -254,9 +254,9 @@ details p{color:var(--mute);padding-bottom:24px;max-width:62ch;overflow:hidden}
 
 /* XI · Cierre */
 .close-hd{position:relative;isolation:isolate}
-.roots{position:absolute;z-index:-1;top:0;left:clamp(40px,18vw,300px);width:min(900px,72vw);height:clamp(300px,34vw,480px);pointer-events:none;overflow:visible;-webkit-mask-image:linear-gradient(180deg,#000 30%,transparent);mask-image:linear-gradient(180deg,#000 30%,transparent)}
-.roots path{fill:none;stroke:var(--root);stroke-width:1;stroke-linecap:round;opacity:.42;stroke-dasharray:1;stroke-dashoffset:0}
-.roots path.f{opacity:.22}
+.roots{position:absolute;z-index:-1;top:0;left:clamp(40px,18vw,300px);width:min(900px,72vw);clip-path:inset(0 0 0 55%);height:clamp(300px,34vw,480px);pointer-events:none;overflow:visible;-webkit-mask-image:linear-gradient(180deg,#000 30%,transparent);mask-image:linear-gradient(180deg,#000 30%,transparent)}
+.roots path{fill:none;stroke:var(--root);stroke-width:1;stroke-linecap:round;opacity:.28;stroke-dasharray:1;stroke-dashoffset:0}
+.roots path.f{opacity:.16}
 .close .big{margin-top:clamp(28px,4vw,56px)}
 .close .lede{color:#B9B6AA}
 .offer{margin-top:clamp(48px,6vw,80px);border:1px solid var(--rule-2);background:var(--night-2);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}
@@ -321,7 +321,8 @@ footer>.wrap{border:0}
   .chap-card{background:linear-gradient(180deg,rgba(6,7,12,0) 0,rgba(6,7,12,.5) 90px,rgba(6,7,12,.66) 220px,rgba(6,7,12,.72) 100%);padding:64px 18px 26px;margin-inline:calc(-1 * var(--g));display:grid;gap:22px;text-shadow:0 1px 14px rgba(6,7,12,.9),0 0 2px rgba(6,7,12,.8)}
   .chap.hero .chap-card{padding-top:28px}
   .chap-card .grow-word{text-shadow:none}
-  .forest{grid-template-columns:1fr}
+  .case{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:4px 14px}
+  body{padding-bottom:76px}
   .case{background:rgb(6 7 12/.5)}
   .check-grid,.faq{grid-template-columns:1fr}
   .reading,.faq-side{position:static}
@@ -344,7 +345,6 @@ footer>.wrap{border:0}
   .grow{background:linear-gradient(180deg,var(--bone),rgb(233 229 217/.35));clip-path:inset(0 -2px calc((1 - var(--k,1)) * 100%) -2px);box-shadow:none}
   .step{padding-top:0}
   .node{left:-34px;top:.2em}
-  .step:not(:last-child) .node{--c:var(--bone)}
   .pledges{grid-template-columns:1fr}
   .offer{grid-template-columns:1fr}
   .offer-col+.offer-col{border-left:0;border-top:1px solid var(--rule-2)}
@@ -362,13 +362,11 @@ footer>.wrap{border:0}
   .fork-col.no .fork-hd{grid-column:2}
   .fork-col ul{grid-column:1/-1;grid-row:2;margin-top:28px}
   .fork-col.no ul{grid-row:3;margin-top:44px}
-  .fork-col.no ul::before{content:"No es para vos si";display:block;padding-bottom:12px;font:400 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
   .case .desc{display:none}
   .fork-y{height:84px}
-  .fork-y path{stroke-width:2.4}
   .roots path{stroke-width:2}
-  .reading-body{grid-template-columns:92px minmax(0,1fr);gap:18px}
-  .spec{width:92px}
+  .reading-body{grid-template-columns:128px minmax(0,1fr);gap:18px}
+  .spec{width:128px}
   .foot{grid-template-columns:1fr}
   .foot-links{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -491,11 +489,11 @@ footer>.wrap{border:0}
       <h2 class="h2s" id="pq">Con quién trabajamos mejor.</h2>
       <svg class="fork-y draw" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-hidden="true">
         <defs>
-          <linearGradient id="fkYes" gradientUnits="userSpaceOnUse" x1="500" y1="60" x2="250" y2="150"><stop offset="0" stop-color="#30354A"/><stop offset="1" stop-color="#27F0D2"/></linearGradient>
+          <linearGradient id="fkYes" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#30354A"/><stop offset="1" stop-color="#27F0D2"/></linearGradient>
         </defs>
-        <path d="M500 0V60" pathLength="1" stroke="#30354A"/>
-        <path d="M500 60C500 112 250 98 250 150" pathLength="1" stroke="url(#fkYes)" style="--dl:.35s"/>
-        <path d="M500 60C500 112 750 98 750 150" pathLength="1" stroke="#5E5D56" style="--dl:.35s"/>
+        <path id="fkT" d="M500 0V60" pathLength="1" stroke="#30354A"/>
+        <path id="fkL" d="M500 60C500 112 250 98 250 150" pathLength="1" stroke="url(#fkYes)" style="--dl:.35s"/>
+        <path id="fkR" d="M500 60C500 112 750 98 750 150" pathLength="1" stroke="#5E5D56" style="--dl:.35s"/>
       </svg>
       <div class="fork-cols">
         <div class="fork-col">
@@ -694,7 +692,7 @@ footer>.wrap{border:0}
         <path class="f" pathLength="1" d="M640 150C600 180 560 190 540 240" style="--dl:.5s"/>
         <path class="f" pathLength="1" d="M60 0C70 40 50 70 58 120" style="--dl:.2s"/>
       </svg>
-      <header class="lam"><span class="lam-no"><span class="mono">Lám. XI</span><span class="latin">Radix</span></span><span class="mono">Mesa de entrada</span></header>
+      <header class="lam"><span class="lam-no"><span class="mono">Lám. XI</span><span class="latin">Initium</span></span><span class="mono">Mesa de entrada</span></header>
       <h2 class="big" id="ch">Empecemos por la raíz.</h2>
       <p class="lede">Una charla corta para entender el problema de fondo. Si podemos ayudarte, te decimos cómo. Si no, también.</p>
     </div>
@@ -839,12 +837,14 @@ footer>.wrap{border:0}
 
   /* barra móvil: aparece después del hero; se esconde en el cierre o si un CTA principal está a la vista */
   const mbar = document.getElementById('mbar'), heroEl = document.querySelector('.chap.hero'), close = document.getElementById('contacto');
-  const ctas = [...document.querySelectorAll('main [data-cta]')];
-  const inView = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight - 70; };
+  // se esconde si #contacto o cualquier botón inline de la bajada está en pantalla
+  const seen = new Set();
+  const ctaIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); onScroll(); }, {rootMargin: '0px 0px -20% 0px'});
+  [close, ...document.querySelectorAll('main .btn')].forEach(el => { if (!heroEl.contains(el)) ctaIO.observe(el); });
   const onScroll = () => {
     const past = heroEl.getBoundingClientRect().bottom < innerHeight * .35;
     const atClose = close.getBoundingClientRect().top < innerHeight * .6;
-    mbar.classList.toggle('on', past && !atClose && !ctas.some(inView));
+    mbar.classList.toggle('on', past && !atClose && !seen.size);
     // with answers in the test, the bar leads to the result instead of the booking
     const m = document.getElementById('mbarMain'), has = document.querySelector('.item[aria-pressed="true"]');
     if (has) { m.textContent = 'Ver mi resultado ↓'; m.href = '#verdict'; m.removeAttribute('target'); }
@@ -853,6 +853,19 @@ footer>.wrap{border:0}
   addEventListener('scroll', onScroll, {passive: true}); onScroll();
   const navH = () => root.style.setProperty('--navh', nav.offsetHeight + 'px');
   navH(); addEventListener('resize', navH);
+
+  /* bifurcación de "Para quién": los brazos terminan exactamente en los nodos de cada columna */
+  const fk = document.querySelector('.fork-y'), fkHd = document.querySelectorAll('.fork-hd');
+  const fork = () => {
+    const r = fk.getBoundingClientRect(), W = Math.round(r.width), H = Math.round(r.height);
+    if (!W) return;
+    const pts = [...fkHd].map(h => { const b = h.getBoundingClientRect(); return [b.left + b.width / 2 - r.left, b.top - r.top]; });
+    const cx = W / 2, fy = H * .4;
+    fk.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    document.getElementById('fkT').setAttribute('d', `M${cx} 0V${fy}`);
+    ['fkL', 'fkR'].forEach((id, i) => { const [x, y] = pts[i]; document.getElementById(id).setAttribute('d', `M${cx} ${fy}C${cx} ${fy + (y - fy) * .7} ${x} ${fy + (y - fy) * .45} ${x} ${y - 1}`); });
+  };
+  fork(); addEventListener('resize', fork); addEventListener('load', fork);
 
   /* trazos que se dibujan al entrar (estado final visible sin JS) */
   const draws = document.querySelectorAll('.draw');
