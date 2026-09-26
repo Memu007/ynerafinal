@@ -307,9 +307,11 @@ footer>.wrap{border:0}
   .plate::after{background:linear-gradient(180deg,rgba(6,7,12,0) 35%,rgba(6,7,12,.85) 80%)}
   .chap.hero{max-width:none}
   .hero-title,.chap.hero .hero-title{font-size:clamp(40px,11.2vw,60px)}
-  .chap.hero{padding-block:44svh 32px}
-  .chap.hero .chap-card{gap:14px}
-  .chap.hero .hero-lede{font-size:15.5px}
+  .chap.hero{padding-block:28svh 16px}
+  .chap.hero .chap-card{gap:10px}
+  .chap.hero .cta-row{gap:10px}
+  .chap.hero .cta-row .btn{padding:14px 18px}
+  .chap.hero .hero-lede{font-size:15px;line-height:1.5}
   .chap.hero .live{font-size:10.5px;letter-spacing:.07em}
   .scroll-cue{display:none}
   .corner.tr{top:74px}
@@ -322,7 +324,7 @@ footer>.wrap{border:0}
   #bosque{max-width:none}
   /* the card fades in from transparent so the scene keeps breathing above the text */
   .chap-card{background:linear-gradient(180deg,rgba(6,7,12,0) 0,rgba(6,7,12,.5) 90px,rgba(6,7,12,.66) 220px,rgba(6,7,12,.72) 100%);padding:64px 18px 26px;margin-inline:calc(-1 * var(--g));display:grid;gap:22px;text-shadow:0 1px 14px rgba(6,7,12,.9),0 0 2px rgba(6,7,12,.8)}
-  .chap.hero .chap-card{padding-top:28px}
+  .chap.hero .chap-card{padding-top:10px}
   .chap-card .grow-word{text-shadow:none}
   .case{grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:4px 14px}
   body{padding-bottom:76px}
@@ -404,35 +406,50 @@ html.motion.pins .plate.hold,html.motion.pins #bosque.hold{will-change:transform
 html.motion.pins .plate.hold .plate-veil,html.motion.pins .sec.under.pinning>.sec-veil{will-change:opacity}
 
 /* IX · carrusel horizontal pinneado (escritorio) */
-html.motion.carousel #proceso{height:calc(100vh + var(--cdist,0px));padding:0;overflow-x:clip}
+html.motion.carousel #proceso{height:calc(100vh + var(--cdist,0px));height:calc(100svh + var(--cdist,0px));padding:0;overflow-x:clip}
 html.motion.carousel #proceso.pinning>.wrap{position:sticky}
-html.motion.carousel #proceso>.wrap{top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px)}
-html.motion.carousel #proceso .lam{margin-bottom:clamp(28px,4vh,48px)}
-.car-track{display:flex;align-items:flex-start;gap:clamp(40px,5vw,96px);width:max-content}
+/* pin de una pantalla, contenido centrado; los bordes laterales se funden para no mostrar palabras cortadas */
+html.motion.carousel #proceso>.wrap{top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--g),#000 86%,transparent);mask-image:linear-gradient(90deg,transparent 0,#000 var(--g),#000 86%,transparent)}
+html.motion.carousel #proceso .lam{margin-bottom:clamp(28px,5vh,56px)}
+.car-track{position:relative;display:flex;align-items:flex-start;gap:clamp(40px,4vw,72px);width:max-content}
 html.motion.carousel #proceso .car-track.car-live{will-change:transform}
-html.motion.carousel .steps{grid-template-columns:repeat(4,min(38vw,500px));gap:0 clamp(40px,4vw,72px);flex:none}
-html.motion.carousel .step{gap:16px;padding-top:44px}
+html.motion.carousel .steps{grid-template-columns:repeat(4,min(56vw,820px));gap:0 clamp(40px,4vw,72px);flex:none}
+html.motion.carousel .step{gap:18px;padding-top:48px;padding-right:4vw}
 html.motion.carousel .step>.mono{font-size:13px}
-html.motion.carousel .step h3{font-size:clamp(40px,4.2vw,72px);font-stretch:66%;font-weight:700}
-html.motion.carousel .step p{font-size:clamp(17px,1.35vw,21px);max-width:30ch}
+html.motion.carousel .step h3{font-size:clamp(48px,5vw,72px);font-stretch:66%;font-weight:700;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
+html.motion.carousel .step p{font-size:clamp(18px,1.45vw,22px);max-width:34ch}
 html.motion.carousel .grow{clip-path:none;transform:scaleX(0);transform-origin:0 50%}
-html.motion.carousel .pledges{grid-template-columns:1fr;gap:26px;margin-top:0;width:min(34vw,460px);flex:none}
+html.motion.carousel .pledges{grid-template-columns:1fr;gap:22px;margin-top:0;width:min(46vw,640px);flex:none}
+html.motion.carousel .pledge blockquote{font-size:clamp(20px,1.7vw,26px)}
 .car-ind{display:none}
-html.motion.carousel .car-ind{display:flex;align-items:center;gap:16px;margin-top:clamp(32px,5vh,64px)}
+html.motion.carousel .car-ind{display:flex;align-items:center;gap:16px;margin-top:clamp(28px,5vh,56px)}
 .car-ind b{font-weight:500;color:var(--bone)}
 .car-ind i{display:block;width:120px;height:1px;background:var(--rule-2);position:relative;overflow:hidden}
 .car-ind i::after{content:"";position:absolute;inset:0;background:var(--bone);transform:scaleX(var(--cp,0));transform-origin:0 50%}
 /* IX en celular: carrusel táctil con scroll-snap (sin pin, no atrapa el scroll vertical) */
 @media (max-width:980px){
   .car-track{display:block;width:auto}
-  html.motion .steps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;gap:14px;margin-inline:calc(-1 * var(--g));padding:0 var(--g) 6px;scroll-padding-inline:var(--g);scrollbar-width:none}
+  html.motion .steps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;gap:16px;margin-inline:calc(-1 * var(--g));padding:0 var(--g) 6px;scroll-padding-inline:var(--g);scrollbar-width:none}
+  /* la tarjeta siguiente asoma fundida: una pista, no palabras cortadas */
+  html.motion .steps:not(.at-end){-webkit-mask-image:linear-gradient(90deg,#000 78%,transparent 97%);mask-image:linear-gradient(90deg,#000 78%,transparent 97%)}
   html.motion .steps::-webkit-scrollbar{display:none}
   html.motion .steps::before,html.motion .steps .grow{display:none}
-  html.motion .step{flex:0 0 82%;scroll-snap-align:start;padding-top:30px}
-  html.motion .step::after{content:"";position:absolute;left:18px;right:-14px;top:4px;height:1px;background:var(--rule-2)}
+  html.motion .step{flex:0 0 86%;scroll-snap-align:start;padding-top:30px}
+  html.motion .step h3{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
+  html.motion .step::after{content:"";position:absolute;left:18px;right:-16px;top:4px;height:1px;background:var(--rule-2)}
   html.motion .step:last-child::after{right:0}
   html.motion .node{left:0;top:0}
   html.motion .car-ind{display:flex;align-items:center;gap:14px;margin-top:22px}
+}
+
+/* escena 3D: se inicializa tras load (tree.js); mientras tanto la placa muestra su fondo y el canvas entra con un fundido */
+.plate{background:radial-gradient(60% 50% at 70% 45%,#1a1535,var(--night))}
+html.js #tree{opacity:0;transition:opacity .9s var(--ease)}
+html.js.tree-ready #tree{opacity:1}
+/* celular, test: la barra de lectura fija es opaca y la lista deja lugar para ella */
+@media (max-width:980px){
+  .sumbar{background:var(--night);-webkit-backdrop-filter:none;backdrop-filter:none}
+  #list .item{scroll-margin-top:calc(var(--navh,70px) + 76px)}
 }
 
 /* títulos por líneas desde máscara */

@@ -203,14 +203,18 @@ const hero = document.querySelector('.chap.hero');
 
 let webgl = true;
 let renderer;
-try {
-  renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'high-performance'});
-} catch (e) { webgl = false; }
-if (!webgl) {
-  document.documentElement.classList.add('no-webgl');
-} else {
-  run();
+// la escena no compite con el LCP: se inicializa después de load, en un momento libre del hilo principal
+// (mientras tanto la placa muestra su fondo); al primer cuadro el canvas entra con un fundido (html.tree-ready)
+function boot() {
+  try {
+    renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'high-performance'});
+  } catch (e) { webgl = false; }
+  if (!webgl) document.documentElement.classList.add('no-webgl');
+  else run();
 }
+const idle = f => ('requestIdleCallback' in window ? requestIdleCallback(f, {timeout: 600}) : setTimeout(f, 60));
+if (document.readyState === 'complete') idle(boot);
+else addEventListener('load', () => idle(boot), {once: true});
 
 function run() {
   const mobile = () => innerWidth < 980;
@@ -394,7 +398,7 @@ function run() {
           gl_Position = projectionMatrix * viewMatrix * wp;
         }`,
       fragmentShader: `
-        uniform float uGrow, uRoot, uBark, uTime, uFade, uGlow;
+        uniform float uGrow, uRoot, uBark, uTime, uFade, uGlow, uCopa;
         uniform vec3 cRoot, cBark, cLeaf;
         varying float vGrow, vKind, vH, vX, vB, vHue, vThin; varying vec3 vN, vV;
         void main(){
@@ -409,7 +413,8 @@ function run() {
           vec3 wood = mix(vec3(.018,.014,.022), vec3(.13,.10,.12), vB);
           vec3 base = wood * (.25 + lit * 1.05) * vec3(.92,.95,1.1) * ao;
           // logo gradient carried by each arm of the Y: blue on the left, violet trunk, amber on the right
-          vec3 logo = vHue < 0. ? mix(cBark, cLeaf, -vHue) : mix(cBark, cRoot, vHue);
+          // el brazo derecho conserva su ámbar en el hero; en la copa (IV–V) la Y va de violeta a azul
+          vec3 logo = vHue < 0. ? mix(cBark, cLeaf, -vHue) : mix(cBark, mix(cRoot, mix(cBark, cLeaf, .55), uCopa), vHue);
           vec3 tint = vKind > .5 ? cRoot : logo;
           float groove = pow(1. - vB, 3.);
           // light running up the furrows like sap
@@ -422,7 +427,11 @@ function run() {
           float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 24.) * uBark * (1. - smoothstep(2., 3.4, vH)) * (.35 + 1.2 * (1. - vB)) : 0.;
           // growth front: a bright tip where the tree is currently growing
           float front = (1. - smoothstep(0., .018, lim - vGrow)) * (1. - step(.999, lim));
-          vec3 col = base + tint * (rim + glow + bands) * uGlow + vec3(1.,.9,.75) * front * .2;
+          // sin bloom, rim y bands suben (uGlow) para que el árbol siga leyéndose bioluminiscente
+          vec3 light = tint * ((rim + bands) * uGlow + glow);
+          // raíces: el ámbar se limita a #FF9A1F (sin saturar a rojo con el tone mapping)
+          if (vKind > .5) light = min(light, cRoot * 1.05);
+          vec3 col = base + light + vec3(1.,.9,.75) * front * .2;
           gl_FragColor = vec4(col * uFade, 1.);
         }`
     });
@@ -445,8 +454,8 @@ function run() {
         const r = Math.cbrt(R()) * .36, th = R() * Math.PI * 2, ph = Math.acos(2 * R() - 1);
         pos.set([e.x + r * Math.sin(ph) * Math.cos(th), e.y + r * Math.cos(ph) * .8 + .08, e.z + r * Math.sin(ph) * Math.sin(th)], i * 3);
         const kk = clamp(k + (R() - .5) * .25);
-        // logo gradient across the crown: blue → violet → amber
-        if (kk < .5) c.copy(C.leaf).lerp(C.bark, kk * 2); else c.copy(C.bark).lerp(C.root, (kk - .5) * 2);
+        // la copa va de azul a violeta (sin ámbar: marca)
+        if (kk < .5) c.copy(C.leaf).lerp(C.bark, kk * 2); else c.copy(C.bark).lerp(C.leaf, (kk - .5) * .9);
         col.set([c.r, c.g, c.b], i * 3);
         gr[i] = t.g1 / T.gMax; rd[i] = R();
       }
@@ -635,7 +644,7 @@ function run() {
   function makeTree(seed, o, leafCount) {
     const u = {
       uTime: {value: 0}, uWind: {value: reduce ? 0 : 1}, uGrow: {value: 1}, uRoot: {value: 1}, uBark: {value: 0},
-      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uGlow: {value: 1}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 120},
+      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uGlow: {value: 1}, uCopa: {value: 0}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 120},
       cRoot: {value: C.root}, cBark: {value: C.bark}, cLeaf: {value: C.leaf}
     };
     const T = buildTree(seed, o);
@@ -726,7 +735,7 @@ function run() {
     grp.add(island(f.seed * .37, 3, 2.2));
     const t = makeTree(f.seed, {len: 1.9, r: .22, arm: .8, crown: .7, open: 2, depth: 6, roots: 4, rootLen: 1.2, rootDepth: 4,
       surf: 4, surfLen: .6, hang: 3, hangLen: 1.1, hangY: -1.4, hangDepth: 3}, 6);
-    t.u.uNeural.value = .5; t.u.uSize.value = 110;
+    t.u.uNeural.value = .5; t.u.uSize.value = 110; t.u.uCopa.value = 1;
     grp.add(t.grp);
     grp.position.set(...f.pos); grp.scale.setScalar(.0001); grp.visible = false;
     scene.add(grp);
@@ -738,7 +747,10 @@ function run() {
   /* ---------- post ---------- */
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .65, .55, .45);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), .6, .55, .35);
+  // el bloom trabaja a media resolución del buffer: el halo no necesita más y cuesta ~4× menos
+  const bloomSize = bloom.setSize.bind(bloom);
+  bloom.setSize = (w, h) => bloomSize(Math.max(1, Math.round(w / 2)), Math.max(1, Math.round(h / 2)));
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
@@ -854,6 +866,7 @@ function run() {
     u.uRoot.value = pII;
     u.uBark.value = pIII * (1 - ss(0, .5, pIV));
     u.uLeaf.value = pIV;
+    u.uCopa.value = ss(.44, .6, p); // la copa pasa a violeta→azul antes de que aparezcan las hojas
     u.uNeural.value = pIV * (1 - pV * .3);
     rings.children.forEach((r, i) => { r.material.opacity = pIII * (1 - ss(0, .35, pIV)) * (.55 + .45 * Math.sin(time * 1.3 - i * 1.4)); r.rotation.z = time * (.15 + i * .07) * (i % 2 ? -1 : 1); });
     rings.visible = pIII > .01 && pIV < .99;
@@ -879,13 +892,14 @@ function run() {
     if (pV > .01) place(mainTag, world, -4.2, pV); else mainTag.style.opacity = 0;
 
     if (mobile()) {
-      const oy = H * (.2 + .1 * ss(.78, .9, p));   // the forest rides higher, clear of the long text card
+      // hero: el árbol sube y se aleja para ocupar ~30svh arriba y dejar entrar el CTA; el bosque también va alto
+      const oy = H * (.2 + .1 * ss(.78, .9, p) + .1 * heroK);
       if (Math.abs(oy - (camera.view ? camera.view.offsetY : 0)) > .5) { camera.setViewOffset(W, H, 0, oy, W, H); camera.updateProjectionMatrix(); }
     }
     const k = camAt(p);
     const th = k.th + Math.sin(time * .08) * .06;
     // narrow screens need a wider shot to fit the tree horizontally
-    const rm = W / H < .8 ? 1.75 : W / H < 1.2 ? 1.3 : 1;
+    const rm = (W / H < .8 ? 1.75 : W / H < 1.2 ? 1.3 : 1) * (mobile() ? 1 + .5 * heroK : 1);
     const par = reduce ? 0 : .35 + heroK * .65;
     const th2 = th + ptr.sx * .12 * par;
     camera.position.set(Math.sin(th2) * k.r * rm, lerp(k.ty, k.y, rm > 1 ? .85 : 1) + (rm - 1) * 1.5 - ptr.sy * .5 * par, Math.cos(th2) * k.r * rm);
@@ -900,16 +914,14 @@ function run() {
     // quieta: 30 fps (el viento sigue, a medio ritmo)
     if (!settled && performance.now() - lastInput > 1200 && sinceRender < 1 / 30 - .004) return;
     sinceRender = 0; renders++;
-    // bloom solo mientras el hero está en pantalla, en escritorio y si el nivel adaptativo lo permite;
-    // sin bloom el brillo propio del árbol sube para que siga viéndose vivo
-    const useBloom = !mobile() && LEVELS[level][1] && raw < .12;
-    const g = useBloom ? 1 : 1.35;
-    if (u.uGlow.value !== g) { u.uGlow.value = g; FOREST.forEach(f => { f.t.u.uGlow.value = g; }); renderer.toneMappingExposure = useBloom ? 1 : 1.08; }
-    // siempre por el composer (render target sin MSAA): dibujar directo al canvas con antialias sale más caro
+    // bloom en todo I–V (escritorio y celular) mientras el nivel adaptativo lo permita;
+    // si el fps real no alcanza, el adaptativo lo apaga y se compensa: rim y bands ×1,8, exposición 1,15
+    const useBloom = LEVELS[level][1];
+    const g = useBloom ? 1 : 1.8;
+    if (u.uGlow.value !== g) { u.uGlow.value = g; FOREST.forEach(f => { f.t.u.uGlow.value = g; }); renderer.toneMappingExposure = useBloom ? 1 : 1.15; }
     if (bloom.enabled !== useBloom) bloom.enabled = useBloom;
-    // without bloom the composer only adds two full-screen passes: render straight to the screen
-    // (the renderer applies the same tone mapping and sRGB output the OutputPass would)
     if (useBloom) composer.render(); else renderer.render(scene, camera);
+    if (renders === 1) document.documentElement.classList.add('tree-ready');
   }
   requestAnimationFrame(frame);
 }

@@ -143,7 +143,9 @@ import { CustomEase } from 'gsap/CustomEase';
     function putStyle(key, target, prop, val) { if (last[key] !== val) { last[key] = val; target[prop] = val; } }
     const bosque = chaps[chaps.length - 1];
 
-    /* ================= IX · CARRUSEL ================= */
+    /* ================= IX · CARRUSEL =================
+       Escritorio: pin de una pantalla; 5 paneles (4 pasos + compromisos) que se detienen de a uno
+       (cada tramo de scroll tiene una meseta), ~20% de pantalla de scroll por panel. Celular: scroll-snap táctil. */
     const proc = $('#proceso'), stepsEl = $('#steps'), pledges = proc && $('.pledges', proc);
     let car = null, car_placeInd = () => {};
     if (proc && stepsEl && pledges) {
@@ -155,20 +157,23 @@ import { CustomEase } from 'gsap/CustomEase';
       // escritorio: indicador debajo del track pinneado; celular: pegado al carrusel táctil
       car_placeInd = () => { if (pins) track.after(ind); else stepsEl.after(ind); };
       const stepEls = $$('.step', stepsEl), growEl = $('.grow', stepsEl), indT = $('.ci-t', ind);
-      car = {wrap, track, ind, stepEls, growEl, indT, dist: 0, left0: 0, stepsW: 1, fr: [], plLeft: 0, lastLabel: ''};
+      const panels = [...stepEls, pledges];
+      car = {wrap, track, ind, stepEls, panels, growEl, indT, len: 0, left0: 0, stepsW: 1, fr: [], xs: [], pw: 1, lastLabel: ''};
       measureCarousel = vh => {
-        if (!pins) { proc.style.removeProperty('--cdist'); delete stepsEl.dataset.car; return; }
+        if (!pins) { proc.style.removeProperty('--cdist'); delete stepsEl.dataset.car; stepEls.forEach(e => { e.style.opacity = ''; }); return; }
         stepsEl.dataset.car = '1';
         const cs = getComputedStyle(wrap), padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight);
-        const avail = wrap.clientWidth - padL - padR;
-        car.dist = Math.max(0, Math.round(track.scrollWidth - avail));
+        const avail = wrap.clientWidth - padL - padR, maxX = Math.max(0, track.scrollWidth - avail);
         car.left0 = wrap.getBoundingClientRect().left + padL;
         car.stepsW = Math.max(1, stepsEl.offsetWidth);
         car.fr = stepEls.map(el => el.offsetLeft / car.stepsW);
-        car.plLeft = pledges.offsetLeft;
-        proc.style.setProperty('--cdist', car.dist + 'px');
+        car.offs = panels.map(el => el === pledges ? el.offsetLeft : el.offsetLeft + stepsEl.offsetLeft);
+        car.xs = car.offs.map(o => -Math.min(o, maxX));   // cada panel queda alineado al margen izquierdo
+        car.pw = stepEls[0].offsetWidth;
+        car.len = Math.round((panels.length - 1) * vh * .2);
+        proc.style.setProperty('--cdist', car.len + 'px');
       };
-      // celular: carrusel táctil con scroll-snap; el indicador sigue al paso visible
+      // celular: el indicador sigue a la tarjeta visible; sin máscara al llegar al final
       stepsEl.addEventListener('scroll', () => {
         if (pins) return;
         const w = stepEls[1] ? stepEls[1].offsetLeft - stepEls[0].offsetLeft : 1;
@@ -176,25 +181,33 @@ import { CustomEase } from 'gsap/CustomEase';
         const t = 'Paso <b>' + String(i + 1).padStart(2, '0') + '</b> / 04';
         if (t !== car.lastLabel) { car.lastLabel = t; indT.innerHTML = t; }
         ind.style.setProperty('--cp', ((i + 1) / stepEls.length).toFixed(3));
+        stepsEl.classList.toggle('at-end', stepsEl.scrollLeft + stepsEl.clientWidth >= stepsEl.scrollWidth - 4);
       }, {passive: true});
     }
+    const ease2 = f => { const t = clamp((f - .18) / .64); return t * t * (3 - 2 * t); }; // meseta al principio y al final de cada tramo
     function updateCarousel(sy, vh) {
       if (!car || !pins) return;
       const s = M.secs.find(o => o.el === proc); if (!s) return;
-      const pc = clamp((sy - s.top) / Math.max(1, car.dist)), x = -pc * car.dist;
+      const n = car.xs.length - 1, pc = clamp((sy - s.top) / Math.max(1, car.len)), u = pc * n;
+      const seg = Math.min(n - 1, Math.floor(u)), x = car.xs[seg] + (car.xs[seg + 1] - car.xs[seg]) * ease2(u - seg);
       putStyle('cx', car.track.style, 'transform', x ? `translate3d(${x.toFixed(1)}px,0,0)` : '');
-      const live = sy > s.top - vh && sy < s.top + car.dist + vh * .2;
+      const live = sy > s.top - vh && sy < s.top + car.len + vh * .2;
       if (last.clive !== live) { last.clive = live; car.track.classList.toggle('car-live', live); }
-      const pin = sy > s.top - vh && sy < s.top + car.dist + vh;
+      const pin = sy > s.top - vh && sy < s.top + car.len + vh;
       if (last.cpin !== pin) { last.cpin = pin; proc.classList.toggle('pinning', pin); }
-      // la línea crece hasta el punto que está al 62% de la pantalla, y entra con la lámina
+      // el paso que se va se desvanece al cruzar el margen izquierdo (no quedan palabras cortadas)
+      car.stepEls.forEach((el, i) => {
+        const L = car.left0 + x + car.offs[i];
+        const o = L < car.left0 - 2 ? clamp(1 - (car.left0 - L) / (car.pw * .45)) : 1;
+        putStyle('co' + i, el.style, 'opacity', o < 1 ? o.toFixed(3) : '');
+      });
+      // la línea crece hasta el panel activo (y un poco más), y entra con la lámina
       const enter = clamp((sy - (s.top - vh * .6)) / (vh * .6));
-      const k = clamp((innerWidth * .62 - (car.left0 + x)) / car.stepsW) * enter;
+      const k = clamp((car.left0 + car.pw * .35 - (car.left0 + x)) / car.stepsW) * enter;
       putStyle('ck', car.growEl.style, 'transform', `scaleX(${k.toFixed(4)})`);
       car.stepEls.forEach((el, i) => { const on = k >= car.fr[i] + .004; if (last['cs' + i] !== on) { last['cs' + i] = on; el.classList.toggle('on', on); } });
-      // paso = el último cuyo borde izquierdo pasó el 40% de la pantalla; al final, los compromisos
-      const vis = car.stepEls.filter(el => car.left0 + x + el.offsetLeft < innerWidth * .4).length;
-      const t = car.left0 + x + car.plLeft < innerWidth * .72 ? 'Compromisos' : 'Paso <b>' + String(Math.max(1, vis)).padStart(2, '0') + '</b> / 04';
+      const act = Math.round(u);
+      const t = act >= car.stepEls.length ? 'Compromisos' : 'Paso <b>' + String(act + 1).padStart(2, '0') + '</b> / 04';
       if (t !== car.lastLabel) { car.lastLabel = t; car.indT.innerHTML = t; }
       const cp = pc.toFixed(3); if (last.cp !== cp) { last.cp = cp; car.ind.style.setProperty('--cp', cp); }
     }
@@ -235,7 +248,7 @@ import { CustomEase } from 'gsap/CustomEase';
         plateVeil.style.opacity = '0';
         unders.forEach(e => { e.classList.remove('gone', 'pinning'); veils.get(e).style.opacity = '0'; });
         if (proc) proc.classList.remove('pinning');
-        if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; }
+        if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; car.stepEls.forEach(e => { e.style.opacity = ''; }); }
         for (const k in last) delete last[k];
       }
     }
@@ -318,9 +331,9 @@ import { CustomEase } from 'gsap/CustomEase';
       '.sec .lede', '.fork-hd', '.fork-col li',
       '#list .item', '.reading',
       '.person > *',
-      '.step', '.pledge',
+      ...(pins ? [] : ['.step']), '.pledge', // en el carrusel pinneado la opacidad de los pasos la maneja el track
       '.faq-side .ctx', '.faq-list details',
-      '.offer', '.offer-col > .mono', '.offer-col li', '.offer-ft .cta-row',
+      '.offer', '.offer-col > .mono', '.offer-col li', // (los CTA de la tarjeta no dependen de ninguna animación)
       '.foot-sig > *', '.foot-links a', '.foot-meta > *'
     ].join(',');
     const riseEls = $$(riseSel);
