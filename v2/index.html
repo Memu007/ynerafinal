@@ -385,15 +385,14 @@ html.motion.stack .sec{position:sticky;top:var(--st,0px);z-index:2;background:va
 html.motion.stack .sec::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.34;background-image:var(--stars);background-size:var(--stars-s)}
 html.motion.stack .sec.gone,html.motion.stack .sec.measure{position:relative;top:auto}
 html.motion.stack .sec.measure{transform:none!important}
-html.motion.stack .sec.covering{clip-path:inset(var(--ct,0px) 0 0 0 round 16px)}
+html.motion.stack .sec:not(#contacto){padding-bottom:30vh} /* aire: lo primero que tapa la lámina entrante es vacío, no contenido */
 .sec-veil{position:absolute;inset:0;z-index:6;background:var(--night);opacity:0;pointer-events:none}
 /* la lámina que queda debajo se lee como una placa: filete hueso y esquinas redondeadas en su borde visible */
-html.motion.stack .sec.covering .sec-veil{top:var(--ct,0px);border-radius:16px;box-shadow:inset 0 0 0 1px rgb(233 229 217/.42)}
-html.motion.curtain .plate-in.curt{clip-path:inset(0 round 16px)}
-html.motion.curtain .plate-in.curt::after{content:"";position:absolute;inset:0;border-radius:16px;box-shadow:inset 0 0 0 1px rgb(233 229 217/.3);pointer-events:none;z-index:3}
-.sec-edge{position:absolute;left:0;right:0;top:0;height:1px;z-index:5;pointer-events:none;background:var(--sc);box-shadow:0 0 14px var(--sc);opacity:.35}
-#para-quien .sec-edge{background:linear-gradient(90deg,rgb(63 123 255/0),var(--leaf) 14%,var(--bark) 42%,var(--root) 68%,var(--cyan) 88%,rgb(39 240 210/0));box-shadow:0 0 22px 1px rgb(178 91 255/.5)}
-#diagnostico .sec-edge{background:linear-gradient(90deg,var(--root),var(--bark) 50%,var(--leaf));box-shadow:0 0 14px rgb(178 91 255/.5)}
+html.motion.stack .sec.covering .sec-veil{top:var(--ct,0px);box-shadow:inset 0 0 0 1px rgb(233 229 217/.3)}
+html.motion.curtain .plate-in.curt{clip-path:inset(0)}
+html.motion.curtain .plate-in.curt::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgb(233 229 217/.3);pointer-events:none;z-index:3}
+.sec-edge{position:absolute;left:0;right:0;top:0;height:1px;z-index:5;pointer-events:none;background:var(--rule-2)}
+#para-quien .sec-edge{background:linear-gradient(90deg,rgb(63 123 255/0),var(--leaf) 14%,var(--bark) 42%,var(--root) 68%,var(--cyan) 88%,rgb(39 240 210/0));box-shadow:0 0 8px rgb(178 91 255/.3)}
 html.motion.curtain .plate,html.motion.curtain .plate-in{will-change:transform}
 
 /* títulos por líneas desde máscara */
@@ -401,12 +400,8 @@ html.motion.curtain .plate,html.motion.curtain .plate-in{will-change:transform}
 .ln-m>span{display:inline-block}
 html.motion [data-split]:not(.rv-in) .ln-m>span{transform:translate3d(0,112%,0)}
 html.motion [data-rv]:not(.rv-in){opacity:0}
-/* etiqueta de lámina: el filete se dibuja, el mono se tipea, el latín sube */
+/* etiqueta de lámina: su filete lo reemplaza el borde de la lámina (.sec-edge) */
 html.motion .lam{border-top-color:transparent}
-html.motion .lam::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,var(--sc,var(--bone)),var(--rule) 24%);transform-origin:0 50%;transition:transform 1.4s var(--ease)}
-html.motion .lam:not(.rv-in)::before{transform:scaleX(0)}
-html.motion [data-type]:not(.rv-in) .mono,html.motion [data-type].mono:not(.rv-in){clip-path:inset(0 100% 0 0)}
-html.motion [data-type]:not(.rv-in) .latin{opacity:0}
 
 /* botones: el relleno crece desde la izquierda, la flecha avanza */
 html.motion .btn-fill{background:linear-gradient(var(--root),var(--root)) 0 0/0% 100% no-repeat,var(--bone);transition:background-size .5s var(--ui),border-color .35s var(--ui),color .2s}
@@ -603,7 +598,7 @@ html.motion .case:hover::after{opacity:1}
         </div>
         <div class="list" id="list" role="group" aria-label="Situaciones"></div>
       </div>
-      <div class="reading" aria-live="polite">
+      <div class="reading dx-result" aria-live="polite">
         <div class="reading-hd"><span class="mono">Lectura</span><span class="mono num" id="rCount">0 de 10</span></div>
         <div class="reading-body">
           <!-- espécimen: raíz ámbar, tronco violeta, copa azul; cada órgano crece con su % -->
@@ -911,7 +906,7 @@ html.motion .case:hover::after{opacity:1}
   // se esconde si #contacto o cualquier botón inline de la bajada está en pantalla
   const seen = new Set();
   const ctaIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); onScroll(); }, {rootMargin: '0px 0px 76px 0px'});
-  [close, ...document.querySelectorAll('main .btn')].forEach(el => { if (!heroEl.contains(el)) ctaIO.observe(el); });
+  [close, ...document.querySelectorAll('main .btn, .dx-result')].forEach(el => { if (!heroEl.contains(el)) ctaIO.observe(el); });
   const onScroll = () => {
     const past = heroEl.getBoundingClientRect().bottom < innerHeight * .35;
     const atClose = close.getBoundingClientRect().top < innerHeight * .6;

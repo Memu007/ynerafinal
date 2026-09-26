@@ -24,8 +24,9 @@ import { CustomEase } from 'gsap/CustomEase';
 
   /* ================= LÁMINAS: datos ================= */
   const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+  // color de servicio solo en II–IV (V: cian de los casos); el resto en hueso
   const COLORS = ['var(--bone)', 'var(--root)', 'var(--bark)', 'var(--leaf)', 'var(--cyan)',
-    'var(--cyan)', 'var(--root)', 'var(--bark)', 'var(--leaf)', 'var(--bone)', 'var(--root)'];
+    'var(--bone)', 'var(--bone)', 'var(--bone)', 'var(--bone)', 'var(--bone)', 'var(--bone)'];
   const SEC_NAMES = ['Para quién', 'Test', 'Nosotros', 'Cómo trabajamos', 'Preguntas', 'Cierre'];
   const plates = [
     ...chaps.map(c => ({el: c, name: (c.dataset.plate || '').split('·').pop().trim()})),
@@ -36,21 +37,26 @@ import { CustomEase } from 'gsap/CustomEase';
      Las .sec son sticky y se escalan: su getBoundingClientRect no dice dónde están en el flujo.
      Todo se calcula desde el final de #story (que nunca se transforma) sumando alturas. */
   let M = {vh: innerHeight, storyTop: 0, storyH: 1, storyBottom: 0, secs: [], docH: 1};
-  const stack = !reduce && !!lenis;
+  // apilado y telón solo en escritorio con Lenis; en celular, solo reveals
+  const stackOn = () => !reduce && !!lenis && desk.matches;
+  let stack = stackOn();
+  // cuánto de la lámina entrante tiene que subir (fracción de pantalla) antes de que la de abajo empiece a velarse
+  const HOLD = .35;
   function measure() {
     const vh = innerHeight, sy = scrollY;
     const storyTop = story.getBoundingClientRect().top + sy, storyH = story.offsetHeight;
     let y = storyTop + storyH;
     const list = secs.map(el => { const h = el.offsetHeight, o = {el, top: y, h}; y += h; return o; });
     M = {vh, storyTop, storyH, storyBottom: storyTop + storyH, secs: list, docH: root.scrollHeight};
-    if (stack) list.forEach(({el, h}) => {
+    list.forEach(({el, h}) => {
       el.style.setProperty('--st', Math.min(0, vh - h) + 'px');
       el.style.setProperty('--oy', Math.max(h - vh / 2, h / 2).toFixed(0) + 'px');
       el.style.setProperty('--ct', Math.max(0, h - vh) + 'px');
     });
   }
+  const chapters = $('.chapters', story);
   const flowTop = i => i < chaps.length
-    ? (i === 0 ? 0 : chaps[i].getBoundingClientRect().top + scrollY)
+    ? (i === 0 ? 0 : M.storyTop + chapters.offsetTop + chaps[i].offsetTop)
     : (M.secs[i - chaps.length] || {top: 0}).top;
 
   /* ================= ÍNDICE DE LÁMINAS ================= */
@@ -118,8 +124,8 @@ import { CustomEase } from 'gsap/CustomEase';
 
   try {
     root.classList.add('motion');
-    if (stack) root.classList.add('stack');
-    if (stack && desk.matches) root.classList.add('curtain');
+    root.classList.toggle('stack', stack);
+    root.classList.toggle('curtain', stack);
 
     /* ================= APILADO + TELÓN ================= */
     const plate = $('.plate', story), plateIn = $('.plate-in', story);
@@ -129,27 +135,43 @@ import { CustomEase } from 'gsap/CustomEase';
     const last = {};
     // escribe un estilo solo si cambió
     function putStyle(key, target, prop, val) { if (last[key] !== val) { last[key] = val; target[prop] = val; } }
+    const bosque = chaps[chaps.length - 1];
     function update() {
-      const sy = scrollY, vh = M.vh, big = desk.matches;
+      const sy = scrollY, vh = M.vh;
+      // V → VI: la placa y la columna de la Lám. V quedan quietas (misma translate) mientras VI sube encima
       const pc = clamp((sy - (M.storyBottom - vh)) / vh);
-      const inCurtain = big && stack && pc > 0 && pc < 1;
-      putStyle('pl', plate.style, 'transform', inCurtain ? `translate3d(0,${(pc * vh).toFixed(1)}px,0)` : '');
-      putStyle('pis', plateIn.style, 'transform', inCurtain ? `scale(${(1 - .06 * eOut(pc)).toFixed(4)})` : '');
-      putStyle('pio', plateIn.style, 'opacity', pc > 0 ? (1 - .7 * pc).toFixed(3) : '');
+      const inCurtain = stack && pc > 0 && pc < 1;
+      const hold = inCurtain ? `translate3d(0,${(pc * vh).toFixed(1)}px,0)` : '';
+      putStyle('pl', plate.style, 'transform', hold);
+      putStyle('bq', bosque.style, 'transform', hold);
+      putStyle('pis', plateIn.style, 'transform', inCurtain ? `scale(${(1 - .05 * eOut(pc)).toFixed(4)})` : '');
+      putStyle('pio', plateIn.style, 'opacity', inCurtain ? (1 - .7 * pc).toFixed(3) : '');
+      putStyle('bqo', bosque.style, 'opacity', inCurtain ? (1 - .75 * clamp((pc - .3) / .7)).toFixed(3) : '');
       if (last.curt !== inCurtain) { last.curt = inCurtain; plateIn.classList.toggle('curt', inCurtain); }
-      if (edges[0]) putStyle('e0', edges[0].style, 'opacity', (.35 + .65 * (pc > 0 && pc < 1 ? 1 - pc : 0)).toFixed(3));
       if (!stack) return;
       M.secs.forEach((cur, i) => {
         const next = M.secs[i + 1];
         if (!next) return;
-        const L = Math.min(cur.h, vh), p = clamp((sy - (next.top - L)) / L), el = cur.el;
-        const gone = sy > next.top + 2, cov = big && p > 0 && !gone;
+        // la de abajo recién se vela y se aleja en el último tramo (HOLD) de la subida: antes se lee entera
+        const L = Math.min(cur.h, vh), W = L * HOLD, p = clamp((sy - (next.top - W)) / W), el = cur.el;
+        const gone = sy > next.top + 2, cov = p > 0 && !gone;
         if (last['g' + i] !== gone) { last['g' + i] = gone; el.classList.toggle('gone', gone); }
         if (last['c' + i] !== cov) { last['c' + i] = cov; el.classList.toggle('covering', cov); }
-        putStyle('t' + i, el.style, 'transform', big && p > 0 ? `scale(${(1 - .06 * eOut(p)).toFixed(4)})` : '');
+        putStyle('t' + i, el.style, 'transform', p > 0 ? `scale(${(1 - .05 * eOut(p)).toFixed(4)})` : '');
         putStyle('v' + i, veils[i].style, 'opacity', p > 0 ? (.78 * p).toFixed(3) : '0');
-        putStyle('e' + (i + 1), edges[i + 1].style, 'opacity', (.35 + .65 * (p > 0 && p < 1 ? 1 - p : 0)).toFixed(3));
       });
+    }
+    // al cruzar el corte escritorio/celular: limpiar todo lo que el apilado dejó escrito
+    function setStack(on) {
+      if (on === stack) return;
+      stack = on;
+      root.classList.toggle('stack', on); root.classList.toggle('curtain', on);
+      if (!on) {
+        [plate, plateIn, bosque].forEach(e => { e.style.transform = ''; e.style.opacity = ''; });
+        plateIn.classList.remove('curt');
+        secs.forEach((e, i) => { e.style.transform = ''; e.classList.remove('gone', 'covering'); veils[i].style.opacity = '0'; });
+        for (const k in last) delete last[k];
+      }
     }
 
     const tick = () => { update(); setActive(); };
@@ -159,10 +181,7 @@ import { CustomEase } from 'gsap/CustomEase';
     } else addEventListener('scroll', tick, {passive: true});
     let rq = 0;
     const remeasure = () => { cancelAnimationFrame(rq); rq = requestAnimationFrame(() => { measure(); tick(); }); };
-    addEventListener('resize', () => {
-      root.classList.toggle('curtain', stack && desk.matches);
-      remeasure();
-    });
+    addEventListener('resize', () => { setStack(stackOn()); remeasure(); });
     if ('ResizeObserver' in window) { const ro = new ResizeObserver(remeasure); [story, ...secs].forEach(s => ro.observe(s)); }
     addEventListener('load', remeasure);
 
@@ -222,9 +241,8 @@ import { CustomEase } from 'gsap/CustomEase';
     addEventListener('resize', () => { if (innerWidth === lastW) return; lastW = innerWidth; clearTimeout(st); st = setTimeout(resplit, 220); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { splitEls.forEach(el => { if (!el._busy) split(el); }); remeasure(); });
 
-    // 2) etiquetas: filete que crece, mono tipeado, latín que sube
-    const typeEls = [...$$('.sec .lam'), ...$$('.chap:not(.hero) .plate-no'), ...$$('.chap:not(.hero) .chap-card > .key')];
-    typeEls.forEach(el => { el.dataset.type = ''; });
+    // 2) etiquetas de lámina (mono + latín): suben desde 40% con fundido, sin tipeo
+    const labelEls = [...$$('.sec .lam'), ...$$('.chap:not(.hero) .plate-no'), ...$$('.chap:not(.hero) .chap-card > .key')];
 
     // 3) bloques que suben (fade + rise, nunca fade solo) y listas en cascada
     const riseSel = [
@@ -238,44 +256,42 @@ import { CustomEase } from 'gsap/CustomEase';
       '.foot-sig > *', '.foot-links a', '.foot-meta > *'
     ].join(',');
     const riseEls = $$(riseSel);
-    riseEls.forEach(el => { el.dataset.rv = ''; });
+    [...labelEls, ...riseEls].forEach(el => { el.dataset.rv = ''; });
+    labelEls.forEach(el => { el.dataset.label = ''; });
     const footWord = $('.foot-word svg');
 
     const reveal = (el, delay) => {
       if (el.classList.contains('rv-in')) return;
+      el.classList.add('rv-in');
       if (el.hasAttribute('data-split')) {
         el._busy = true;
-        const spans = el.querySelectorAll('.ln-m>span');
-        el.classList.add('rv-in');
-        gsap.fromTo(spans, {yPercent: 112}, {yPercent: 0, duration: 1.1, ease: 'grow', stagger: .08, delay, clearProps: 'transform', onComplete: () => { el._busy = false; }});
-      } else if (el.hasAttribute('data-type')) {
-        const monos = el.classList.contains('mono') ? [el] : $$('.mono', el);
-        const latin = $('.latin', el);
-        el.classList.add('rv-in');
-        let d = delay;
-        monos.forEach(m => {
-          const n = Math.max(3, m.textContent.trim().length);
-          gsap.fromTo(m, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: Math.min(.7, n * .032), ease: `steps(${n})`, delay: d, clearProps: 'clipPath'});
-          d += .14;
-        });
-        if (latin) gsap.fromTo(latin, {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: .9, ease: 'grow', delay: delay + .22, clearProps: 'opacity,transform'});
+        gsap.fromTo(el.querySelectorAll('.ln-m>span'), {yPercent: 112}, {yPercent: 0, duration: .8, ease: 'grow', stagger: .06, delay, clearProps: 'transform', onComplete: () => { el._busy = false; }});
+      } else if (el.hasAttribute('data-label')) {
+        gsap.fromTo(el.children.length ? el.children : el, {opacity: 0, yPercent: 40}, {opacity: 1, yPercent: 0, duration: .6, ease: 'grow', stagger: .06, delay, clearProps: 'opacity,transform'});
       } else {
-        el.classList.add('rv-in');
-        gsap.fromTo(el, {opacity: 0, y: 22}, {opacity: 1, y: 0, duration: 1, ease: 'grow', delay, clearProps: 'opacity,transform'});
+        gsap.fromTo(el, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: .75, ease: 'grow', delay, clearProps: 'opacity,transform'});
         // pasos: el número cuenta desde 00
         const num = el.classList.contains('step') && $(':scope > .mono', el);
         if (num) {
           const n = parseInt(num.textContent, 10) || 0, o = {v: 0};
-          gsap.to(o, {v: n, duration: .5, ease: `steps(${Math.max(1, n)})`, delay: delay + .1, onUpdate: () => { num.textContent = String(Math.round(o.v)).padStart(2, '0'); }});
+          gsap.to(o, {v: n, duration: .4, ease: `steps(${Math.max(1, n)})`, delay: delay + .1, onUpdate: () => { num.textContent = String(Math.round(o.v)).padStart(2, '0'); }});
         }
       }
     };
+    // cascada en orden del DOM también entre lotes: cada elemento arranca 60 ms después del anterior
+    // (nunca antes que uno que está más arriba), con un retraso máximo de .4 s → entrada total ≤ 1,2 s
     const docOrder = (a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    let nextAt = 0;
     const io = new IntersectionObserver(entries => {
-      const ins = entries.filter(e => e.isIntersecting).map(e => e.target).sort(docOrder);
-      ins.forEach((el, i) => { io.unobserve(el); reveal(el, Math.min(i * .08, .64)); });
-    }, {rootMargin: '0px 0px -8% 0px'});
-    [...splitEls, ...typeEls, ...riseEls].forEach(el => io.observe(el));
+      const now = performance.now() / 1000;
+      entries.filter(e => e.isIntersecting).map(e => e.target).sort(docOrder).forEach(el => {
+        io.unobserve(el);
+        const d = Math.min(Math.max(0, nextAt - now), .4);
+        nextAt = now + d + .06;
+        reveal(el, d);
+      });
+    }, {rootMargin: '0px 0px -8% 0px'}); // = start 'top 92%'
+    [...splitEls, ...labelEls, ...riseEls].sort(docOrder).forEach(el => io.observe(el));
 
     // pie: la palabra crece desde su base
     if (footWord) {
@@ -283,7 +299,8 @@ import { CustomEase } from 'gsap/CustomEase';
     }
 
     // 4) paneles II–V: al salir se desvanecen (cuando el texto ya pasó la mitad superior)
-    chaps.slice(1).forEach(ch => {
+    // (V queda fuera: en escritorio la sostiene el telón; en celular sale con el scroll)
+    chaps.slice(1, -1).forEach(ch => {
       const card = $('.chap-card', ch), lastEl = card && card.lastElementChild;
       if (!lastEl) return;
       gsap.fromTo(ch, {opacity: 1}, {opacity: 0, ease: 'power1.in', immediateRender: false,
@@ -302,8 +319,8 @@ import { CustomEase } from 'gsap/CustomEase';
     if (fine.matches) {
       // CTA principal (hero) y su eco en el cierre: magnetismo corto, sin rebote
       $$('.chap.hero .btn-glow, #contacto .offer-ft .btn-fill').forEach(btn => {
-        const xTo = gsap.quickTo(btn, 'x', {duration: .7, ease: 'power3'});
-        const yTo = gsap.quickTo(btn, 'y', {duration: .7, ease: 'power3'});
+        const xTo = gsap.quickTo(btn, 'x', {duration: .7, ease: 'power3.out'});
+        const yTo = gsap.quickTo(btn, 'y', {duration: .7, ease: 'power3.out'});
         let on = false;
         addEventListener('pointermove', e => {
           const r = btn.getBoundingClientRect();
@@ -311,25 +328,9 @@ import { CustomEase } from 'gsap/CustomEase';
           const cy = r.top + r.height / 2 - (gsap.getProperty(btn, 'y') || 0);
           const dx = e.clientX - cx, dy = e.clientY - cy;
           const near = Math.abs(dx) < r.width / 2 + 36 && Math.abs(dy) < r.height / 2 + 30;
-          if (near) { on = true; xTo(clamp(dx * .2, -10, 10)); yTo(clamp(dy * .28, -7, 7)); }
+          if (near) { on = true; xTo(clamp(dx * .15, -6, 6)); yTo(clamp(dy * .2, -6, 6)); }
           else if (on) { on = false; xTo(0); yTo(0); }
         }, {passive: true});
-      });
-      // fichas de casos: inclinación mínima + brillo que sigue al puntero
-      $$('#bosque .case').forEach(c => {
-        let rx, ry;
-        c.addEventListener('pointerenter', () => {
-          gsap.set(c, {transformPerspective: 900});
-          rx = gsap.quickTo(c, 'rotationX', {duration: .6, ease: 'power3'});
-          ry = gsap.quickTo(c, 'rotationY', {duration: .6, ease: 'power3'});
-        });
-        c.addEventListener('pointermove', e => {
-          if (!rx) return;
-          const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-          ry((px - .5) * 3); rx((.5 - py) * 3);
-          c.style.setProperty('--mx', (px * 100).toFixed(1) + '%'); c.style.setProperty('--my', (py * 100).toFixed(1) + '%');
-        });
-        c.addEventListener('pointerleave', () => { if (rx) { rx(0); ry(0); } });
       });
     }
 
@@ -337,7 +338,7 @@ import { CustomEase } from 'gsap/CustomEase';
   } catch (err) {
     // si algo falla, nada queda oculto
     root.classList.remove('motion', 'stack', 'curtain');
-    $$('[data-rv],[data-split],[data-type]').forEach(el => el.classList.add('rv-in'));
+    $$('[data-rv],[data-split]').forEach(el => el.classList.add('rv-in'));
     console.warn('motion.js', err);
   }
 })();
