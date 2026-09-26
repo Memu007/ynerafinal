@@ -1,0 +1,13 @@
+{
+  "name": "Ynera · Datos, ciberseguridad e IA para PyMEs",
+  "short_name": "Ynera",
+  "lang": "es-AR",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#06070C",
+  "theme_color": "#06070C",
+  "icons": [
+    { "src": "brand/ynera-favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
