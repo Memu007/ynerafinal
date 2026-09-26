@@ -14,8 +14,8 @@
   color-scheme: dark;
   --night:#06070C;
   --night-2:#0C0E16;
-  --rule:#1F251F;
-  --rule-2:#333A33;
+  --rule:#1D2130;
+  --rule-2:#30354A;
   --bone:#E9E5D9;
   --mute:#8F8D82;
   --dim:#5E5D56;
@@ -59,7 +59,7 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 
 /* ---------- STORY: pinned plate + scrolling chapters ---------- */
 .story{position:relative}
-.plate{position:sticky;top:0;height:100vh;height:100svh;z-index:0;overflow:hidden;background:#05060a}
+.plate{position:sticky;top:0;height:100vh;height:100svh;z-index:0;overflow:hidden;background:var(--night)}
 .plate-in{position:absolute;inset:0}
 #tree{position:absolute;inset:0;width:100%;height:100%;display:block}
 .plate::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(6,7,12,.9) 0,rgba(6,7,12,.55) 28%,rgba(6,7,12,0) 55%),linear-gradient(0deg,rgba(6,7,12,.6),rgba(6,7,12,0) 25%)}
@@ -68,8 +68,8 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 .corner.br{bottom:22px;right:var(--g);flex-direction:column;align-items:flex-end;gap:6px}
 .specimen{font:italic 400 19px/1 var(--serif);color:var(--bone)}
 #labels{position:absolute;inset:0;pointer-events:none;z-index:1}
-.tag3d{position:absolute;left:0;top:0;white-space:nowrap;color:var(--bone);opacity:0;padding:6px 10px;border:1px solid rgba(233,229,217,.25);background:rgba(7,9,8,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);translate:-50% 0;will-change:transform}
-.no-webgl .plate{background:radial-gradient(60% 50% at 70% 45%,#1a1535,#05060a)}
+.tag3d{position:absolute;left:0;top:0;white-space:nowrap;color:var(--bone);opacity:0;padding:6px 10px;border:1px solid rgba(233,229,217,.25);background:rgba(6,7,12,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);translate:-50% 0;will-change:transform}
+.no-webgl .plate{background:radial-gradient(60% 50% at 70% 45%,#1a1535,var(--night))}
 
 .chapters{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh;padding-left:var(--g);padding-right:var(--g);pointer-events:none}
 .chap *{pointer-events:auto}
@@ -86,13 +86,6 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 .did dt{font:400 11.5px/1.7 var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.1em}
 .did dd{margin:0}
 .caption{font:italic 400 18px/1.4 var(--serif);color:var(--mute);max-width:44ch;border-left:1px solid var(--rule-2);padding-left:16px}
-.forest{display:grid;border-top:1px solid var(--rule)}
-.forest-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:6px 20px;padding-block:16px;border-bottom:1px solid var(--rule)}
-.forest-row h3{font-size:32px;font-stretch:72%}
-.forest-row p{color:var(--mute);font-size:15px;grid-column:2;grid-row:1 / span 2}
-.forest-row .txt{grid-column:2;grid-row:1 / span 2;display:grid;gap:4px}
-.forest-row .txt p{grid-column:auto;grid-row:auto}
-.forest-row .txt p.res{color:var(--bone)}
 
 
 /* ---------- HERO ---------- */
@@ -115,7 +108,6 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 .did dd.you{color:var(--bone)}
 .ctx{align-self:flex-start;justify-self:start;display:inline-block;font:500 15px/1.4 var(--f);text-decoration:none;color:var(--bone);border-bottom:1px solid var(--c,var(--rule-2));padding-bottom:3px;transition:color .2s}
 .ctx:hover{color:var(--c,var(--bone))}
-.forest-row .res{color:var(--bone);font-size:15px;grid-column:2;margin-top:4px}
 @keyframes rise{from{transform:translate3d(0,105%,0) rotate(2deg)}to{transform:none}}
 .grow-word{font:italic 400 1.12em/1 var(--serif);letter-spacing:-.01em;padding-right:.08em;background:linear-gradient(100deg,var(--leaf) 0%,var(--bark) 35%,var(--root) 70%,var(--bark) 85%,var(--leaf) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rise 1.1s cubic-bezier(.16,1,.3,1) .18s both,flow 14s linear infinite}
 @keyframes flow{to{background-position:-220% 0}}
@@ -132,77 +124,142 @@ h1,h2,h3{margin:0;font-weight:600;font-stretch:70%;letter-spacing:-.018em;line-h
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 
-/* ---------- SECTIONS AFTER THE STORY ---------- */
-.sec{padding-block:clamp(100px,13vw,190px);border-top:1px solid var(--rule)}
-.big{font-size:clamp(56px,10vw,160px);font-stretch:62%;font-weight:700;line-height:.86}
+/* ---------- PANELES II–V: velo de lectura y fichas de herbario ---------- */
+.chap:not(.hero){position:relative}
+.chap:not(.hero)::before{content:"";position:absolute;top:0;bottom:0;left:calc(-1 * var(--g));width:100vw;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgb(6 7 12/.72) 0 42%,rgb(6 7 12/0) 62%)}
+#raices::before{-webkit-mask-image:linear-gradient(180deg,transparent,#000 35%);mask-image:linear-gradient(180deg,transparent,#000 35%)}
+.chap .did{border-top:0;border-left:1px solid var(--c,var(--rule-2));padding:6px 0 6px 20px;gap:12px 22px}
+.chap .did dt{color:var(--c,var(--mute));filter:brightness(1.25) saturate(.85)}
+.chap .did dt.you{color:var(--bone);filter:none}
+/* Lámina V: tres fichas compactas */
+#bosque{max-width:780px;gap:22px}
+#bosque h2,#bosque .lede{max-width:560px}
+.forest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:0}
+.case{display:grid;gap:10px;align-content:start;padding:16px 16px 18px;border-top:1px solid var(--cyan);background:rgb(6 7 12/.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.case h3{font-size:30px;font-stretch:72%;font-weight:600;line-height:1}
+.case .mono.key{font-size:10.5px;letter-spacing:.09em}
+.case .key::before{width:6px;height:6px;box-shadow:0 0 8px var(--c)}
+.case .res{color:var(--bone);font-size:15px;line-height:1.4}
+.case .desc{color:var(--mute);font-size:13.5px;line-height:1.45;border-top:1px solid var(--rule);padding-top:10px}
+
+/* ---------- TRANSICIÓN: la escena se funde en la noche ---------- */
+.story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:40vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.45) 45%,rgb(6 7 12/.88) 78%,var(--night))}
+/* cielo fijo muy tenue detrás de toda la bajada (la escena lo tapa arriba) */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;
+  background-image:radial-gradient(circle at 331px 154px,rgb(233 229 217/0.6) 0 0.9px,transparent 1.6px),radial-gradient(circle at 548px 96px,rgb(233 229 217/0.6) 0 0.7px,transparent 1.4px),radial-gradient(circle at 219px 38px,rgb(127 164 255/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 71px 246px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 579px 126px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 599px 406px,rgb(233 229 217/0.75) 0 0.5px,transparent 1.2px),radial-gradient(circle at 570px 136px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 553px 120px,rgb(233 229 217/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 595px 584px,rgb(233 229 217/0.9) 0 0.6px,transparent 1.3px),radial-gradient(circle at 560px 729px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 210px 508px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 599px 464px,rgb(233 229 217/0.9) 0 0.7px,transparent 1.4px),radial-gradient(circle at 184px 715px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 307px 537px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 294px 623px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 428px 168px,rgb(127 164 255/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 431px 40px,rgb(233 229 217/0.9) 0 0.5px,transparent 1.2px),radial-gradient(circle at 711px 358px,rgb(233 229 217/1) 0 0.9px,transparent 1.6px),radial-gradient(circle at 860px 95px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 62px 317px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 908px 355px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 400px 300px,rgb(39 240 210/.6) 0 .6px,transparent 1.3px);
+  background-size:613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,1301px 1117px}
+
+/* ---------- SECCIONES DE LA BAJADA ---------- */
+.sec{position:relative;padding-block:clamp(96px,12vw,180px) clamp(48px,6vw,90px)}
+.lam{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:16px;margin-bottom:clamp(36px,5vw,64px)}
+.lam-no{display:flex;gap:14px;align-items:baseline}
+.lam .latin{font-size:20px;color:var(--bone)}
+.h2s{font-size:clamp(40px,4.6vw,72px);font-stretch:64%;font-weight:700;line-height:.9}
+.big{font-size:clamp(56px,8.4vw,136px);font-stretch:62%;font-weight:700;line-height:.86}
+#para-quien{padding-top:clamp(40px,5vw,80px)}
 .sec .lede{margin-top:26px;color:var(--mute);max-width:54ch;font-size:clamp(17px,1.4vw,20px)}
+.draw path{transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1) var(--dl,0s)}
+html.js .draw:not(.in) path{stroke-dashoffset:1}
 
-.duo-grid{display:grid;grid-template-columns:1fr 1fr;margin-top:clamp(48px,7vw,96px);border-top:1px solid var(--rule);position:relative}
-.person{padding:clamp(24px,3vw,40px) clamp(0px,3vw,40px) 0 0;display:grid;gap:18px;align-content:start}
-.person+.person{border-left:1px solid var(--rule);padding-left:clamp(20px,3vw,40px)}
-.frame{width:84px;height:84px;border:1px solid var(--rule-2);display:grid;place-items:center;font:700 34px/1 var(--f);font-stretch:62%;color:var(--mute)}
-.person h3{font-size:clamp(40px,4.6vw,64px)}
-.person p{color:var(--mute);max-width:46ch}
-.person a{font-size:15px;text-decoration:none;border-bottom:1px solid var(--rule-2);justify-self:start}
-.person a:hover{border-color:var(--bone)}
+/* VI · Para quién: la bifurcación */
+.fork{text-align:center}
+.fork .h2s{max-width:14ch;margin-inline:auto}
+.fork-y{display:block;width:100%;height:clamp(90px,10vw,150px);margin-top:28px;overflow:visible}
+.fork-y path{fill:none;stroke-width:1;stroke-dasharray:1;stroke-dashoffset:0}
+.fork-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 clamp(24px,5vw,80px);text-align:left}
+.fork-col{display:grid;gap:18px;align-content:start;width:min(100%,440px);justify-self:center}
+.fork-hd{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.fork-hd::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
+.fork-col.no .fork-hd::before{background:none;box-shadow:none;border:1px solid var(--dim)}
+.fork-col ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.fork-col li{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--rule);font-size:clamp(17px,1.4vw,20px);line-height:1.35}
+.fork-col li::before{content:"";flex:none;width:7px;height:7px;margin-top:.52em;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.fork-col.no li{color:var(--mute);text-decoration:line-through 1px transparent;transition:text-decoration-color .22s,color .22s}
+.fork-col.no li::before{background:none;box-shadow:none;border-radius:0;width:9px;height:1px;margin-top:.72em;background:var(--dim)}
+.fork-col.no li:hover{text-decoration-color:var(--dim)}
 
-.voices-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px);margin-top:40px}
-.quote{margin:0;border-top:1px solid var(--bone);padding-top:24px;display:grid;gap:22px;align-content:start}
-.quote blockquote{margin:0;font:italic 400 clamp(22px,2vw,28px)/1.3 var(--serif)}
-.quote.todo blockquote{color:var(--dim)}
-.quote cite{font-style:normal}
-
-.check-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,5vw,80px);margin-top:clamp(48px,6vw,80px)}
-.list{border-top:1px solid var(--rule)}
-.item{display:flex;align-items:center;gap:16px;width:100%;padding:18px 0;background:none;border:0;border-bottom:1px solid var(--rule);color:var(--bone);font:400 clamp(17px,1.5vw,21px)/1.3 var(--f);text-align:left;cursor:pointer}
+/* VII · Test */
+.check-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,5vw,80px);margin-top:clamp(40px,5vw,64px);align-items:start}
+.list{border-top:1px solid var(--rule);counter-reset:it}
+.item{display:flex;align-items:center;gap:16px;width:100%;padding:17px 0;background:none;border:0;border-bottom:1px solid var(--rule);color:var(--bone);font:400 clamp(17px,1.5vw,21px)/1.3 var(--f);text-align:left;cursor:pointer;transition:color .2s}
+.item::after{counter-increment:it;content:counter(it,decimal-leading-zero);margin-left:auto;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--dim)}
 .box{width:22px;height:22px;border:1px solid var(--rule-2);flex:none;display:grid;place-items:center;transition:background .2s,border-color .2s}
 .item:hover .box{border-color:var(--bone)}
-.item[aria-pressed="true"] .box{background:var(--bone);border-color:var(--bone)}
+.item[aria-pressed="true"] .box{background:var(--c,var(--bone));border-color:var(--c,var(--bone))}
 .item[aria-pressed="true"] .box::after{content:"";width:10px;height:5px;border-left:2px solid var(--night);border-bottom:2px solid var(--night);transform:rotate(-45deg) translate(1px,-1px)}
-.reading{position:sticky;top:100px;align-self:start;display:grid;gap:24px}
+.item[aria-pressed="true"]::after{color:var(--c)}
+.reading{position:sticky;top:96px;align-self:start;display:grid;gap:22px;border-top:1px solid var(--rule);padding-top:16px}
+.reading-hd{display:flex;justify-content:space-between;align-items:baseline}
+.reading-body{display:grid;grid-template-columns:118px minmax(0,1fr);gap:24px;align-items:center}
+.spec{width:118px;height:auto;display:block;overflow:visible}
+.spec path{fill:none;stroke-linecap:round}
+.spec .ghost path{stroke:var(--rule-2);stroke-width:1}
+.spec .ground{stroke:var(--rule-2);stroke-dasharray:2 4}
+.spec .org path{stroke:var(--c);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0));transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px var(--c))}
+.spec .org circle{fill:var(--c);opacity:var(--p,0);transition:opacity .6s}
+.meters{display:grid;gap:18px}
 .meter{display:grid;gap:8px}
-.meter-top{display:flex;justify-content:space-between;align-items:baseline}
-.track{height:2px;background:var(--rule)}
-.track span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 10px var(--c);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:15px}
+.track{height:1px;background:var(--rule)}
+.track span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 8px var(--c);transition:width .6s cubic-bezier(.2,.8,.2,1)}
 .verdict{font:italic 400 clamp(22px,2vw,28px)/1.3 var(--serif)}
 .hint{color:var(--mute);font-size:15px}
+.sumbar{display:none}
 
-.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:40px;border-top:1px solid var(--rule)}
-.step{padding:26px 24px 0 0;display:grid;gap:12px;align-content:start}
-.step+.step{border-left:1px solid var(--rule);padding-left:24px}
-.step h3{font-size:clamp(30px,3vw,44px)}
+/* VIII · Nosotros: dos ramas, un mismo tronco */
+.duo{display:grid;grid-template-columns:minmax(0,1fr) clamp(160px,17vw,240px) minmax(0,1fr);gap:clamp(16px,2vw,32px);margin-top:clamp(48px,6vw,88px);align-items:start}
+.person{display:grid;gap:16px;align-content:start;padding-top:clamp(8px,2vw,28px)}
+.person.l{text-align:right;justify-items:end}
+.person h3{font-size:clamp(34px,3.4vw,52px);font-stretch:72%;font-weight:600}
+.person p{color:var(--mute);max-width:40ch}
+.duo-y{position:relative}
+.duo-y svg{display:block;width:100%;height:auto;overflow:visible}
+.duo-y path{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+.duo-y circle{fill:var(--c)}
+.duo-tag{display:none}
+/* fotos futuras: <figure class="photo"><img ...></figure> dentro de cada .person, cuadrada, sin radio */
+.photo{margin:0;width:min(100%,280px);aspect-ratio:1;border:1px solid var(--rule-2);overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.motto{margin-top:clamp(28px,3vw,40px);text-align:center;font:italic 400 clamp(24px,2.4vw,34px)/1.25 var(--serif);color:var(--bone)}
+
+/* IX · Cómo trabajamos */
+.steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 clamp(20px,2.4vw,40px);margin:0;padding:0;list-style:none}
+.steps::before,.grow{content:"";position:absolute;left:4px;right:0;top:4px;height:1px;background:var(--rule-2)}
+.grow{height:1px;background:linear-gradient(90deg,var(--root),var(--bark) 38%,var(--leaf) 70%,var(--cyan));clip-path:inset(-6px calc((1 - var(--k,1)) * 100%) -6px 0);box-shadow:0 0 10px rgb(178 91 255/.35)}
+.step{position:relative;display:grid;gap:12px;align-content:start;padding-top:34px;min-width:0}
+.node{position:absolute;left:0;top:0;width:9px;height:9px;border-radius:50%;border:1px solid var(--c);background:var(--c);box-shadow:0 0 12px var(--c);transition:background .35s,box-shadow .35s}
+html.js .steps:not(.done) .step:not(.on) .node{background:var(--night);box-shadow:none}
+.step h3{font-size:clamp(26px,2.3vw,38px);font-stretch:72%;font-weight:600;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
 .step p{color:var(--mute);font-size:16px}
+.pledges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,48px);margin-top:clamp(64px,8vw,120px)}
+.pledge{margin:0;border-top:1px solid var(--c);padding-top:20px;display:grid;gap:14px;align-content:start}
+.pledge blockquote{margin:0;font:italic 400 clamp(22px,2vw,28px)/1.28 var(--serif)}
 
-.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,80px)}
-.faq h2{font-size:clamp(40px,5vw,72px)}
+/* X · FAQ */
+.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,80px);align-items:start}
+.faq-side{position:sticky;top:96px;display:grid;gap:28px;align-content:start}
+.faq-side .ctx{--c:var(--cyan)}
 details{border-bottom:1px solid var(--rule)}
 details:first-child{border-top:1px solid var(--rule)}
-summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;padding-block:24px;font:500 clamp(18px,1.6vw,22px)/1.3 var(--f)}
+summary{position:relative;list-style:none;cursor:pointer;padding:24px 44px 24px 0;font:500 clamp(18px,1.6vw,22px)/1.3 var(--f);transition:color .2s}
+summary:hover{color:#fff}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";font:300 26px/1 var(--f);transition:transform .3s}
-details[open] summary::after{transform:rotate(45deg)}
-details p{color:var(--mute);padding-bottom:24px;max-width:62ch}
+summary::before,summary::after{content:"";position:absolute;right:4px;top:50%;width:15px;height:1px;background:var(--bone);transition:transform .22s cubic-bezier(.2,.8,.2,1),background .22s}
+summary::before{transform:rotate(90deg)}
+details[open] summary::before{transform:rotate(0)}
+details[open] summary::after,details[open] summary::before{background:var(--root)}
+details[open].closing summary::before{transform:rotate(90deg)}
+details.closing summary::after,details.closing summary::before{background:var(--bone)}
+details p{color:var(--mute);padding-bottom:24px;max-width:62ch;overflow:hidden}
 
-.close .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px}
-
-/* para quién */
-.fit{display:grid;grid-template-columns:1fr 1fr;margin-top:clamp(40px,6vw,72px);border-top:1px solid var(--rule)}
-.fit-col{padding:clamp(24px,3vw,36px) clamp(0px,3vw,40px) 0 0;display:grid;gap:18px;align-content:start}
-.fit-col+.fit-col{border-left:1px solid var(--rule);padding-left:clamp(20px,3vw,40px)}
-.fit-col h3{font-size:clamp(32px,3.4vw,48px)}
-.fit-col ul{list-style:none;margin:0;padding:0;display:grid}
-.fit-col li{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--rule);font-size:clamp(17px,1.4vw,20px);line-height:1.35}
-.fit-col li::before{content:"";flex:none;width:8px;height:8px;margin-top:.5em;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
-.fit-col.no li{color:var(--mute)}
-.fit-col.no li::before{background:none;box-shadow:none;border:1px solid var(--dim);border-radius:0;width:9px;height:1px;margin-top:.7em}
-
-/* garantías */
-.pledges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2vw,28px);margin-top:clamp(48px,6vw,72px)}
-.pledge{border:1px solid var(--rule-2);padding:24px;display:grid;gap:14px;align-content:start;background:var(--night-2)}
-.pledge p{font:italic 400 clamp(21px,1.8vw,25px)/1.3 var(--serif)}
-
-/* oferta */
-.offer{margin-top:clamp(40px,5vw,64px);border:1px solid var(--rule-2);background:linear-gradient(160deg,rgba(63,123,255,.08),rgba(178,91,255,.05) 40%,rgba(7,9,8,0) 70%),var(--night-2);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}
+/* XI · Cierre */
+.close-hd{position:relative;isolation:isolate}
+.roots{position:absolute;z-index:-1;top:0;left:clamp(40px,18vw,300px);width:min(900px,72vw);height:clamp(300px,34vw,480px);pointer-events:none;overflow:visible;-webkit-mask-image:linear-gradient(180deg,#000 30%,transparent);mask-image:linear-gradient(180deg,#000 30%,transparent)}
+.roots path{fill:none;stroke:var(--root);stroke-width:1;stroke-linecap:round;opacity:.42;stroke-dasharray:1;stroke-dashoffset:0}
+.roots path.f{opacity:.22}
+.close .big{margin-top:clamp(28px,4vw,56px)}
+.close .lede{color:#B9B6AA}
+.offer{margin-top:clamp(48px,6vw,80px);border:1px solid var(--rule-2);background:var(--night-2);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}
 .offer-hd{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 24px;padding:22px clamp(20px,3vw,36px);border-bottom:1px solid var(--rule-2)}
 .offer-hd strong{font:600 clamp(22px,2.2vw,30px)/1.1 var(--f);font-stretch:75%}
 .offer-col{padding:clamp(22px,3vw,36px);display:grid;gap:16px;align-content:start}
@@ -214,24 +271,32 @@ details p{color:var(--mute);padding-bottom:24px;max-width:62ch}
 .offer-col ol li::before{counter-increment:o;content:counter(o);flex:none;font:500 12px/1.9 var(--mono);color:var(--mute);width:14px}
 .offer-col li small{display:block;color:var(--mute);font-size:14px}
 .offer-ft{grid-column:1/-1;border-top:1px solid var(--rule-2);padding:clamp(20px,3vw,32px) clamp(20px,3vw,36px);display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
-.offer-ft .cta-row{margin-top:0}
+.offer-ft .cta-row{display:flex;flex-wrap:wrap;gap:12px}
 
 /* barra móvil */
 .mbar{display:none}
 @media (max-width:980px){
-  .mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(7,9,8,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--rule-2);transform:translateY(110%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .mbar{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:45;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgb(6 7 12/.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--rule-2);transform:translateY(110%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
   .mbar.on{transform:none}
   .mbar .btn{padding:14px 14px;font-size:15px;justify-content:center}
-  .mbar .btn-glow{flex:1}
+  .mbar .btn-fill{flex:1}
   .mbar .btn-line{flex:none}
-  footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
 
-footer{border-top:1px solid var(--rule);padding-block:28px 40px}
-.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 32px;align-items:center}
-.foot a{text-decoration:none;color:var(--mute)}
-.foot a:hover{color:var(--bone)}
-.foot-links{display:flex;flex-wrap:wrap;gap:8px 24px}
+/* ---------- FOOTER: cierre de lámina ---------- */
+footer{position:relative;padding-top:clamp(80px,9vw,140px);overflow:hidden}
+.foot{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(0,3fr);gap:40px clamp(24px,4vw,64px);align-items:end;border-top:1px solid var(--rule);padding-top:36px}
+footer>.wrap{border:0}
+.foot-sig{display:grid;gap:14px;justify-items:start}
+.foot-sym{width:clamp(120px,11vw,156px);height:auto;color:var(--bone);display:block;margin-bottom:12px}
+.foot-sig .specimen{font-size:clamp(22px,2vw,28px);margin:0}
+.foot-links{display:grid;grid-template-columns:repeat(2,max-content);gap:12px 40px;align-content:end}
+.foot-links a,.foot-meta a{text-decoration:none;color:var(--mute);font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:color .2s}
+.foot-links a:hover{color:var(--bone)}
+.foot-meta{display:grid;gap:10px;justify-items:end;text-align:right}
+.foot-word{margin-top:clamp(48px,6vw,96px);line-height:0;pointer-events:none;user-select:none}
+.foot-word svg{display:block;width:100%;height:auto}
+.foot-word text{font:700 330px var(--f);font-stretch:85%;letter-spacing:-.005em}
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width:980px){
@@ -243,37 +308,69 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   .chap.hero .chap-card{gap:14px}
   .chap.hero .hero-lede{font-size:15.5px}
   .chap.hero .live{font-size:10.5px;letter-spacing:.07em}
-  .fit{grid-template-columns:1fr}
-  .fit-col+.fit-col{border-left:0;padding-left:0;margin-top:24px;border-top:1px solid var(--rule)}
-  .pledges{grid-template-columns:1fr}
-  .offer{grid-template-columns:1fr}
-  .offer-col+.offer-col{border-left:0;border-top:1px solid var(--rule-2)}
   .scroll-cue{display:none}
   .corner.tr{top:74px}
   .corner.br{display:none}
   .corner.tr,#labels{display:none}
   .chap{max-width:none;justify-content:flex-start;padding-block:56svh 40px}
+  .chap:not(.hero){padding-top:62svh}
+  .chap:not(.hero)::before{background:linear-gradient(180deg,rgb(6 7 12/0) 45%,rgb(6 7 12/.55) 62%,rgb(6 7 12/.7) 100%)}
+  #raices::before{-webkit-mask-image:none;mask-image:none}
+  #bosque{max-width:none}
   /* the card fades in from transparent so the scene keeps breathing above the text */
   .chap-card{background:linear-gradient(180deg,rgba(6,7,12,0) 0,rgba(6,7,12,.5) 90px,rgba(6,7,12,.66) 220px,rgba(6,7,12,.72) 100%);padding:64px 18px 26px;margin-inline:calc(-1 * var(--g));display:grid;gap:22px;text-shadow:0 1px 14px rgba(6,7,12,.9),0 0 2px rgba(6,7,12,.8)}
   .chap.hero .chap-card{padding-top:28px}
   .chap-card .grow-word{text-shadow:none}
+  .forest{grid-template-columns:1fr}
+  .case{background:rgb(6 7 12/.5)}
   .check-grid,.faq{grid-template-columns:1fr}
-  .reading{position:static}
-  .voices-grid{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr 1fr}
-  .step:nth-child(3){border-left:0;padding-left:0}
-  .step{padding-bottom:26px}
+  .reading,.faq-side{position:static}
+  .sumbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;position:sticky;top:var(--navh,70px);z-index:5;padding:12px 0 12px;background:rgb(6 7 12/.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+  .sumbar>span{display:grid;gap:6px}
+  .sumbar b{font:500 13px/1 var(--mono);color:var(--bone)}
+  .sumbar small{font:400 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .sumbar i{display:block;height:2px;background:var(--rule)}
+  .sumbar i span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 6px var(--c);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .list{border-top:0}
+  .duo{grid-template-columns:1fr;gap:28px}
+  .duo-y{order:-1;width:150px;justify-self:center}
+  .duo-tag{display:block;position:absolute;top:23.7%;transform:translateY(-50%);font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .duo-tag.l{right:calc(94% + 12px)}
+  .duo-tag.r{left:calc(94% + 12px)}
+  .person.l{text-align:left;justify-items:start}
+  .person+.duo-y+.person,.duo .person.r{border-top:1px solid var(--rule);padding-top:28px}
+  .steps{grid-template-columns:1fr;gap:36px;padding-left:34px}
+  .steps::before,.grow{left:4px;right:auto;top:4px;bottom:0;width:1px;height:auto}
+  .grow{background:linear-gradient(180deg,var(--bone),rgb(233 229 217/.35));clip-path:inset(0 -2px calc((1 - var(--k,1)) * 100%) -2px);box-shadow:none}
+  .step{padding-top:0}
+  .node{left:-34px;top:.2em}
+  .step:not(:last-child) .node{--c:var(--bone)}
+  .pledges{grid-template-columns:1fr}
+  .offer{grid-template-columns:1fr}
+  .offer-col+.offer-col{border-left:0;border-top:1px solid var(--rule-2)}
+  .foot{grid-template-columns:1fr 1fr}
+  .foot-sig{grid-column:1/-1}
+  .foot-meta{justify-items:start;text-align:left}
 }
 @media (min-width:981px){ .chap-card{display:contents} .chap.hero .chap-card{display:flex;flex-direction:column;gap:26px} }
 @media (max-width:640px){
   body{font-size:16px}
-  .duo-grid{grid-template-columns:1fr}
-  .person+.person{border-left:0;padding-left:0;border-top:1px solid var(--rule);margin-top:32px}
-  .steps{grid-template-columns:1fr}
-  .step+.step{border-left:0;padding-left:0}
   .did{grid-template-columns:1fr}
-  .forest-row{grid-template-columns:1fr}
-  .forest-row .txt{grid-column:1;grid-row:auto;margin-top:6px}
+  .fork-cols{grid-template-columns:1fr 1fr;gap:0 16px}
+  .fork-col{display:contents}
+  .fork-col .fork-hd{grid-row:1;grid-column:1}
+  .fork-col.no .fork-hd{grid-column:2}
+  .fork-col ul{grid-column:1/-1;grid-row:2;margin-top:28px}
+  .fork-col.no ul{grid-row:3;margin-top:44px}
+  .fork-col.no ul::before{content:"No es para vos si";display:block;padding-bottom:12px;font:400 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .case .desc{display:none}
+  .fork-y{height:84px}
+  .fork-y path{stroke-width:2.4}
+  .roots path{stroke-width:2}
+  .reading-body{grid-template-columns:92px minmax(0,1fr);gap:18px}
+  .spec{width:92px}
+  .foot{grid-template-columns:1fr}
+  .foot-links{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important;animation:none!important}
@@ -334,7 +431,7 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
         <span class="mono key" style="--c:var(--root)">Raíces · Datos</span>
         <h2>Lo que no se ve alimenta todo lo demás.</h2>
         <p class="lede">De las raíces depende todo lo que está arriba. Con los datos pasa lo mismo: si llegan tarde, incompletos o nadie confía en ellos, cada decisión se seca.</p>
-        <dl class="did">
+        <dl class="did" style="--c:var(--root)">
           <dt>Qué hacemos</dt><dd>Pipelines, calidad de datos y tableros que la gente usa.</dd>
           <dt class="you">Para vos</dt><dd class="you">Dejás de armar reportes a mano y de discutir qué número es el correcto. Tenés un tablero con los números del negocio que se actualiza sin carga manual.</dd>
         </dl>
@@ -348,7 +445,7 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
         <span class="mono key" style="--c:var(--bark)">Corteza · Seguridad</span>
         <h2>La corteza crece con el árbol. No se agrega al final.</h2>
         <p class="lede">Cada año un árbol suma un anillo y una capa de protección. La seguridad se construye igual: desde el primer día, capa por capa, junto con el sistema.</p>
-        <dl class="did">
+        <dl class="did" style="--c:var(--bark)">
           <dt>Qué hacemos</dt><dd>Auditoría, hardening, APIs seguras y protección de datos.</dd>
           <dt class="you">Para vos</dt><dd class="you">Sabés qué está expuesto, quién accede a qué y qué arreglar primero, antes de que un incidente o una filtración te frene la operación.</dd>
         </dl>
@@ -362,7 +459,7 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
         <span class="mono key" style="--c:var(--leaf)">Copa · IA aplicada</span>
         <h2>La copa convierte luz en energía.</h2>
         <p class="lede">Las hojas transforman algo abundante en algo útil. La IA aplicada hace lo mismo con tus documentos y tus tareas repetitivas. Cada rama termina en un nodo, como en una red neuronal, y cada respuesta pasa por revisión humana.</p>
-        <dl class="did">
+        <dl class="did" style="--c:var(--leaf)">
           <dt>Qué hacemos</dt><dd>Automatizaciones con modelos de lenguaje y asistentes sobre tus documentos.</dd>
           <dt class="you">Para vos</dt><dd class="you">Las consultas repetidas, la carga duplicada y los vencimientos dejan de depender de que alguien se acuerde, y una persona aprueba cada respuesta antes de que salga.</dd>
         </dl>
@@ -376,9 +473,9 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
         <h2>Un bosque no se promete. Se planta.</h2>
         <p class="lede">No te vendemos teoría. Operamos nuestro propio software en salud, comercio exterior y hotelería, y lo que aprendimos ahí lo aplicamos en tu negocio.</p>
         <div class="forest">
-          <div class="forest-row"><h3>Aira</h3><span class="mono">Salud mental</span><div class="txt"><p class="res">El profesional deja de perseguir turnos y facturas.</p><p>Agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras independientes.</p></div></div>
-          <div class="forest-row"><h3>CDI</h3><span class="mono">Comercio exterior</span><div class="txt"><p class="res">El despachante deja de perder vencimientos entre papeles y chats.</p><p>Documentos, conversaciones y vencimientos de despachantes de aduana, en un solo lugar.</p></div></div>
-          <div class="forest-row"><h3>ReservaYá</h3><span class="mono">Hotelería</span><div class="txt"><p class="res">El hotel deja las planillas y ve su ocupación al día.</p><p>Reservas online, check-in digital y ocupación para hoteles de 10 a 40 habitaciones.</p></div></div>
+          <article class="case"><h3>Aira</h3><span class="mono key" style="--c:var(--cyan)">Salud mental</span><p class="res">El profesional deja de perseguir turnos y facturas.</p><p class="desc">Agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras independientes.</p></article>
+          <article class="case"><h3>CDI</h3><span class="mono key" style="--c:var(--cyan)">Comercio exterior</span><p class="res">El despachante deja de perder vencimientos entre papeles y chats.</p><p class="desc">Documentos, conversaciones y vencimientos de despachantes de aduana, en un solo lugar.</p></article>
+          <article class="case"><h3>ReservaYá</h3><span class="mono key" style="--c:var(--cyan)">Hotelería</span><p class="res">El hotel deja las planillas y ve su ocupación al día.</p><p class="desc">Reservas online, check-in digital y ocupación para hoteles de 10 a 40 habitaciones.</p></article>
         </div>
         <a class="ctx" style="--c:var(--cyan)" href="https://wa.me/5491100000000?text=Hola%20Ynera%2C%20vi%20sus%20casos%20y%20mi%20problema%20se%20parece%20a%20uno.%20Les%20cuento%3A" target="_blank" rel="noopener">¿Tu problema se parece a alguno de estos? Contanos <span aria-hidden="true">→</span></a>
       </div>
@@ -386,72 +483,128 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
   </div>
 </section>
 
-<!-- ===== PARA QUIÉN ===== -->
-<section class="sec" id="para-quien" aria-labelledby="pq" style="padding-block:clamp(80px,10vw,140px)">
+<!-- ===== VI · PARA QUIÉN ===== -->
+<section class="sec" id="para-quien" aria-labelledby="pq">
   <div class="wrap">
-    <span class="mono">Para quién</span>
-    <h2 class="big" id="pq" style="margin-top:20px">Con quién trabajamos mejor.</h2>
-    <div class="fit">
-      <div class="fit-col" style="--c:var(--cyan)">
-        <span class="mono key" style="--c:var(--cyan)">Es para vos si</span>
-        <ul>
-          <li>Sos una PyME que vive en planillas.</li>
-          <li>Sos profesional y manejás datos sensibles de clientes o pacientes.</li>
-          <li>Tu equipo quiere usar IA con control y revisión humana.</li>
-        </ul>
-      </div>
-      <div class="fit-col no">
-        <span class="mono">No es para vos si</span>
-        <ul>
-          <li>Buscás la herramienta más barata.</li>
-          <li>Trabajás en apuestas online o en productos que dañan a las personas.</li>
-          <li>Querés IA sin revisión humana.</li>
-        </ul>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám. VI</span><span class="latin">Selectio</span></span><span class="mono">Para quién</span></header>
+    <div class="fork">
+      <h2 class="h2s" id="pq">Con quién trabajamos mejor.</h2>
+      <svg class="fork-y draw" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="fkYes" gradientUnits="userSpaceOnUse" x1="500" y1="60" x2="250" y2="150"><stop offset="0" stop-color="#30354A"/><stop offset="1" stop-color="#27F0D2"/></linearGradient>
+        </defs>
+        <path d="M500 0V60" pathLength="1" stroke="#30354A"/>
+        <path d="M500 60C500 112 250 98 250 150" pathLength="1" stroke="url(#fkYes)" style="--dl:.35s"/>
+        <path d="M500 60C500 112 750 98 750 150" pathLength="1" stroke="#5E5D56" style="--dl:.35s"/>
+      </svg>
+      <div class="fork-cols">
+        <div class="fork-col">
+          <span class="mono fork-hd" style="color:var(--cyan)">Es para vos si</span>
+          <ul>
+            <li>Sos una PyME que vive en planillas.</li>
+            <li>Sos profesional y manejás datos sensibles de clientes o pacientes.</li>
+            <li>Tu equipo quiere usar IA con control y revisión humana.</li>
+          </ul>
+        </div>
+        <div class="fork-col no">
+          <span class="mono fork-hd">No es para vos si</span>
+          <ul>
+            <li>Buscás la herramienta más barata.</li>
+            <li>Trabajás en apuestas online o en productos que dañan a las personas.</li>
+            <li>Querés IA sin revisión humana.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== DIAGNÓSTICO ===== -->
-<section class="sec" id="diagnostico">
+<!-- ===== VII · DIAGNÓSTICO ===== -->
+<section class="sec" id="diagnostico" aria-labelledby="dh">
   <div class="wrap">
-    <span class="mono">Autodiagnóstico · 2 minutos</span>
-    <h2 class="big" style="margin-top:20px">¿Dónde está el problema?</h2>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám. VII</span><span class="latin">Diagnosis</span></span><span class="mono">Autodiagnóstico · 2 minutos</span></header>
+    <h2 class="h2s" id="dh">¿Dónde está el problema?</h2>
     <p class="lede">Marcá lo que te pasa. Te mostramos si el problema está en las raíces, en la corteza o en la copa, y con qué arrancaríamos.</p>
     <div class="check-grid">
-      <div class="list" id="list" role="group" aria-label="Situaciones"></div>
+      <div class="check-list">
+        <!-- resumen fijo en celular: la reacción se ve mientras marcás -->
+        <div class="sumbar" aria-hidden="true">
+          <span style="--c:var(--root)"><small>Raíces</small><b class="num" id="s-da">0%</b><i><span id="sb-da"></span></i></span>
+          <span style="--c:var(--bark)"><small>Corteza</small><b class="num" id="s-se">0%</b><i><span id="sb-se"></span></i></span>
+          <span style="--c:var(--leaf)"><small>Copa</small><b class="num" id="s-ia">0%</b><i><span id="sb-ia"></span></i></span>
+        </div>
+        <div class="list" id="list" role="group" aria-label="Situaciones"></div>
+      </div>
       <div class="reading" aria-live="polite">
-        <span class="mono">Lectura</span>
-        <div class="meter" style="--c:var(--root)"><div class="meter-top"><span class="key" style="--c:var(--root)">Raíces · Datos</span><span class="mono num" id="v-da">0%</span></div><div class="track"><span id="b-da"></span></div></div>
-        <div class="meter" style="--c:var(--bark)"><div class="meter-top"><span class="key" style="--c:var(--bark)">Corteza · Seguridad</span><span class="mono num" id="v-se">0%</span></div><div class="track"><span id="b-se"></span></div></div>
-        <div class="meter" style="--c:var(--leaf)"><div class="meter-top"><span class="key" style="--c:var(--leaf)">Copa · IA aplicada</span><span class="mono num" id="v-ia">0%</span></div><div class="track"><span id="b-ia"></span></div></div>
+        <div class="reading-hd"><span class="mono">Lectura</span><span class="mono num" id="rCount">0 de 10</span></div>
+        <div class="reading-body">
+          <!-- espécimen: raíz ámbar, tronco violeta, copa azul; cada órgano crece con su % -->
+          <svg class="spec" viewBox="0 0 120 200" aria-hidden="true">
+            <path class="ground" d="M8 130H112" vector-effect="non-scaling-stroke"/>
+            <g class="ghost">
+              <path d="M60 92L34.3 61.4M60 92L85.7 61.4M47 76.5L41 52M73 76.5L79 52"/>
+              <path d="M60 130V92M55 118H65M55.5 104H64.5"/>
+              <path d="M60 130V178M60 132C56 150 44 160 30 176M60 132C64 150 76 160 90 176M44 158C38 168 30 172 18 174M76 158C82 168 90 172 102 174"/>
+            </g>
+            <g class="org" id="sp-ia" style="--c:var(--leaf)">
+              <path pathLength="1" d="M60 92L34.3 61.4"/><path pathLength="1" d="M60 92L85.7 61.4"/><path pathLength="1" d="M47 76.5L41 52"/><path pathLength="1" d="M73 76.5L79 52"/>
+              <circle cx="34.3" cy="61.4" r="2.4"/><circle cx="85.7" cy="61.4" r="2.4"/><circle cx="41" cy="52" r="1.8"/><circle cx="79" cy="52" r="1.8"/>
+            </g>
+            <g class="org" id="sp-se" style="--c:var(--bark)">
+              <path pathLength="1" d="M60 130V92"/><path pathLength="1" d="M55 118H65"/><path pathLength="1" d="M55.5 104H64.5"/>
+            </g>
+            <g class="org" id="sp-da" style="--c:var(--root)">
+              <path pathLength="1" d="M60 130V178"/><path pathLength="1" d="M60 132C56 150 44 160 30 176"/><path pathLength="1" d="M60 132C64 150 76 160 90 176"/><path pathLength="1" d="M44 158C38 168 30 172 18 174"/><path pathLength="1" d="M76 158C82 168 90 172 102 174"/>
+            </g>
+          </svg>
+          <!-- mismo orden vertical que el árbol: copa arriba, raíces abajo -->
+          <div class="meters">
+            <div class="meter" style="--c:var(--leaf)"><div class="meter-top"><span class="key" style="--c:var(--leaf)">Copa · IA aplicada</span><span class="mono num" id="v-ia">0%</span></div><div class="track"><span id="b-ia"></span></div></div>
+            <div class="meter" style="--c:var(--bark)"><div class="meter-top"><span class="key" style="--c:var(--bark)">Corteza · Seguridad</span><span class="mono num" id="v-se">0%</span></div><div class="track"><span id="b-se"></span></div></div>
+            <div class="meter" style="--c:var(--root)"><div class="meter-top"><span class="key" style="--c:var(--root)">Raíces · Datos</span><span class="mono num" id="v-da">0%</span></div><div class="track"><span id="b-da"></span></div></div>
+          </div>
+        </div>
         <p class="verdict" id="verdict">Marcá una o más situaciones.</p>
         <p class="hint" id="hint">Esto no se envía a ningún lado hasta que vos lo mandes.</p>
-        <div><a class="btn btn-fill" id="wa" href="https://wa.me/5491100000000" target="_blank" rel="noopener">Mandanos este resultado por WhatsApp →</a></div>
+        <div><a class="btn btn-fill" id="wa" data-cta href="https://wa.me/5491100000000" target="_blank" rel="noopener">Mandanos este resultado por WhatsApp →</a></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== DUPLA ===== -->
-<section class="sec" id="dupla">
+<!-- ===== VIII · DUPLA ===== -->
+<section class="sec" id="dupla" aria-labelledby="duh">
   <div class="wrap">
-    <span class="mono">Quiénes somos</span>
-    <h2 class="big" style="margin-top:20px">Dos ramas.<br>Un mismo tronco.</h2>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám. VIII</span><span class="latin">Symbiosis</span></span><span class="mono">Quiénes somos</span></header>
+    <h2 class="h2s" id="duh">Dos ramas.<br>Un mismo tronco.</h2>
     <p class="lede">Ynera nació de una dupla: seguridad y datos. Uno asegura lo que se construye; el otro mide si sirve. Como la Y del logo, son dos ramas que salen del mismo tronco.</p>
-    <div class="duo-grid">
-      <article class="person">
-        <!-- TODO: reemplazar el marco por <img> de Emiliano (84×84, esquinas rectas) -->
-        <div class="frame" aria-hidden="true">E</div>
+    <!--
+      FOTOS: mientras no haya fotos reales, la Y lineal (.duo-y) hace de retrato de la dupla.
+      Cuando lleguen (ver Código de marca 6.2: misma luz, misma lente, cuadradas, sin radio),
+      sumar al principio de cada .person:
+        <figure class="photo"><img src="img/emiliano.jpg" alt="Emiliano, socio de Ynera" width="560" height="560" loading="lazy"></figure>
+      y dejar la Y entre las dos columnas (el CSS de .photo ya está).
+    -->
+    <div class="duo">
+      <article class="person l">
         <span class="mono key" style="--c:var(--bark)">Asegura</span>
         <h3>Emiliano</h3>
         <p>Construye sistemas desde la arquitectura hasta el despliegue. Para él, la seguridad es una condición para que algo salga a producción, no una capa que se agrega al final.</p>
         <span class="mono">Ciberseguridad · Código · IA</span>
         <!-- TODO: link real de LinkedIn -->
       </article>
-      <article class="person">
-        <!-- TODO: reemplazar el marco por <img> de Mariano (84×84, esquinas rectas) -->
-        <div class="frame" aria-hidden="true">M</div>
+      <div class="duo-y" aria-hidden="true">
+        <span class="duo-tag l">Emiliano</span><span class="duo-tag r">Mariano</span>
+        <svg class="draw" viewBox="-14 -14 228 358">
+          <path d="M100 330V190" pathLength="1" stroke="#E9E5D9" stroke-opacity=".55"/>
+          <path d="M100 190L0.4 71.3" pathLength="1" stroke="#B25BFF" style="--dl:.45s"/>
+          <path d="M100 190L199.6 71.3" pathLength="1" stroke="#FF9A1F" style="--dl:.45s"/>
+          <circle cx="0.4" cy="71.3" r="4.5" style="--c:var(--bark)"/>
+          <circle cx="199.6" cy="71.3" r="4.5" style="--c:var(--root)"/>
+          <circle cx="100" cy="190" r="2.5" style="--c:var(--bone)"/>
+        </svg>
+      </div>
+      <article class="person r">
         <span class="mono key" style="--c:var(--root)">Mide</span>
         <h3>Mariano</h3>
         <p>Convierte conversaciones de negocio en problemas que se pueden medir y resolver. Trabaja entre los datos, el contexto y las decisiones que el equipo necesita tomar.</p>
@@ -459,6 +612,7 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
         <!-- TODO: link real de LinkedIn -->
       </article>
     </div>
+    <p class="motto">Construimos antes de aconsejar.</p>
   </div>
 </section>
 
@@ -479,48 +633,71 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
 </section>
 -->
 
-
-
-<!-- ===== PROCESO ===== -->
-<section class="sec" aria-labelledby="ph" style="padding-block:clamp(80px,10vw,140px)">
+<!-- ===== IX · PROCESO ===== -->
+<section class="sec" id="proceso" aria-labelledby="ph">
   <div class="wrap">
-    <span class="mono" id="ph">Cómo trabajamos</span>
-    <div class="steps">
-      <div class="step"><span class="mono">1</span><h3>Escuchamos</h3><p>Traés el problema. Empieza con una conversación, no con una presentación comercial.</p></div>
-      <div class="step"><span class="mono">2</span><h3>Diagnosticamos</h3><p>Miramos impacto, datos y riesgos, y te decimos con qué conviene empezar.</p></div>
-      <div class="step"><span class="mono">3</span><h3>Construimos</h3><p>Con revisión humana y trazabilidad. Nada de cajas negras.</p></div>
-      <div class="step"><span class="mono">4</span><h3>Operamos</h3><p>Sale a producción y lo seguimos cuidando mientras crece.</p></div>
-    </div>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám. IX</span><span class="latin">Cultura</span></span><span class="mono" id="ph">Cómo trabajamos</span></header>
+    <ol class="steps" id="steps">
+      <li class="grow" aria-hidden="true"></li>
+      <li class="step" style="--c:var(--root)"><span class="node" aria-hidden="true"></span><span class="mono">01</span><h3>Escuchamos</h3><p>Traés el problema. Empieza con una conversación, no con una presentación comercial.</p></li>
+      <li class="step" style="--c:var(--bark)"><span class="node" aria-hidden="true"></span><span class="mono">02</span><h3>Diagnosticamos</h3><p>Miramos impacto, datos y riesgos, y te decimos con qué conviene empezar.</p></li>
+      <li class="step" style="--c:var(--leaf)"><span class="node" aria-hidden="true"></span><span class="mono">03</span><h3>Construimos</h3><p>Con revisión humana y trazabilidad. Nada de cajas negras.</p></li>
+      <li class="step" style="--c:var(--cyan)"><span class="node" aria-hidden="true"></span><span class="mono">04</span><h3>Operamos</h3><p>Sale a producción y lo seguimos cuidando mientras crece.</p></li>
+    </ol>
     <div class="pledges" aria-label="Compromisos">
-      <div class="pledge"><span class="mono key" style="--c:var(--root)">Compromiso 1</span><p>Si no vale la pena, te lo decimos antes de cobrar.</p></div>
-      <div class="pledge"><span class="mono key" style="--c:var(--bark)">Compromiso 2</span><p>Trabajás directo con los socios, sin intermediarios.</p></div>
-      <div class="pledge"><span class="mono key" style="--c:var(--leaf)">Compromiso 3</span><p>Avanzamos por etapas con alcance y costo acordados antes de empezar.</p></div>
+      <figure class="pledge" style="--c:var(--root)"><span class="mono">Compromiso 1</span><blockquote>Si no vale la pena, te lo decimos antes de cobrar.</blockquote></figure>
+      <figure class="pledge" style="--c:var(--bark)"><span class="mono">Compromiso 2</span><blockquote>Trabajás directo con los socios, sin intermediarios.</blockquote></figure>
+      <figure class="pledge" style="--c:var(--leaf)"><span class="mono">Compromiso 3</span><blockquote>Avanzamos por etapas con alcance y costo acordados antes de empezar.</blockquote></figure>
     </div>
   </div>
 </section>
 
-<!-- ===== FAQ ===== -->
-<section class="sec" aria-labelledby="fh" style="padding-block:clamp(80px,10vw,140px)">
-  <div class="wrap faq">
-    <h2 id="fh">Preguntas antes de empezar.</h2>
-    <div>
-      <details><summary>¿Puedo contratarlos solo para IA, datos o seguridad?</summary><p>Sí. Cada área se trabaja por separado. Si el problema se beneficia de combinar disciplinas, lo proponemos, pero no es condición.</p></details>
-      <details><summary>¿Cómo saben si vale la pena hacer el proyecto?</summary><p>Empezamos por el problema, no por la herramienta. En la primera conversación buscamos entender impacto, datos disponibles, riesgos y si tiene sentido avanzar.</p></details>
-      <details><summary>¿Trabajan con equipos chicos?</summary><p>Sí. Nuestros productos nacieron junto a profesionales independientes y PyMEs. El tamaño no define la oportunidad; el problema concreto sí.</p></details>
-      <details><summary>¿Cuánto cuesta?</summary><p>Trabajamos por etapas con alcance y costo acordados antes de empezar. En el diagnóstico sin costo te pasamos un rango de costo y plazo para tu caso.</p></details>
-      <details><summary>¿Con quién voy a trabajar?</summary><p>Directo con Emiliano y Mariano. Sin capas comerciales entre el problema y quien lo resuelve.</p></details>
-      <details><summary>¿Qué pasa con mis datos?</summary><p>Los tratamos con el mismo criterio de seguridad que aplicamos en productos con información clínica: acceso mínimo, registro de accesos y nada sale de tu control sin que lo sepas.</p></details>
-      <details><summary>¿Y después de entregar?</summary><p>Podemos seguir operando y mejorando lo que construimos, como hacemos con nuestros propios productos, con un plan de mantenimiento que acordamos aparte.</p></details>
-    </div>
-  </div>
-</section>
-
-<!-- ===== CIERRE ===== -->
-<section class="sec close" id="contacto">
+<!-- ===== X · FAQ ===== -->
+<section class="sec" id="faq" aria-labelledby="fh">
   <div class="wrap">
-    <span class="mono">Mesa de entrada</span>
-    <h2 class="big" style="margin-top:20px">Empecemos por la raíz.</h2>
-    <p class="lede">Una charla corta para entender el problema de fondo. Si podemos ayudarte, te decimos cómo. Si no, también.</p>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám. X</span><span class="latin">Quaestiones</span></span><span class="mono">Preguntas frecuentes</span></header>
+    <div class="faq">
+      <div class="faq-side">
+        <h2 class="h2s" id="fh">Preguntas antes de empezar.</h2>
+        <a class="ctx" href="https://wa.me/5491100000000?text=Hola%20Ynera%2C%20tengo%20una%20pregunta%3A" target="_blank" rel="noopener">¿Otra pregunta? Escribinos por WhatsApp <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="faq-list">
+        <details><summary>¿Puedo contratarlos solo para IA, datos o seguridad?</summary><p>Sí. Cada área se trabaja por separado. Si el problema se beneficia de combinar disciplinas, lo proponemos, pero no es condición.</p></details>
+        <details><summary>¿Cómo saben si vale la pena hacer el proyecto?</summary><p>Empezamos por el problema, no por la herramienta. En la primera conversación buscamos entender impacto, datos disponibles, riesgos y si tiene sentido avanzar.</p></details>
+        <details><summary>¿Trabajan con equipos chicos?</summary><p>Sí. Nuestros productos nacieron junto a profesionales independientes y PyMEs. El tamaño no define la oportunidad; el problema concreto sí.</p></details>
+        <details><summary>¿Cuánto cuesta?</summary><p>Trabajamos por etapas con alcance y costo acordados antes de empezar. En el diagnóstico sin costo te pasamos un rango de costo y plazo para tu caso.</p></details>
+        <details><summary>¿Con quién voy a trabajar?</summary><p>Directo con Emiliano y Mariano. Sin capas comerciales entre el problema y quien lo resuelve.</p></details>
+        <details><summary>¿Qué pasa con mis datos?</summary><p>Los tratamos con el mismo criterio de seguridad que aplicamos en productos con información clínica: acceso mínimo, registro de accesos y nada sale de tu control sin que lo sepas.</p></details>
+        <details><summary>¿Y después de entregar?</summary><p>Podemos seguir operando y mejorando lo que construimos, como hacemos con nuestros propios productos, con un plan de mantenimiento que acordamos aparte.</p></details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== XI · CIERRE ===== -->
+<section class="sec close" id="contacto" aria-labelledby="ch">
+  <div class="wrap">
+    <div class="close-hd">
+      <!-- raíces finas que bajan desde el filete de la lámina, eco de la Lám. II -->
+      <svg class="roots draw" viewBox="0 0 900 460" preserveAspectRatio="none" aria-hidden="true">
+        <path pathLength="1" d="M300 0C298 60 318 110 300 180S270 300 285 460"/>
+        <path pathLength="1" d="M300 40C250 70 190 80 120 150S40 240 6 262" style="--dl:.15s"/>
+        <path pathLength="1" d="M302 70C360 100 450 110 520 170S640 250 700 330" style="--dl:.2s"/>
+        <path pathLength="1" d="M300 130C270 170 220 200 200 280" style="--dl:.3s"/>
+        <path pathLength="1" d="M520 170C560 180 620 170 690 190S800 240 880 252" style="--dl:.4s"/>
+        <path pathLength="1" d="M640 0C630 50 660 90 640 150S620 230 660 310" style="--dl:.1s"/>
+        <path pathLength="1" d="M640 60C690 78 760 70 870 112" style="--dl:.3s"/>
+        <path class="f" pathLength="1" d="M120 150C110 190 90 210 80 262" style="--dl:.45s"/>
+        <path class="f" pathLength="1" d="M200 280C190 320 170 340 150 400" style="--dl:.5s"/>
+        <path class="f" pathLength="1" d="M300 180C330 220 360 240 380 320" style="--dl:.45s"/>
+        <path class="f" pathLength="1" d="M700 330C690 360 700 400 722 440" style="--dl:.55s"/>
+        <path class="f" pathLength="1" d="M640 150C600 180 560 190 540 240" style="--dl:.5s"/>
+        <path class="f" pathLength="1" d="M60 0C70 40 50 70 58 120" style="--dl:.2s"/>
+      </svg>
+      <header class="lam"><span class="lam-no"><span class="mono">Lám. XI</span><span class="latin">Radix</span></span><span class="mono">Mesa de entrada</span></header>
+      <h2 class="big" id="ch">Empecemos por la raíz.</h2>
+      <p class="lede">Una charla corta para entender el problema de fondo. Si podemos ayudarte, te decimos cómo. Si no, también.</p>
+    </div>
     <div class="offer">
       <div class="offer-hd"><strong>Diagnóstico Ynera</strong><span class="mono key" style="--c:var(--cyan)">Sin costo</span></div>
       <div class="offer-col">
@@ -541,7 +718,7 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
       </div>
       <div class="offer-ft">
         <div class="cta-row">
-          <a class="btn btn-glow" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Pedí tu diagnóstico sin costo <span aria-hidden="true">→</span></a>
+          <a class="btn btn-fill" data-cta href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Pedí tu diagnóstico sin costo <span aria-hidden="true">→</span></a>
           <a class="btn btn-line" href="https://wa.me/5491100000000" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
         </div>
       </div>
@@ -552,23 +729,39 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
 </main>
 
 <div class="mbar" id="mbar" aria-label="Contacto rápido">
-  <a class="btn btn-glow" id="mbarMain" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Diagnóstico sin costo</a>
+  <a class="btn btn-fill" id="mbarMain" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Diagnóstico sin costo</a>
   <a class="btn btn-line" href="https://wa.me/5491100000000" target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp">WhatsApp</a>
 </div>
 
 <footer>
-  <div class="wrap foot">
-    <a class="brand" href="#top"><img src="brand/ynera-simbolo-color.svg" alt="" width="22" height="22">Ynera</a>
+  <div class="wrap"><div class="foot">
+    <div class="foot-sig">
+      <svg class="foot-sym" viewBox="0 0 96 96" role="img" aria-label="Ynera"><path fill="currentColor" d="M42.00 87.32H54.00V45.32H42.00ZM52.60 41.46L26.88 10.82A6.0 6.0 0 0 0 17.69 18.54L43.40 49.18ZM52.60 49.18L78.31 18.54A6.0 6.0 0 0 0 69.12 10.82L43.40 41.46Z"/></svg>
+      <p class="specimen">Ynera bifurcata</p>
+      <span class="mono">Buenos Aires · 34°36′ S 58°22′ O</span>
+    </div>
     <nav class="foot-links" aria-label="Pie"><a href="#raices">Datos</a><a href="#corteza">Seguridad</a><a href="#copa">IA</a><a href="#bosque">Casos</a><a href="#dupla">Nosotros</a><a href="#diagnostico">Test</a></nav>
-    <span class="mono num" id="today">Buenos Aires</span>
+    <div class="foot-meta">
+      <a href="#top">Volver a la Lám. I ↑</a>
+      <span class="mono num" id="today">Buenos Aires</span>
+    </div>
+  </div></div>
+  <div class="foot-word" aria-hidden="true">
+    <svg viewBox="0 0 1000 205">
+      <defs><linearGradient id="fwG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D2130"/><stop offset="1" stop-color="#0C0E16"/></linearGradient></defs>
+      <text x="0" y="252" textLength="1000" lengthAdjust="spacingAndGlyphs" fill="url(#fwG)">Ynera</text>
+    </svg>
   </div>
 </footer>
+
 
 <script src="tree.js" defer></script>
 <script>
 (() => {
   // Número de WhatsApp: cambiarlo solo acá (TODO: número real)
   const WA = '5491100000000';
+  const root = document.documentElement; root.classList.add('js');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('a[href^="https://wa.me/"]').forEach(a => { a.href = a.href.replace(/wa\.me\/\d+/, 'wa.me/' + WA); });
 
   const nav = document.querySelector('.nav');
@@ -599,18 +792,26 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'item'; b.id = 'item-' + i; b.setAttribute('aria-pressed', 'false');
     b.innerHTML = `<span class="box" aria-hidden="true"></span><span>${txt}</span>`;
+    // el check se rellena con el color del área que más pesa en ese ítem
+    const w = ITEMS[i][1], dom = ['da', 'se', 'ia'].reduce((a, k) => w[k] > w[a] ? k : a);
+    b.style.setProperty('--c', {da: 'var(--root)', se: 'var(--bark)', ia: 'var(--leaf)'}[dom]);
     b.onclick = () => { sel.has(i) ? sel.delete(i) : sel.add(i); b.setAttribute('aria-pressed', sel.has(i)); render(); };
     list.appendChild(b);
   });
   function render() {
     const sum = {da: 0, se: 0, ia: 0};
     sel.forEach(i => { for (const k in sum) sum[k] += ITEMS[i][1][k]; });
-    const tot = sum.da + sum.se + sum.ia;
+    const tot = sum.da + sum.se + sum.ia, top = Math.max(sum.da, sum.se, sum.ia);
     for (const k in sum) {
       const pct = tot ? Math.round(sum[k] / tot * 100) : 0;
       document.getElementById('v-' + k).textContent = pct + '%';
       document.getElementById('b-' + k).style.width = pct + '%';
+      document.getElementById('s-' + k).textContent = pct + '%';
+      document.getElementById('sb-' + k).style.width = pct + '%';
+      // espécimen: el área dominante crece entera, las otras en proporción
+      document.getElementById('sp-' + k).style.setProperty('--p', top ? (sum[k] / top).toFixed(3) : 0);
     }
+    document.getElementById('rCount').textContent = sel.size + ' de ' + ITEMS.length;
     const v = document.getElementById('verdict'), h = document.getElementById('hint'), wa = document.getElementById('wa');
     if (!tot) {
       v.textContent = 'Marcá una o más situaciones.';
@@ -636,18 +837,61 @@ footer{border-top:1px solid var(--rule);padding-block:28px 40px}
     render();
   }));
 
-  /* barra móvil: aparece después del hero */
+  /* barra móvil: aparece después del hero; se esconde en el cierre o si un CTA principal está a la vista */
   const mbar = document.getElementById('mbar'), heroEl = document.querySelector('.chap.hero'), close = document.getElementById('contacto');
+  const ctas = [...document.querySelectorAll('main [data-cta]')];
+  const inView = el => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight - 70; };
   const onScroll = () => {
     const past = heroEl.getBoundingClientRect().bottom < innerHeight * .35;
     const atClose = close.getBoundingClientRect().top < innerHeight * .6;
-    mbar.classList.toggle('on', past && !atClose);
+    mbar.classList.toggle('on', past && !atClose && !ctas.some(inView));
     // with answers in the test, the bar leads to the result instead of the booking
     const m = document.getElementById('mbarMain'), has = document.querySelector('.item[aria-pressed="true"]');
     if (has) { m.textContent = 'Ver mi resultado ↓'; m.href = '#verdict'; m.removeAttribute('target'); }
     else { m.textContent = 'Diagnóstico sin costo'; m.href = 'https://cal.com/ynera/30min'; m.target = '_blank'; }
   };
   addEventListener('scroll', onScroll, {passive: true}); onScroll();
+  const navH = () => root.style.setProperty('--navh', nav.offsetHeight + 'px');
+  navH(); addEventListener('resize', navH);
+
+  /* trazos que se dibujan al entrar (estado final visible sin JS) */
+  const draws = document.querySelectorAll('.draw');
+  if (reduce || !('IntersectionObserver' in window)) draws.forEach(d => d.classList.add('in'));
+  else {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold: .3});
+    draws.forEach(d => io.observe(d));
+  }
+
+  /* línea de crecimiento de "Cómo trabajamos": sigue al scroll */
+  const steps = document.getElementById('steps'), stepEls = [...steps.querySelectorAll('.step')];
+  const grow = () => {
+    const r = steps.getBoundingClientRect(), mob = innerWidth <= 980;
+    const k = reduce ? 1 : Math.min(1, Math.max(0, mob ? (innerHeight * .7 - r.top) / Math.max(1, r.height) : (innerHeight * .85 - r.top) / (innerHeight * .45)));
+    steps.style.setProperty('--k', k.toFixed(3));
+    stepEls.forEach((el, i) => {
+      const at = mob ? (el.offsetTop - stepEls[0].offsetTop) / Math.max(1, r.height) : i / 4;
+      el.classList.toggle('on', k >= at + .01 || k === 1);
+    });
+  };
+  addEventListener('scroll', grow, {passive: true}); addEventListener('resize', grow); grow();
+
+  /* FAQ: la respuesta crece desde arriba */
+  document.querySelectorAll('.faq details').forEach(d => {
+    const sum = d.querySelector('summary'), ans = d.querySelector('p');
+    sum.addEventListener('click', e => {
+      if (reduce || !ans.animate) return;
+      e.preventDefault();
+      if (d.dataset.busy) return; d.dataset.busy = 1;
+      const opening = !d.open;
+      if (opening) d.open = true; else d.classList.add('closing');
+      const h = ans.scrollHeight;
+      const a = ans.animate(opening
+        ? [{height: 0, opacity: 0, transform: 'translateY(-6px)'}, {height: h + 'px', opacity: 1, transform: 'none'}]
+        : [{height: h + 'px', opacity: 1}, {height: 0, opacity: 0}],
+        {duration: opening ? 420 : 260, easing: 'cubic-bezier(.2,.8,.2,1)'});
+      a.onfinish = () => { if (!opening) { d.open = false; d.classList.remove('closing'); } delete d.dataset.busy; };
+    });
+  });
 
   /* ================= FOOTER CLOCK ================= */
   const fmt = new Intl.DateTimeFormat('es-AR', {hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires'});
