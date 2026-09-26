@@ -34,25 +34,23 @@ import { CustomEase } from 'gsap/CustomEase';
   ].slice(0, ROMAN.length);
 
   /* ================= MÉTRICAS DE FLUJO =================
-     Las .sec son sticky y se escalan: su getBoundingClientRect no dice dónde están en el flujo.
-     Todo se calcula desde el final de #story (que nunca se transforma) sumando alturas. */
-  let M = {vh: innerHeight, storyTop: 0, storyH: 1, storyBottom: 0, secs: [], docH: 1};
-  // apilado y telón solo en escritorio con Lenis; en celular, solo reveals
-  const stackOn = () => !reduce && !!lenis && desk.matches;
-  let stack = stackOn();
+     VII y X quedan fijas (sticky) mientras VIII y XI suben encima: su getBoundingClientRect no dice dónde
+     están en el flujo. Todo se calcula desde el final de #story (que nunca se transforma) sumando alturas. */
+  let M = {vh: innerHeight, storyTop: 0, storyH: 1, storyBottom: 0, secs: [], docH: 1, car: null};
+  // pines (telón, láminas VIII/XI, carrusel IX) solo en escritorio con Lenis; en celular, scroll normal + reveals
+  const pinsOn = () => !reduce && !!lenis && desk.matches;
+  let pins = pinsOn();
   // cuánto de la lámina entrante tiene que subir (fracción de pantalla) antes de que la de abajo empiece a velarse
   const HOLD = .35;
+  let measureCarousel = () => {};
   function measure() {
     const vh = innerHeight, sy = scrollY;
+    measureCarousel(vh);
     const storyTop = story.getBoundingClientRect().top + sy, storyH = story.offsetHeight;
     let y = storyTop + storyH;
     const list = secs.map(el => { const h = el.offsetHeight, o = {el, top: y, h}; y += h; return o; });
-    M = {vh, storyTop, storyH, storyBottom: storyTop + storyH, secs: list, docH: root.scrollHeight};
-    list.forEach(({el, h}) => {
-      el.style.setProperty('--st', Math.min(0, vh - h) + 'px');
-      el.style.setProperty('--oy', Math.max(h - vh / 2, h / 2).toFixed(0) + 'px');
-      el.style.setProperty('--ct', Math.max(0, h - vh) + 'px');
-    });
+    M = {...M, vh, storyTop, storyH, storyBottom: storyTop + storyH, secs: list, docH: root.scrollHeight};
+    list.forEach(({el, h}) => { if (el.classList.contains('under')) el.style.setProperty('--st', Math.min(0, vh - h) + 'px'); });
   }
   const chapters = $('.chapters', story);
   const flowTop = i => i < chaps.length
@@ -124,55 +122,117 @@ import { CustomEase } from 'gsap/CustomEase';
 
   try {
     root.classList.add('motion');
-    root.classList.toggle('stack', stack);
-    root.classList.toggle('curtain', stack);
+    root.classList.toggle('pins', pins);
 
-    /* ================= APILADO + TELÓN ================= */
-    const plate = $('.plate', story), plateIn = $('.plate-in', story);
-    const veils = secs.map(s => { const v = document.createElement('div'); v.className = 'sec-veil'; v.setAttribute('aria-hidden', 'true'); s.appendChild(v); return v; });
-    const edges = secs.map(s => { const v = document.createElement('div'); v.className = 'sec-edge'; v.setAttribute('aria-hidden', 'true'); s.prepend(v); return v; });
-    const eOut = p => 1 - Math.pow(1 - p, 2);
+    // un solo rAF: Lenis corre en el ticker de GSAP (tree.js deja su loop propio al ver la bandera)
+    if (lenis) {
+      window.__lenisTicker = true;
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    /* ================= TELÓN V → VI + LÁMINAS VIII / XI ================= */
+    const plate = $('.plate', story);
+    const plateVeil = document.createElement('div'); plateVeil.className = 'plate-veil'; plateVeil.setAttribute('aria-hidden', 'true');
+    plate.appendChild(plateVeil);
+    secs.forEach(s => { const v = document.createElement('div'); v.className = 'sec-edge'; v.setAttribute('aria-hidden', 'true'); s.prepend(v); });
+    const unders = secs.filter(s => s.classList.contains('under'));
+    const veils = new Map(unders.map(s => { const v = document.createElement('div'); v.className = 'sec-veil'; v.setAttribute('aria-hidden', 'true'); s.appendChild(v); return [s, v]; }));
     const last = {};
     // escribe un estilo solo si cambió
     function putStyle(key, target, prop, val) { if (last[key] !== val) { last[key] = val; target[prop] = val; } }
     const bosque = chaps[chaps.length - 1];
+
+    /* ================= IX · CARRUSEL ================= */
+    const proc = $('#proceso'), stepsEl = $('#steps'), pledges = proc && $('.pledges', proc);
+    let car = null;
+    if (proc && stepsEl && pledges) {
+      const wrap = $('.wrap', proc);
+      const track = document.createElement('div'); track.className = 'car-track';
+      stepsEl.before(track); track.append(stepsEl, pledges);
+      const ind = document.createElement('div'); ind.className = 'car-ind mono'; ind.setAttribute('aria-hidden', 'true');
+      ind.innerHTML = '<span class="ci-t">Paso <b>01</b> / 04</span><i></i>';
+      track.after(ind);
+      const stepEls = $$('.step', stepsEl), growEl = $('.grow', stepsEl), indT = $('.ci-t', ind);
+      car = {wrap, track, ind, stepEls, growEl, indT, dist: 0, left0: 0, stepsW: 1, fr: [], plLeft: 0, lastLabel: ''};
+      measureCarousel = vh => {
+        if (!pins) { proc.style.removeProperty('--cdist'); delete stepsEl.dataset.car; return; }
+        stepsEl.dataset.car = '1';
+        const cs = getComputedStyle(wrap), padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight);
+        const avail = wrap.clientWidth - padL - padR;
+        car.dist = Math.max(0, Math.round(track.scrollWidth - avail));
+        car.left0 = wrap.getBoundingClientRect().left + padL;
+        car.stepsW = Math.max(1, stepsEl.offsetWidth);
+        car.fr = stepEls.map(el => el.offsetLeft / car.stepsW);
+        car.plLeft = pledges.offsetLeft;
+        proc.style.setProperty('--cdist', car.dist + 'px');
+      };
+      // celular: carrusel táctil con scroll-snap; el indicador sigue al paso visible
+      stepsEl.addEventListener('scroll', () => {
+        if (pins) return;
+        const w = stepEls[1] ? stepEls[1].offsetLeft - stepEls[0].offsetLeft : 1;
+        const i = clamp(Math.round(stepsEl.scrollLeft / Math.max(1, w)), 0, stepEls.length - 1);
+        const t = 'Paso <b>' + String(i + 1).padStart(2, '0') + '</b> / 04';
+        if (t !== car.lastLabel) { car.lastLabel = t; indT.innerHTML = t; }
+        ind.style.setProperty('--cp', ((i + 1) / stepEls.length).toFixed(3));
+      }, {passive: true});
+    }
+    function updateCarousel(sy, vh) {
+      if (!car || !pins) return;
+      const s = M.secs.find(o => o.el === proc); if (!s) return;
+      const pc = clamp((sy - s.top) / Math.max(1, car.dist)), x = -pc * car.dist;
+      putStyle('cx', car.track.style, 'transform', x ? `translate3d(${x.toFixed(1)}px,0,0)` : '');
+      const live = sy > s.top - vh && sy < s.top + car.dist + vh * .2;
+      if (last.clive !== live) { last.clive = live; car.track.classList.toggle('car-live', live); }
+      // la línea crece hasta el punto que está al 62% de la pantalla, y entra con la lámina
+      const enter = clamp((sy - (s.top - vh * .6)) / (vh * .6));
+      const k = clamp((innerWidth * .62 - (car.left0 + x)) / car.stepsW) * enter;
+      putStyle('ck', car.growEl.style, 'transform', `scaleX(${k.toFixed(4)})`);
+      car.stepEls.forEach((el, i) => { const on = k >= car.fr[i] + .004; if (last['cs' + i] !== on) { last['cs' + i] = on; el.classList.toggle('on', on); } });
+      // paso = el último cuyo borde izquierdo pasó el 40% de la pantalla; al final, los compromisos
+      const vis = car.stepEls.filter(el => car.left0 + x + el.offsetLeft < innerWidth * .4).length;
+      const t = car.left0 + x + car.plLeft < innerWidth * .72 ? 'Compromisos' : 'Paso <b>' + String(Math.max(1, vis)).padStart(2, '0') + '</b> / 04';
+      if (t !== car.lastLabel) { car.lastLabel = t; car.indT.innerHTML = t; }
+      const cp = pc.toFixed(3); if (last.cp !== cp) { last.cp = cp; car.ind.style.setProperty('--cp', cp); }
+    }
+
     function update() {
       const sy = scrollY, vh = M.vh;
-      // V → VI: la placa y la columna de la Lám. V quedan quietas (misma translate) mientras VI sube encima
+      if (last.heroOff !== sy > vh) { last.heroOff = sy > vh; root.classList.toggle('hero-off', sy > vh); }
+      // V → VI: placa (congelada por tree.js) y columna de la Lám. V quietas con la misma translate; VI sube encima
       const pc = clamp((sy - (M.storyBottom - vh)) / vh);
-      const inCurtain = stack && pc > 0 && pc < 1;
+      const inCurtain = pins && pc > 0 && pc < 1;
       const hold = inCurtain ? `translate3d(0,${(pc * vh).toFixed(1)}px,0)` : '';
       putStyle('pl', plate.style, 'transform', hold);
       putStyle('bq', bosque.style, 'transform', hold);
-      putStyle('pis', plateIn.style, 'transform', inCurtain ? `scale(${(1 - .05 * eOut(pc)).toFixed(4)})` : '');
-      putStyle('pio', plateIn.style, 'opacity', inCurtain ? (1 - .7 * pc).toFixed(3) : '');
-      putStyle('bqo', bosque.style, 'opacity', inCurtain ? (1 - .75 * clamp((pc - .3) / .7)).toFixed(3) : '');
-      if (last.curt !== inCurtain) { last.curt = inCurtain; plateIn.classList.toggle('curt', inCurtain); }
-      if (!stack) return;
+      putStyle('pv', plateVeil.style, 'opacity', inCurtain ? (.55 * pc).toFixed(3) : '0');
+      if (last.hold !== inCurtain) { last.hold = inCurtain; plate.classList.toggle('hold', inCurtain); bosque.classList.toggle('hold', inCurtain); }
+      updateCarousel(sy, vh);
+      if (!pins) return;
+      // VII bajo VIII y X bajo XI: la de abajo se lee entera; solo en el último tramo (HOLD) se vela
       M.secs.forEach((cur, i) => {
-        const next = M.secs[i + 1];
-        if (!next) return;
-        // la de abajo recién se vela y se aleja en el último tramo (HOLD) de la subida: antes se lee entera
-        const L = Math.min(cur.h, vh), W = L * HOLD, p = clamp((sy - (next.top - W)) / W), el = cur.el;
-        const gone = sy > next.top + 2, cov = p > 0 && !gone;
-        if (last['g' + i] !== gone) { last['g' + i] = gone; el.classList.toggle('gone', gone); }
-        if (last['c' + i] !== cov) { last['c' + i] = cov; el.classList.toggle('covering', cov); }
-        putStyle('t' + i, el.style, 'transform', p > 0 ? `scale(${(1 - .05 * eOut(p)).toFixed(4)})` : '');
-        putStyle('v' + i, veils[i].style, 'opacity', p > 0 ? (.78 * p).toFixed(3) : '0');
+        if (!cur.el.classList.contains('under')) return;
+        const next = M.secs[i + 1]; if (!next) return;
+        const L = Math.min(cur.h, vh), W = L * HOLD, p = clamp((sy - (next.top - W)) / W);
+        const gone = sy > next.top + 2;
+        if (last['g' + i] !== gone) { last['g' + i] = gone; cur.el.classList.toggle('gone', gone); }
+        putStyle('v' + i, veils.get(cur.el).style, 'opacity', p > 0 ? (.6 * p).toFixed(3) : '0');
       });
     }
-    // al cruzar el corte escritorio/celular: limpiar todo lo que el apilado dejó escrito
-    function setStack(on) {
-      if (on === stack) return;
-      stack = on;
-      root.classList.toggle('stack', on); root.classList.toggle('curtain', on);
+    // al cruzar el corte escritorio/celular: limpiar lo que dejaron los pines
+    function setPins(on) {
+      if (on === pins) return;
+      pins = on;
+      root.classList.toggle('pins', on); root.classList.toggle('carousel', on && !!car);
       if (!on) {
-        [plate, plateIn, bosque].forEach(e => { e.style.transform = ''; e.style.opacity = ''; });
-        plateIn.classList.remove('curt');
-        secs.forEach((e, i) => { e.style.transform = ''; e.classList.remove('gone', 'covering'); veils[i].style.opacity = '0'; });
+        [plate, bosque].forEach(e => { e.style.transform = ''; e.classList.remove('hold'); });
+        plateVeil.style.opacity = '0';
+        unders.forEach(e => { e.classList.remove('gone'); veils.get(e).style.opacity = '0'; });
+        if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; }
         for (const k in last) delete last[k];
       }
     }
+    root.classList.toggle('carousel', pins && !!car);
 
     const tick = () => { update(); setActive(); };
     measure(); tick();
@@ -181,7 +241,7 @@ import { CustomEase } from 'gsap/CustomEase';
     } else addEventListener('scroll', tick, {passive: true});
     let rq = 0;
     const remeasure = () => { cancelAnimationFrame(rq); rq = requestAnimationFrame(() => { measure(); tick(); }); };
-    addEventListener('resize', () => { setStack(stackOn()); remeasure(); });
+    addEventListener('resize', () => { setPins(pinsOn()); remeasure(); });
     if ('ResizeObserver' in window) { const ro = new ResizeObserver(remeasure); [story, ...secs].forEach(s => ro.observe(s)); }
     addEventListener('load', remeasure);
 

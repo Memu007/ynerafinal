@@ -189,7 +189,8 @@ let lenis = null;
 if (!reduce) {
   lenis = new Lenis({lerp: .085, wheelMultiplier: .9, smoothWheel: true});
   window.__lenis = lenis; // expuesto para motion.js (ScrollTrigger + índice de láminas)
-  const loop = t => { lenis.raf(t); requestAnimationFrame(loop); };
+  // motion.js pasa Lenis al ticker de GSAP (un solo rAF) y levanta esta bandera; sin motion.js sigue este loop
+  const loop = t => { if (window.__lenisTicker) return; lenis.raf(t); requestAnimationFrame(loop); };
   requestAnimationFrame(loop);
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href^="#"]'); if (!a) return;
@@ -393,7 +394,7 @@ function run() {
           gl_Position = projectionMatrix * viewMatrix * wp;
         }`,
       fragmentShader: `
-        uniform float uGrow, uRoot, uBark, uTime, uFade;
+        uniform float uGrow, uRoot, uBark, uTime, uFade, uGlow;
         uniform vec3 cRoot, cBark, cLeaf;
         varying float vGrow, vKind, vH, vX, vB, vHue, vThin; varying vec3 vN, vV;
         void main(){
@@ -421,7 +422,7 @@ function run() {
           float bands = vKind < .5 ? pow(.5 + .5*sin(vH*4.2 - uTime*1.2), 24.) * uBark * (1. - smoothstep(2., 3.4, vH)) * (.35 + 1.2 * (1. - vB)) : 0.;
           // growth front: a bright tip where the tree is currently growing
           float front = (1. - smoothstep(0., .018, lim - vGrow)) * (1. - step(.999, lim));
-          vec3 col = base + tint * (rim + glow + bands) + vec3(1.,.9,.75) * front * .2;
+          vec3 col = base + tint * (rim + glow + bands) * uGlow + vec3(1.,.9,.75) * front * .2;
           gl_FragColor = vec4(col * uFade, 1.);
         }`
     });
@@ -634,7 +635,7 @@ function run() {
   function makeTree(seed, o, leafCount) {
     const u = {
       uTime: {value: 0}, uWind: {value: reduce ? 0 : 1}, uGrow: {value: 1}, uRoot: {value: 1}, uBark: {value: 0},
-      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 120},
+      uLeaf: {value: 1}, uNeural: {value: 0}, uFade: {value: 1}, uGlow: {value: 1}, uPR: {value: renderer.getPixelRatio()}, uSize: {value: 120},
       cRoot: {value: C.root}, cBark: {value: C.bark}, cLeaf: {value: C.leaf}
     };
     const T = buildTree(seed, o);
@@ -785,16 +786,29 @@ function run() {
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(story);
 
   const clock = new THREE.Clock();
-  let time = 0, intro = reduce ? 1 : 0, pS = progress();
+  let time = 0, intro = reduce ? 1 : 0, pS = 0;
   const v3 = new THREE.Vector3();
   // pointer parallax, eased
   const ptr = {x: 0, y: 0, sx: 0, sy: 0};
   addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth * 2 - 1; ptr.y = e.clientY / innerHeight * 2 - 1; }, {passive: true});
 
+  // progreso de #story sin getBoundingClientRect por cuadro: posición y alto cacheados, se remiden al cambiar tamaño
+  let sTop = 0, sH = 1;
+  const measureStory = () => { sTop = story.getBoundingClientRect().top + scrollY; sH = story.offsetHeight; };
+  measureStory();
+  addEventListener('resize', measureStory); addEventListener('load', measureStory);
+  if ('ResizeObserver' in window) new ResizeObserver(measureStory).observe(story);
+  pS = progress();
   function progress() {
-    const r = story.getBoundingClientRect();
-    return clamp(-r.top / Math.max(1, r.height - innerHeight));
+    const y = lenis ? lenis.scroll : scrollY;
+    return clamp((y - sTop) / Math.max(1, sH - innerHeight));
   }
+  // actividad: con la página quieta (sin scroll ni puntero) la escena baja a 30 fps
+  let lastInput = 0;
+  const poke = () => { lastInput = performance.now(); };
+  ['scroll', 'pointermove', 'wheel', 'touchmove', 'keydown'].forEach(t => addEventListener(t, poke, {passive: true}));
+  let renders = 0, sinceRender = 1, frozenAt = -1;
+  window.__T3 = {setLevel: l => { level = l; resize(); }, get level() { return level; }, get visible() { return visible; }, get renders() { return renders; }};
 
   function place(el, obj, dy, a) {
     v3.setFromMatrixPosition(obj.matrixWorld); v3.y += dy; v3.project(camera);
@@ -811,13 +825,14 @@ function run() {
       perf.t += rawDt; perf.n++;
       if (perf.t > 1.5) {
         const fps = perf.n / perf.t;
-        if (fps < 50 && level < LEVELS.length - 1) { level++; resize(); }
+        if (!window.__noAQ && fps < 50 && level < LEVELS.length - 1) { level++; resize(); }
         perf.t = 0; perf.n = 0;
       }
     }
     if (!reduce) { time += dt; intro = Math.min(1, intro + dt / 2.6); }
     requestAnimationFrame(frame);
-    if (!visible) return;
+    sinceRender += rawDt;
+    if (!visible || document.hidden) return;
 
     // the camera trails the scroll with a little weight instead of jumping
     const raw = progress();
@@ -876,7 +891,19 @@ function run() {
     camera.position.multiplyScalar(1 - heroK * (1 - Math.exp(-time * .08)) * .12);
     camera.lookAt(0, k.ty, 0);
 
-    composer.render();
+    // telón V → VI: la escena queda congelada en su último cuadro (se dibuja una vez al llegar)
+    const settled = raw >= .999 && 1 - pS < .002;
+    if (settled && frozenAt === W * H) return;
+    frozenAt = settled ? W * H : -1;
+    // quieta: 30 fps (el viento sigue, a medio ritmo)
+    if (!settled && performance.now() - lastInput > 1200 && sinceRender < 1 / 30 - .004) return;
+    sinceRender = 0; renders++;
+    // bloom solo mientras el hero está en pantalla, en escritorio y si el nivel adaptativo lo permite;
+    // sin bloom el brillo propio del árbol sube para que siga viéndose vivo
+    const useBloom = !mobile() && LEVELS[level][1] && raw < .12;
+    const g = useBloom ? 1 : 1.35;
+    if (u.uGlow.value !== g) { u.uGlow.value = g; FOREST.forEach(f => { f.t.u.uGlow.value = g; }); renderer.toneMappingExposure = useBloom ? 1 : 1.08; }
+    if (useBloom) composer.render(); else renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);
 }
