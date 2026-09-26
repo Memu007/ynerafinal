@@ -836,7 +836,9 @@ function run() {
     // the camera trails the scroll with a little weight instead of jumping
     const raw = progress();
     pS += (raw - pS) * (reduce ? 1 : 1 - Math.exp(-dt * 5.5));
-    if (raw >= .999) pS = 1; // empieza el telón V → VI: último cuadro exacto y congelar ya, sin esperar el suavizado
+    // empezó el telón V → VI (la Lám. VI ya asoma): último cuadro exacto y congelar ya, sin esperar el suavizado
+    const curtain = (lenis ? lenis.scroll : scrollY) > sTop + sH - innerHeight + 24;
+    if (curtain) pS = 1;
     const p = pS;
     ptr.sx += (ptr.x - ptr.sx) * (1 - Math.exp(-dt * 3)); ptr.sy += (ptr.y - ptr.sy) * (1 - Math.exp(-dt * 3));
     const heroK = 1 - ss(0, .14, p);
@@ -892,7 +894,7 @@ function run() {
     camera.lookAt(0, k.ty, 0);
 
     // telón V → VI: la escena queda congelada en su último cuadro (se dibuja una vez al llegar)
-    const settled = raw >= .999 && 1 - pS < .002;
+    const settled = curtain;
     if (settled && frozenAt === W * H) return;
     frozenAt = settled ? W * H : -1;
     // quieta: 30 fps (el viento sigue, a medio ritmo)
@@ -905,7 +907,9 @@ function run() {
     if (u.uGlow.value !== g) { u.uGlow.value = g; FOREST.forEach(f => { f.t.u.uGlow.value = g; }); renderer.toneMappingExposure = useBloom ? 1 : 1.08; }
     // siempre por el composer (render target sin MSAA): dibujar directo al canvas con antialias sale más caro
     if (bloom.enabled !== useBloom) bloom.enabled = useBloom;
-    composer.render();
+    // without bloom the composer only adds two full-screen passes: render straight to the screen
+    // (the renderer applies the same tone mapping and sRGB output the OutputPass would)
+    if (useBloom) composer.render(); else renderer.render(scene, camera);
   }
   requestAnimationFrame(frame);
 }
