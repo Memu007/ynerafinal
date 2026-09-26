@@ -200,6 +200,10 @@ import { CustomEase } from 'gsap/CustomEase';
         const L = car.left0 + x + car.offs[i];
         const o = L < car.left0 - 2 ? clamp(1 - (car.left0 - L) / (car.pw * .45)) : 1;
         putStyle('co' + i, el.style, 'opacity', o < 1 ? o.toFixed(3) : '');
+        // el que viene muestra su nodo y su número sobre la línea; título y texto aparecen al llegar
+        const v = clamp(1 - (L - car.left0 - car.pw * .15) / (car.pw * .35));
+        const vs = v < 1 ? v.toFixed(3) : '';
+        if (last['cv' + i] !== vs) { last['cv' + i] = vs; if (vs) el.style.setProperty('--vis', vs); else el.style.removeProperty('--vis'); }
       });
       // la línea crece hasta el panel activo (y un poco más), y entra con la lámina
       const enter = clamp((sy - (s.top - vh * .6)) / (vh * .6));
@@ -248,7 +252,7 @@ import { CustomEase } from 'gsap/CustomEase';
         plateVeil.style.opacity = '0';
         unders.forEach(e => { e.classList.remove('gone', 'pinning'); veils.get(e).style.opacity = '0'; });
         if (proc) proc.classList.remove('pinning');
-        if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; car.stepEls.forEach(e => { e.style.opacity = ''; }); }
+        if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; car.stepEls.forEach(e => { e.style.opacity = ''; e.style.removeProperty('--vis'); }); }
         for (const k in last) delete last[k];
       }
     }
