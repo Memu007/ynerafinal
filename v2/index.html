@@ -27,6 +27,10 @@
   --serif:"EB Garamond", Garamond, "Times New Roman", serif;
   --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
   --g:clamp(16px,4vw,48px);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ui:cubic-bezier(.2,.8,.2,1);
+  --stars:radial-gradient(circle at 331px 154px,rgb(233 229 217/0.6) 0 0.9px,transparent 1.6px),radial-gradient(circle at 548px 96px,rgb(233 229 217/0.6) 0 0.7px,transparent 1.4px),radial-gradient(circle at 219px 38px,rgb(127 164 255/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 71px 246px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 579px 126px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 599px 406px,rgb(233 229 217/0.75) 0 0.5px,transparent 1.2px),radial-gradient(circle at 570px 136px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 553px 120px,rgb(233 229 217/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 595px 584px,rgb(233 229 217/0.9) 0 0.6px,transparent 1.3px),radial-gradient(circle at 560px 729px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 210px 508px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 599px 464px,rgb(233 229 217/0.9) 0 0.7px,transparent 1.4px),radial-gradient(circle at 184px 715px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 307px 537px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 294px 623px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 428px 168px,rgb(127 164 255/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 431px 40px,rgb(233 229 217/0.9) 0 0.5px,transparent 1.2px),radial-gradient(circle at 711px 358px,rgb(233 229 217/1) 0 0.9px,transparent 1.6px),radial-gradient(circle at 860px 95px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 62px 317px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 908px 355px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 400px 300px,rgb(39 240 210/.6) 0 .6px,transparent 1.3px);
+  --stars-s:613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,1301px 1117px;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -145,9 +149,7 @@ html.lenis,html.lenis body{height:auto}
 /* ---------- TRANSICIÓN: la escena se funde en la noche ---------- */
 .story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:25vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.55) 50%,var(--night))}
 /* cielo fijo muy tenue detrás de toda la bajada (la escena lo tapa arriba) */
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;
-  background-image:radial-gradient(circle at 331px 154px,rgb(233 229 217/0.6) 0 0.9px,transparent 1.6px),radial-gradient(circle at 548px 96px,rgb(233 229 217/0.6) 0 0.7px,transparent 1.4px),radial-gradient(circle at 219px 38px,rgb(127 164 255/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 71px 246px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 579px 126px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 599px 406px,rgb(233 229 217/0.75) 0 0.5px,transparent 1.2px),radial-gradient(circle at 570px 136px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 553px 120px,rgb(233 229 217/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 595px 584px,rgb(233 229 217/0.9) 0 0.6px,transparent 1.3px),radial-gradient(circle at 560px 729px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 210px 508px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 599px 464px,rgb(233 229 217/0.9) 0 0.7px,transparent 1.4px),radial-gradient(circle at 184px 715px,rgb(233 229 217/0.6) 0 0.6px,transparent 1.3px),radial-gradient(circle at 307px 537px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 294px 623px,rgb(233 229 217/0.6) 0 0.5px,transparent 1.2px),radial-gradient(circle at 428px 168px,rgb(127 164 255/0.75) 0 0.7px,transparent 1.4px),radial-gradient(circle at 431px 40px,rgb(233 229 217/0.9) 0 0.5px,transparent 1.2px),radial-gradient(circle at 711px 358px,rgb(233 229 217/1) 0 0.9px,transparent 1.6px),radial-gradient(circle at 860px 95px,rgb(233 229 217/1) 0 0.7px,transparent 1.4px),radial-gradient(circle at 62px 317px,rgb(127 164 255/0.9) 0 0.9px,transparent 1.6px),radial-gradient(circle at 908px 355px,rgb(233 229 217/1) 0 0.5px,transparent 1.2px),radial-gradient(circle at 400px 300px,rgb(39 240 210/.6) 0 .6px,transparent 1.3px);
-  background-size:613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,613px 587px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,757px 809px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,911px 683px,1301px 1117px}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;background-image:var(--stars);background-size:var(--stars-s)}
 
 /* ---------- SECCIONES DE LA BAJADA ---------- */
 .sec{position:relative;padding-block:clamp(72px,8vw,120px) clamp(48px,6vw,96px)}
@@ -370,6 +372,74 @@ footer>.wrap{border:0}
   .foot{grid-template-columns:1fr}
   .foot-links{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+/* ---------- MOVIMIENTO (motion.js) ----------
+   Todo estado oculto o apilado vive bajo html.motion, que solo agrega motion.js
+   cuando arranca (y nunca con prefers-reduced-motion). Sin JS: página estática completa. */
+#para-quien{--sc:var(--cyan)} #diagnostico{--sc:var(--root)} #dupla{--sc:var(--bark)} #proceso{--sc:var(--leaf)} #faq{--sc:var(--bone)} #contacto{--sc:var(--root)}
+.lam{position:relative}
+/* el velo de lectura de II–V entra y sale en degradé: con el texto que se desvanece, su borde duro quedaba a la vista */
+@media (min-width:981px){ html.motion .chap:not(.hero)::before{-webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 78%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 78%,transparent)} }
+
+/* láminas apiladas: cada una queda fija (top = min(0, 100vh − alto)) mientras la siguiente sube encima */
+html.motion.stack .sec{position:sticky;top:var(--st,0px);z-index:2;background:var(--night);transform-origin:50% var(--oy,50%);box-shadow:0 -40px 80px -28px rgb(0 0 0/.6)}
+html.motion.stack .sec::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.34;background-image:var(--stars);background-size:var(--stars-s)}
+html.motion.stack .sec.gone,html.motion.stack .sec.measure{position:relative;top:auto}
+html.motion.stack .sec.measure{transform:none!important}
+html.motion.stack .sec.covering{clip-path:inset(var(--ct,0px) 0 0 0 round 16px)}
+.sec-veil{position:absolute;inset:0;z-index:6;background:var(--night);opacity:0;pointer-events:none}
+/* la lámina que queda debajo se lee como una placa: filete hueso y esquinas redondeadas en su borde visible */
+html.motion.stack .sec.covering .sec-veil{top:var(--ct,0px);border-radius:16px;box-shadow:inset 0 0 0 1px rgb(233 229 217/.42)}
+html.motion.curtain .plate-in.curt{clip-path:inset(0 round 16px)}
+html.motion.curtain .plate-in.curt::after{content:"";position:absolute;inset:0;border-radius:16px;box-shadow:inset 0 0 0 1px rgb(233 229 217/.3);pointer-events:none;z-index:3}
+.sec-edge{position:absolute;left:0;right:0;top:0;height:1px;z-index:5;pointer-events:none;background:var(--sc);box-shadow:0 0 14px var(--sc);opacity:.35}
+#para-quien .sec-edge{background:linear-gradient(90deg,rgb(63 123 255/0),var(--leaf) 14%,var(--bark) 42%,var(--root) 68%,var(--cyan) 88%,rgb(39 240 210/0));box-shadow:0 0 22px 1px rgb(178 91 255/.5)}
+#diagnostico .sec-edge{background:linear-gradient(90deg,var(--root),var(--bark) 50%,var(--leaf));box-shadow:0 0 14px rgb(178 91 255/.5)}
+html.motion.curtain .plate,html.motion.curtain .plate-in{will-change:transform}
+
+/* títulos por líneas desde máscara */
+.ln-m{display:block;overflow:hidden;padding:.1em 0 .08em;margin:-.1em 0 -.08em}
+.ln-m>span{display:inline-block}
+html.motion [data-split]:not(.rv-in) .ln-m>span{transform:translate3d(0,112%,0)}
+html.motion [data-rv]:not(.rv-in){opacity:0}
+/* etiqueta de lámina: el filete se dibuja, el mono se tipea, el latín sube */
+html.motion .lam{border-top-color:transparent}
+html.motion .lam::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,var(--sc,var(--bone)),var(--rule) 24%);transform-origin:0 50%;transition:transform 1.4s var(--ease)}
+html.motion .lam:not(.rv-in)::before{transform:scaleX(0)}
+html.motion [data-type]:not(.rv-in) .mono,html.motion [data-type].mono:not(.rv-in){clip-path:inset(0 100% 0 0)}
+html.motion [data-type]:not(.rv-in) .latin{opacity:0}
+
+/* botones: el relleno crece desde la izquierda, la flecha avanza */
+html.motion .btn-fill{background:linear-gradient(var(--root),var(--root)) 0 0/0% 100% no-repeat,var(--bone);transition:background-size .5s var(--ui),border-color .35s var(--ui),color .2s}
+html.motion .btn-fill:hover{background:linear-gradient(var(--root),var(--root)) 0 0/100% 100% no-repeat,var(--bone);border-color:var(--root)}
+html.motion .btn-line{background:linear-gradient(var(--bone),var(--bone)) 0 0/0% 100% no-repeat transparent;transition:background-size .5s var(--ui),color .3s var(--ui),border-color .2s}
+html.motion .btn-line:hover{background:linear-gradient(var(--bone),var(--bone)) 0 0/100% 100% no-repeat transparent;color:var(--night)}
+html.motion .btn .arr,html.motion .ctx .arr{display:inline-block;transition:transform .4s var(--ui)}
+html.motion .btn:hover .arr,html.motion .ctx:hover .arr{transform:translate3d(5px,0,0)}
+/* links: el subrayado se dibuja (entra por la izquierda, sale por la derecha) */
+html.motion .ctx{position:relative;border-bottom-color:color-mix(in srgb,var(--c,var(--bone)) 34%,transparent)}
+html.motion .ctx::after,html.motion .nav-mid a::after,html.motion .foot-links a::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--c,var(--bone));transform:scaleX(0);transform-origin:100% 50%;transition:transform .45s var(--ui)}
+html.motion .nav-mid a,html.motion .foot-links a{position:relative;padding-bottom:3px}
+html.motion .ctx:hover::after,html.motion .nav-mid a:hover::after,html.motion .foot-links a:hover::after{transform:none;transform-origin:0 50%}
+/* fichas de casos: brillo que sigue al puntero */
+html.motion .case{position:relative}
+html.motion .case::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgb(39 240 210/.11),rgb(39 240 210/0) 70%);opacity:0;transition:opacity .35s var(--ui)}
+html.motion .case:hover::after{opacity:1}
+
+/* índice de láminas */
+.rail{position:fixed;right:12px;top:50%;z-index:39;transform:translateY(-50%);display:grid;gap:1px}
+.rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:7px;height:22px;text-decoration:none;font:400 10px/1 var(--mono);letter-spacing:.06em;color:var(--dim);transition:color .3s var(--ui)}
+.rail .rt{width:14px;height:1px;background:var(--rule-2);transform:scaleX(.3);transform-origin:100% 50%;transition:transform .7s var(--ease),background .3s,box-shadow .3s}
+.rail .rl{position:absolute;right:calc(100% + 6px);top:50%;padding:4px 8px;white-space:nowrap;font:italic 400 14px/1 var(--serif);letter-spacing:0;color:var(--bone);background:rgb(6 7 12/.8);opacity:0;transform:translate3d(6px,-50%,0);pointer-events:none;transition:opacity .2s,transform .35s var(--ui)}
+.rail a:hover{color:var(--bone)}
+.rail a:hover .rl,.rail a:focus-visible .rl{opacity:1;transform:translate3d(0,-50%,0)}
+.rail a.on{color:var(--c)}
+.rail a.on .rt{transform:none;background:var(--c);box-shadow:0 0 8px var(--c)}
+.nav-lam{display:none;margin-right:auto;margin-left:14px;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--mute);white-space:nowrap}
+.nav-lam b{display:inline-block;font-weight:500;color:var(--c,var(--bone))}
+.nav-prog{display:none;position:absolute;left:0;right:0;bottom:-1px;height:1px;transform-origin:0 50%;transform:scaleX(0);background:var(--c,var(--bone));box-shadow:0 0 6px var(--c,transparent)}
+@media (max-width:1023px){ .rail{display:none} .nav-prog{display:block} }
+@media (max-width:980px){ .nav-lam{display:block} }
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition:none!important;animation:none!important}
 }
@@ -754,6 +824,7 @@ footer>.wrap{border:0}
 
 
 <script src="tree.js" defer></script>
+<script src="motion.js" defer></script>
 <script>
 (() => {
   // Número de WhatsApp: cambiarlo solo acá (TODO: número real)

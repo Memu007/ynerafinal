@@ -188,6 +188,7 @@ function buildTree(seed, o) {
 let lenis = null;
 if (!reduce) {
   lenis = new Lenis({lerp: .085, wheelMultiplier: .9, smoothWheel: true});
+  window.__lenis = lenis; // expuesto para motion.js (ScrollTrigger + índice de láminas)
   const loop = t => { lenis.raf(t); requestAnimationFrame(loop); };
   requestAnimationFrame(loop);
   document.addEventListener('click', e => {
