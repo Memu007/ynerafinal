@@ -1,0 +1,7 @@
+# Ynera · robots.txt (TODO-DOMINIO: reemplazar por el dominio real)
+# Todo el sitio es público. No se bloquea a ningún rastreador, incluidos los de buscadores con IA
+# (GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot, ClaudeBot, Claude-SearchBot, Google-Extended).
+User-agent: *
+Allow: /
+
+Sitemap: https://TODO-DOMINIO/sitemap.xml

@@ -1,0 +1,22 @@
+# Ynera
+> Consultora de datos, ciberseguridad e inteligencia artificial aplicada para PyMEs y profesionales. Buenos Aires, Argentina. Dos socios (Emiliano y Mariano), trato directo, software propio en producción.
+
+## Servicios
+- Datos: pipelines, calidad de datos y tableros que se actualizan sin carga manual.
+- Ciberseguridad: auditoría, hardening, APIs seguras y protección de datos sensibles.
+- IA aplicada: automatizaciones con modelos de lenguaje y asistentes sobre documentos, con revisión humana de cada respuesta.
+- Diagnóstico sin costo: 30 minutos con los dos socios; documento con problema priorizado, 3 acciones y rango de costo y plazo. https://cal.com/ynera/30min
+
+## Productos propios
+- Aira: agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras.
+- CDI: documentos, conversaciones y vencimientos para despachantes de aduana.
+- ReservaYá: reservas online, check-in digital y ocupación para hoteles de 10 a 40 habitaciones.
+
+## Para quién
+PyMEs que viven en planillas, profesionales con datos sensibles de clientes o pacientes, equipos que quieren usar IA con control. No trabajamos con apuestas online.
+
+## Contacto
+- Web: https://TODO-DOMINIO/
+- WhatsApp: TODO número real
+- Email: TODO
+- Preguntas frecuentes: https://TODO-DOMINIO/#faq
