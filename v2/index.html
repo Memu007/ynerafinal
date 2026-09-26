@@ -195,7 +195,7 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 .spec path{fill:none;stroke-linecap:round}
 .spec .ghost path{stroke:var(--rule-2);stroke-width:1.5;opacity:1}
 .spec .ground{stroke:var(--rule-2);stroke-dasharray:2 4}
-.spec .org path{stroke:var(--c);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0));transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 3px var(--c))}
+.spec .org path{stroke:var(--c);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p,0));opacity:calc(var(--p,0) * 40);transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1),opacity .15s;filter:drop-shadow(0 0 3px var(--c))}
 .spec .org circle{fill:var(--c);opacity:var(--p,0);transition:opacity .6s}
 .meters{display:grid;gap:18px}
 .meter{display:grid;gap:8px}
@@ -839,7 +839,7 @@ footer>.wrap{border:0}
   const mbar = document.getElementById('mbar'), heroEl = document.querySelector('.chap.hero'), close = document.getElementById('contacto');
   // se esconde si #contacto o cualquier botón inline de la bajada está en pantalla
   const seen = new Set();
-  const ctaIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); onScroll(); }, {rootMargin: '0px 0px -20% 0px'});
+  const ctaIO = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); onScroll(); }, {rootMargin: '0px 0px 76px 0px'});
   [close, ...document.querySelectorAll('main .btn')].forEach(el => { if (!heroEl.contains(el)) ctaIO.observe(el); });
   const onScroll = () => {
     const past = heroEl.getBoundingClientRect().bottom < innerHeight * .35;
