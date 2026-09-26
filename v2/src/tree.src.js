@@ -758,12 +758,18 @@ function run() {
   }
 
   let W = 0, H = 0;
+  // Adaptive quality: start modest and step down while the frame rate is poor.
+  // Levels: [pixel ratio cap, bloom on]. Retina + full bloom was the main cost.
+  const LEVELS = mobile() ? [[1, true], [.85, true], [.75, false]] : [[1.25, true], [1, true], [.85, true], [.75, false]];
+  let level = 0;
+  const pr = () => Math.min(devicePixelRatio || 1, LEVELS[level][0]);
   function resize() {
     W = canvas.clientWidth; H = canvas.clientHeight;
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile() ? 1.5 : 2));
+    renderer.setPixelRatio(pr());
     renderer.setSize(W, H, false);
     composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(W, H);
+    bloom.enabled = LEVELS[level][1];
     camera.aspect = W / H;
     // push the scene off-centre so the text column stays clear
     if (mobile()) camera.setViewOffset(W, H, 0, H * .2, W, H);
@@ -775,6 +781,7 @@ function run() {
   addEventListener('resize', resize);
 
   let visible = true;
+  const perf = {t: 0, n: 0};
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(story);
 
   const clock = new THREE.Clock();
@@ -797,7 +804,17 @@ function run() {
   }
 
   function frame() {
-    const dt = Math.min(.05, clock.getDelta());
+    const rawDt = clock.getDelta();
+    const dt = Math.min(.05, rawDt);
+    // measure ~1.5 s windows while the scene is on screen; step quality down if under ~50 fps
+    if (visible && !document.hidden) {
+      perf.t += rawDt; perf.n++;
+      if (perf.t > 1.5) {
+        const fps = perf.n / perf.t;
+        if (fps < 50 && level < LEVELS.length - 1) { level++; resize(); }
+        perf.t = 0; perf.n = 0;
+      }
+    }
     if (!reduce) { time += dt; intro = Math.min(1, intro + dt / 2.6); }
     requestAnimationFrame(frame);
     if (!visible) return;
