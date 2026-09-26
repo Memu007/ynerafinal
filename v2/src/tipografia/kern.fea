@@ -1,0 +1,18 @@
+
+languagesystem DFLT dflt;
+languagesystem latn dflt;
+@LCR = [a aacute c e eacute o oacute s g q d];
+@LCN = [n ntilde m r u uacute udieresis p];
+@PUN = [period comma];
+feature kern {
+  pos T @LCR -90; pos T @LCN -70; pos T @PUN -90; pos T A -40; pos T y -50; pos T colon -40;
+  pos Y @LCR -80; pos Y @LCN -50; pos Y @PUN -90; pos Y A -60; pos Y colon -40;
+  pos V @LCR -50; pos V @PUN -70; pos V A -50; pos W @LCR -40; pos W @PUN -60; pos W A -40;
+  pos A [T Y] -50; pos A [V W] -45; pos A [v w y] -20; pos A quoteright -40;
+  pos L [T Y] -70; pos L [V W] -55; pos L [y v] -30; pos L quoteright -60;
+  pos P @PUN -90; pos P A -40; pos P @LCR -20; pos F @PUN -70; pos F @LCR -30;
+  pos r @PUN -60; pos r a -12; pos f @PUN -40; pos [v w y] @PUN -50; pos [v w y] @LCR -12;
+  pos R [T Y] -20; pos R [V W] -20; pos K @LCR -25; pos k @LCR -20;
+  pos [o oacute e eacute c] [v w y x] -12; pos [c e eacute o oacute] period -10;
+  pos quoteleft A -40; pos quotedblleft A -40;
+} kern;

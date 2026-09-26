@@ -81,7 +81,7 @@ Archivo maestro: `ynera-simbolo.svg` (viewBox 96 × 96). Módulo **w = 12** (anc
 | Símbolo plano monocromo | `ynera-simbolo.svg` (`fill="currentColor"`) | **Versión por defecto.** Nav, footer, documentos, sello, una tinta. Hueso sobre noche o noche sobre hueso. |
 | Símbolo con degradé | `ynera-simbolo-color.svg` | Solo donde el símbolo está solo y es protagonista: avatar, favicon, portada de deck, lámina de cierre. |
 | Favicon | `ynera-favicon.svg` | ≤ 32 px. Trazo reforzado (w = 16, brazos más cortos) sobre cuadrado noche redondeado. Exportar también PNG 32, 180 (apple-touch) y 512. |
-| Wordmark | a vectorizar | **Ynera** en Archivo SemiBold 600, ancho 85 (`font-stretch:85%`), tracking −0,005 em (≥ 32 px) o +0,01 em (< 24 px). Y mayúscula, resto minúsculas. Vectorizar a curvas para no depender de la fuente. *Por qué 85 y no 62 como los títulos:* el nombre tiene que leerse a 14 px; los títulos son grandes. |
+| Wordmark | `ynera-wordmark.svg` | **Ynera** en Ynera Furca Bold, vectorizado a curvas (`currentColor`). Y mayúscula, resto minúsculas; la Y del wordmark es la Y-símbolo de la tipografía. Tracking −0,01 em (≥ 32 px), 0 (< 24 px). |
 | Lockup vertical (preferido) | a armar | Símbolo arriba, wordmark centrado abajo. Altura de mayúscula del wordmark = 0,45 × alto del símbolo. Separación = 1,5w. Portada de deck, sello, pie de documento. |
 | Lockup horizontal | a armar | Símbolo a la izquierda, base del tronco sobre la línea de base del texto, alto del símbolo = 1,2 × altura de mayúscula, separación = 2,5w. Solo cuando no entra el vertical. |
 
@@ -159,30 +159,42 @@ Mínimo: 4,5:1 para texto normal, 3:1 para títulos ≥ 24 px y componentes. Nun
 
 | Rol | Familia | Uso | Por qué |
 |---|---|---|---|
-| Display / texto | **Archivo** (variable, wdth 62–125) | Títulos condensados (wdth 62–72, peso 600–700); texto corrido a wdth 100, peso 400; wordmark a wdth 85. | Una sola familia de palo seco con eje de ancho: condensada da voz fuerte sin gritar; normal da lectura. Grotesca con raíz de imprenta, no de startup. |
-| Acento | **EB Garamond itálica** | Nombres latinos (*Radix*, *Cortex*, *Coma*, *Silva*, *Ynera bifurcata*), epígrafes de lámina, citas, la palabra del degradé. | Es la voz de la botánica científica: el naturalista que anota. Contrasta humano vs. sistema. |
-| Datos / etiquetas | **IBM Plex Mono** | Número de lámina, coordenadas, etiquetas de sección, `dt`, porcentajes, horario. | La voz del instrumento: lo que se mide. Plex viene de IBM, ingeniería, sin guiño gamer. |
+| Display | **Ynera Furca** Bold (propia, `fonts/ynera-furca-bold.woff2`) | Títulos H1–H3, cifras grandes, wordmark, la palabra del degradé. | Una display dibujada desde las reglas del símbolo. Es lo único que nadie más puede tener: si alguien ve "planillas" con estos cortes, es Ynera. |
+| Texto | **Schibsted Grotesk** (variable 400–700, OFL) | Párrafos, botones, navegación, FAQ. | Grotesca de diario, sobria y muy legible. Acompaña sin competir con la display. |
+| Acento | **EB Garamond itálica** (OFL) | Nombres latinos (*Radix*, *Cortex*, *Coma*, *Silva*, *Ynera bifurcata*), epígrafes de lámina, citas. | La voz del naturalista que anota: humano frente a sistema. |
+| Datos / etiquetas | **IBM Plex Mono** 400/500 (OFL) | Número de lámina, coordenadas, etiquetas, `dt`, porcentajes, horario. | La voz del instrumento: lo que se mide. |
+
+### Ynera Furca: por qué es así
+Se dibujó con el mismo razonamiento que el símbolo (la bifurcación). Tres reglas, en ese orden:
+
+1. **Base recta.** Todo trazo que toca la línea de base se corta horizontal, como una raíz apoyada. *Por qué:* estabilidad; una consultora de datos y seguridad no puede verse frágil.
+2. **Corte de poda.** En minúsculas, cada trazo que crece hacia arriba (l, i, n, a, d, t…) termina cortado en bisel, más alto a la izquierda. *Por qué:* es crecimiento con criterio: una rama podada, no una rama salvaje. Es el rasgo que se ve a la distancia.
+3. **Bifurcación.** Donde un arco nace del tronco (n, m, r, h, a, d, b, p, q, u) hay una muesca en V. *Por qué:* es la Y del logo repetida en miniatura dentro de cada palabra.
+
+Además: las **mayúsculas son el tronco**, rectas y sin brotes (sobrias, institucionales). La **Y** es el símbolo: ramas a ±40° cortadas en perpendicular. Contraste óptico: horizontales al 78 % de las verticales. Métricas: UPM 1000, altura x 520, mayúscula 700, trazo 132.
+
+Fuente editable: `src/tipografia/` (Python + fontTools/skia-pathops). Cambiar un glifo = editar `glyphs.py` y volver a compilar; nunca retocar el woff2 a mano. Muestrario: `brand/ynera-furca-specimen.png`.
 
 ### Escala (web, desktop → mobile)
 | Nivel | Tamaño | Ajuste |
 |---|---|---|
-| Hero | clamp(50px, 5,6vw, 98px) | wdth 62, 700, interlínea .88, tracking −.02em |
-| Sección grande | clamp(56px, 10vw, 160px) | wdth 62, 700, .86 |
-| H2 capítulo | clamp(40px, 4,6vw, 72px) | wdth 64, 700, .90 |
-| H3 | 30–48px | wdth 72, 600 |
-| Lead | 17–20px | 400, 1,6, máx 54ch |
-| Texto | 16–17px | 400, 1,6, máx 62ch |
+| Hero | clamp(44px, 5vw, 88px) | Furca 700, interlínea .98, tracking −.008em |
+| Sección grande | clamp(44px, 6,2vw, 100px) | Furca 700, .94 |
+| H2 | clamp(32px, 3,4vw, 54px) | Furca 700, 1 |
+| H3 | 24–46px | Furca 700 |
+| Lead | 17–20px | Schibsted 400, 1,6, máx 54ch |
+| Texto | 16–17px | Schibsted 400, 1,6, máx 62ch |
 | Mono | 11,5px | mayúsculas, tracking .1em |
-| Serif acento | 18–28px | itálica 400, 1,3 |
+| Serif acento | 18–32px | itálica 400, 1,25 |
 
 ### Reglas
-- **La itálica serif es la voz del naturalista**, no un énfasis. Solo en: nombres latinos, epígrafes de lámina (`.caption`), citas/testimonios, veredicto del Diagnóstico y **una** palabra en degradé por página. *Por qué:* si aparece en todos lados deja de ser "otra voz".
-- **Nunca** Garamond recta, nunca Garamond en negrita, nunca en botones ni navegación.
-- **Nunca** mono para párrafos ni para títulos. *Por qué:* mono = instrumento; un párrafo no se mide.
-- **Nunca** títulos en mayúsculas en Archivo. Las mayúsculas son de la mono.
-- **Nunca** más de dos pesos de Archivo por pantalla (400 + 700; 600 solo H3/wordmark).
-- **Fallback obligatorio condensado**: `"Archivo", "Arial Narrow", "Roboto Condensed", sans-serif`. *Por qué:* `font-stretch:62%` no hace nada sobre Arial; si Archivo no carga, los títulos se ensanchan un 40 % y rompen el layout (pasa en las capturas actuales).
-- Autoalojar las tres familias (woff2, subset latin) y precargar Archivo. *Por qué:* rendimiento, privacidad (sin llamada a Google) y cero parpadeo de fuente en el hero.
+- **Furca solo en tamaños de título (≥ 22px).** *Por qué:* los cortes y muescas son detalles de display; en texto chico se vuelven ruido.
+- **Nunca** Furca en párrafos, botones ni navegación (salvo el wordmark). Nunca en mayúsculas sostenidas: las mayúsculas son de la mono.
+- **La itálica serif es la voz del naturalista**, no un énfasis: nombres latinos, epígrafes, citas y veredicto del Diagnóstico. Nunca Garamond recta ni en negrita.
+- **Nunca** mono para párrafos ni para títulos.
+- **Una** palabra en degradé por página (ámbar → violeta → azul), en Furca.
+- Todo autoalojado (woff2, subset latín + español) y Furca/Schibsted precargadas. *Por qué:* rendimiento, privacidad (sin Google Fonts) y cero parpadeo en el hero. Furca pesa 5 KB.
+- Licencias: Furca es propiedad de Ynera; Schibsted Grotesk, EB Garamond e IBM Plex Mono son OFL (textos en `fonts/`).
 
 ---
 
