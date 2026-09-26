@@ -145,14 +145,15 @@ import { CustomEase } from 'gsap/CustomEase';
 
     /* ================= IX · CARRUSEL ================= */
     const proc = $('#proceso'), stepsEl = $('#steps'), pledges = proc && $('.pledges', proc);
-    let car = null;
+    let car = null, car_placeInd = () => {};
     if (proc && stepsEl && pledges) {
       const wrap = $('.wrap', proc);
       const track = document.createElement('div'); track.className = 'car-track';
       stepsEl.before(track); track.append(stepsEl, pledges);
       const ind = document.createElement('div'); ind.className = 'car-ind mono'; ind.setAttribute('aria-hidden', 'true');
       ind.innerHTML = '<span class="ci-t">Paso <b>01</b> / 04</span><i></i>';
-      track.after(ind);
+      // escritorio: indicador debajo del track pinneado; celular: pegado al carrusel táctil
+      car_placeInd = () => { if (pins) track.after(ind); else stepsEl.after(ind); };
       const stepEls = $$('.step', stepsEl), growEl = $('.grow', stepsEl), indT = $('.ci-t', ind);
       car = {wrap, track, ind, stepEls, growEl, indT, dist: 0, left0: 0, stepsW: 1, fr: [], plLeft: 0, lastLabel: ''};
       measureCarousel = vh => {
@@ -184,6 +185,8 @@ import { CustomEase } from 'gsap/CustomEase';
       putStyle('cx', car.track.style, 'transform', x ? `translate3d(${x.toFixed(1)}px,0,0)` : '');
       const live = sy > s.top - vh && sy < s.top + car.dist + vh * .2;
       if (last.clive !== live) { last.clive = live; car.track.classList.toggle('car-live', live); }
+      const pin = sy > s.top - vh && sy < s.top + car.dist + vh;
+      if (last.cpin !== pin) { last.cpin = pin; proc.classList.toggle('pinning', pin); }
       // la línea crece hasta el punto que está al 62% de la pantalla, y entra con la lámina
       const enter = clamp((sy - (s.top - vh * .6)) / (vh * .6));
       const k = clamp((innerWidth * .62 - (car.left0 + x)) / car.stepsW) * enter;
@@ -199,6 +202,8 @@ import { CustomEase } from 'gsap/CustomEase';
     function update() {
       const sy = scrollY, vh = M.vh;
       if (last.heroOff !== sy > vh) { last.heroOff = sy > vh; root.classList.toggle('hero-off', sy > vh); }
+      const off = sy > M.storyBottom + 2; // la escena ya pasó: la placa deja de dibujarse
+      if (last.off !== off) { last.off = off; root.classList.toggle('story-off', off); }
       // V → VI: placa (congelada por tree.js) y columna de la Lám. V quietas con la misma translate; VI sube encima
       const pc = clamp((sy - (M.storyBottom - vh)) / vh);
       const inCurtain = pins && pc > 0 && pc < 1;
@@ -214,8 +219,9 @@ import { CustomEase } from 'gsap/CustomEase';
         if (!cur.el.classList.contains('under')) return;
         const next = M.secs[i + 1]; if (!next) return;
         const L = Math.min(cur.h, vh), W = L * HOLD, p = clamp((sy - (next.top - W)) / W);
-        const gone = sy > next.top + 2;
+        const gone = sy > next.top + 2, pinning = !gone && sy > next.top - vh - 200;
         if (last['g' + i] !== gone) { last['g' + i] = gone; cur.el.classList.toggle('gone', gone); }
+        if (last['n' + i] !== pinning) { last['n' + i] = pinning; cur.el.classList.toggle('pinning', pinning); }
         putStyle('v' + i, veils.get(cur.el).style, 'opacity', p > 0 ? (.6 * p).toFixed(3) : '0');
       });
     }
@@ -223,16 +229,18 @@ import { CustomEase } from 'gsap/CustomEase';
     function setPins(on) {
       if (on === pins) return;
       pins = on;
-      root.classList.toggle('pins', on); root.classList.toggle('carousel', on && !!car);
+      root.classList.toggle('pins', on); root.classList.toggle('carousel', on && !!car); car_placeInd();
       if (!on) {
         [plate, bosque].forEach(e => { e.style.transform = ''; e.classList.remove('hold'); });
         plateVeil.style.opacity = '0';
-        unders.forEach(e => { e.classList.remove('gone'); veils.get(e).style.opacity = '0'; });
+        unders.forEach(e => { e.classList.remove('gone', 'pinning'); veils.get(e).style.opacity = '0'; });
+        if (proc) proc.classList.remove('pinning');
         if (car) { car.track.style.transform = ''; car.track.classList.remove('car-live'); car.growEl.style.transform = ''; }
         for (const k in last) delete last[k];
       }
     }
     root.classList.toggle('carousel', pins && !!car);
+    car_placeInd();
 
     const tick = () => { update(); setActive(); };
     measure(); tick();

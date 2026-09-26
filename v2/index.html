@@ -32,7 +32,7 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--night);color:var(--bone);font:400 17px/1.6 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:var(--night) url(stars.png) 0 0/1024px 1024px;color:var(--bone);font:400 17px/1.6 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block}
 a{color:inherit}
 p{margin:0}
@@ -150,7 +150,7 @@ html.lenis,html.lenis body{height:auto}
 /* ---------- TRANSICIÓN: la escena se funde en la noche ---------- */
 .story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:25vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.55) 50%,var(--night))}
 /* cielo fijo muy tenue detrás de toda la bajada (la escena lo tapa arriba) */
-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;background:url(stars.png) 0 0/1024px 1024px} /* una sola imagen en mosaico (antes 22 radial-gradient) */
+/* cielo: una sola imagen en mosaico como fondo del body (antes 22 radial-gradient en una capa fija, que obligaba a componer todo lo que la tapaba) */
 
 /* ---------- SECCIONES DE LA BAJADA ---------- */
 .sec{position:relative;padding-block:clamp(72px,8vw,120px) clamp(48px,6vw,96px)}
@@ -384,11 +384,13 @@ footer>.wrap{border:0}
 /* ritmo de la bajada (html.pins, solo escritorio):
    VI y VII scroll normal · VIII entra como lámina cubriendo a VII · IX carrusel horizontal pinneado ·
    X scroll normal · XI entra como lámina cubriendo a X. Solo se anima transform y opacity. */
-html.motion .sec.slide,#para-quien{z-index:2;background:var(--night) url(stars.png) 0 0/1024px 1024px}
-html.motion .sec.slide::before,#para-quien::before{content:"";position:absolute;inset:0;background:rgb(6 7 12/.66);pointer-events:none}
-html.motion .sec.slide>.wrap,#para-quien>.wrap{position:relative}
-html.motion.pins .sec.under{position:sticky;top:var(--st,0px);z-index:1;padding-bottom:30vh} /* aire: lo primero que tapa la lámina entrante es vacío */
-html.motion.pins .sec.under.gone,html.motion.pins .sec.under.measure{position:relative;top:auto}
+/* las láminas que entran cubriendo son hojas opacas lisas (sin estrellas propias: una sola capa de estrellas, la del body) */
+html.motion .sec.slide,#para-quien{z-index:2;background:var(--night)}
+html.motion.pins .sec.under{z-index:1;padding-bottom:30vh} /* aire: lo primero que tapa la lámina entrante es vacío */
+/* sticky solo mientras se pinnea (motion.js pone .pinning cerca del tramo): fuera de él no hay capa compuesta */
+html.motion.pins .sec.under.pinning{position:sticky;top:var(--st,0px)}
+html.motion.story-off .plate{visibility:hidden}
+html.motion.pins .sec.under.gone,html.motion.pins .sec.under.measure{position:relative!important;top:auto!important}
 html.motion.pins .sec.under.gone{visibility:hidden}
 .sec-veil{position:absolute;inset:0;z-index:6;background:var(--night);opacity:0;pointer-events:none}
 .sec-edge{position:absolute;left:0;right:0;top:0;height:1px;z-index:5;pointer-events:none;background:var(--rule-2)}
@@ -398,10 +400,13 @@ html.motion .sec.slide .sec-edge::before,#para-quien .sec-edge::before{content:"
 /* telón V → VI: placa congelada y quieta (translate), velo opaco con opacity; VI sube encima */
 .plate-veil{position:absolute;inset:0;z-index:3;background:var(--night);opacity:0;pointer-events:none}
 html.motion.pins .plate.hold,html.motion.pins #bosque.hold{will-change:transform}
+/* los velos cambian opacity cada cuadro: en su propia capa para no repintar la placa ni la lámina */
+html.motion.pins .plate.hold .plate-veil,html.motion.pins .sec.under.pinning>.sec-veil{will-change:opacity}
 
 /* IX · carrusel horizontal pinneado (escritorio) */
 html.motion.carousel #proceso{height:calc(100vh + var(--cdist,0px));padding:0;overflow-x:clip}
-html.motion.carousel #proceso>.wrap{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px)}
+html.motion.carousel #proceso.pinning>.wrap{position:sticky}
+html.motion.carousel #proceso>.wrap{top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px)}
 html.motion.carousel #proceso .lam{margin-bottom:clamp(28px,4vh,48px)}
 .car-track{display:flex;align-items:flex-start;gap:clamp(40px,5vw,96px);width:max-content}
 html.motion.carousel #proceso .car-track.car-live{will-change:transform}

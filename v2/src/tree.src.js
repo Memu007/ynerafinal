@@ -770,7 +770,6 @@ function run() {
     renderer.setSize(W, H, false);
     composer.setPixelRatio(renderer.getPixelRatio());
     composer.setSize(W, H);
-    bloom.enabled = LEVELS[level][1];
     camera.aspect = W / H;
     // push the scene off-centre so the text column stays clear
     if (mobile()) camera.setViewOffset(W, H, 0, H * .2, W, H);
@@ -837,6 +836,7 @@ function run() {
     // the camera trails the scroll with a little weight instead of jumping
     const raw = progress();
     pS += (raw - pS) * (reduce ? 1 : 1 - Math.exp(-dt * 5.5));
+    if (raw >= .999) pS = 1; // empieza el telón V → VI: último cuadro exacto y congelar ya, sin esperar el suavizado
     const p = pS;
     ptr.sx += (ptr.x - ptr.sx) * (1 - Math.exp(-dt * 3)); ptr.sy += (ptr.y - ptr.sy) * (1 - Math.exp(-dt * 3));
     const heroK = 1 - ss(0, .14, p);
@@ -903,7 +903,9 @@ function run() {
     const useBloom = !mobile() && LEVELS[level][1] && raw < .12;
     const g = useBloom ? 1 : 1.35;
     if (u.uGlow.value !== g) { u.uGlow.value = g; FOREST.forEach(f => { f.t.u.uGlow.value = g; }); renderer.toneMappingExposure = useBloom ? 1 : 1.08; }
-    if (useBloom) composer.render(); else renderer.render(scene, camera);
+    // siempre por el composer (render target sin MSAA): dibujar directo al canvas con antialias sale más caro
+    if (bloom.enabled !== useBloom) bloom.enabled = useBloom;
+    composer.render();
   }
   requestAnimationFrame(frame);
 }
