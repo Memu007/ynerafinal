@@ -151,11 +151,12 @@ import { CustomEase } from 'gsap/CustomEase';
     if (proc && stepsEl && pledges) {
       const wrap = $('.wrap', proc);
       const track = document.createElement('div'); track.className = 'car-track';
-      stepsEl.before(track); track.append(stepsEl, pledges);
+      const view = document.createElement('div'); view.className = 'car-view';
+      stepsEl.before(view); view.appendChild(track); track.append(stepsEl, pledges);
       const ind = document.createElement('div'); ind.className = 'car-ind mono'; ind.setAttribute('aria-hidden', 'true');
       ind.innerHTML = '<span class="ci-t">Paso <b>01</b> / 04</span><i></i>';
       // escritorio: indicador debajo del track pinneado; celular: pegado al carrusel táctil
-      car_placeInd = () => { if (pins) track.after(ind); else stepsEl.after(ind); };
+      car_placeInd = () => { if (pins) view.after(ind); else stepsEl.after(ind); };
       const stepEls = $$('.step', stepsEl), growEl = $('.grow', stepsEl), indT = $('.ci-t', ind);
       const panels = [...stepEls, pledges];
       car = {wrap, track, ind, stepEls, panels, growEl, indT, len: 0, left0: 0, stepsW: 1, fr: [], xs: [], pw: 1, lastLabel: ''};
@@ -163,12 +164,11 @@ import { CustomEase } from 'gsap/CustomEase';
         if (!pins) { proc.style.removeProperty('--cdist'); delete stepsEl.dataset.car; stepEls.forEach(e => { e.style.opacity = ''; }); return; }
         stepsEl.dataset.car = '1';
         const cs = getComputedStyle(wrap), padL = parseFloat(cs.paddingLeft), padR = parseFloat(cs.paddingRight);
-        const avail = wrap.clientWidth - padL - padR, maxX = Math.max(0, track.scrollWidth - avail);
-        car.left0 = wrap.getBoundingClientRect().left + padL;
+                car.left0 = wrap.getBoundingClientRect().left + padL;
         car.stepsW = Math.max(1, stepsEl.offsetWidth);
         car.fr = stepEls.map(el => el.offsetLeft / car.stepsW);
         car.offs = panels.map(el => el === pledges ? el.offsetLeft : el.offsetLeft + stepsEl.offsetLeft);
-        car.xs = car.offs.map(o => -Math.min(o, maxX));   // cada panel queda alineado al margen izquierdo
+        car.xs = car.offs.map(o => -o);   // cada panel (también el de compromisos) se detiene alineado al margen izquierdo
         car.pw = stepEls[0].offsetWidth;
         car.len = Math.round((panels.length - 1) * vh * .2);
         proc.style.setProperty('--cdist', car.len + 'px');

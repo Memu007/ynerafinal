@@ -409,7 +409,9 @@ html.motion.pins .plate.hold .plate-veil,html.motion.pins .sec.under.pinning>.se
 html.motion.carousel #proceso{height:calc(100vh + var(--cdist,0px));height:calc(100svh + var(--cdist,0px));padding:0;overflow-x:clip}
 html.motion.carousel #proceso.pinning>.wrap{position:sticky}
 /* pin de una pantalla, contenido centrado; los bordes laterales se funden para no mostrar palabras cortadas */
-html.motion.carousel #proceso>.wrap{top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--g),#000 86%,transparent);mask-image:linear-gradient(90deg,transparent 0,#000 var(--g),#000 86%,transparent)}
+html.motion.carousel #proceso>.wrap{top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:var(--navh,74px)}
+/* ventana del carrusel: recorta en los márgenes de la lámina y funde el borde derecho (sin palabras cortadas a la vista) */
+html.motion.carousel .car-view{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 84%,transparent);mask-image:linear-gradient(90deg,#000 0,#000 84%,transparent)}
 html.motion.carousel #proceso .lam{margin-bottom:clamp(28px,5vh,56px)}
 .car-track{position:relative;display:flex;align-items:flex-start;gap:clamp(40px,4vw,72px);width:max-content}
 html.motion.carousel #proceso .car-track.car-live{will-change:transform}
