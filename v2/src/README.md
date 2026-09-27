@@ -24,14 +24,14 @@ npx esbuild motion.src.js --bundle --minify --format=iife --target=es2019 --outf
 ## motion.js en una línea por pieza
 
 - **Progressive enhancement.** Agrega `html.motion` (y `pins`, `carousel` en escritorio) solo al arrancar. Todo estado oculto está en CSS bajo esas clases. Con `prefers-reduced-motion` no agrega nada: queda solo el índice de láminas, estático. Si la inicialización falla, quita las clases y deja todo visible.
-- **Ritmo de la bajada (escritorio).** VI y VII: scroll normal. VIII entra como lámina cubriendo a VII (`.under` sticky + `.slide` opaca). IX: carrusel horizontal pinneado (un track con `translate3d`, la línea de proceso avanza con él, indicador "Paso 0n / 04" → "Compromisos"). X: scroll normal. XI entra como lámina cubriendo a X. Las `.under` tienen 30vh de aire abajo y solo se velan en el último 35% de la subida. Sticky solo mientras se pinnea (`.pinning`); cubiertas del todo → `.gone` (vuelven al flujo, `visibility:hidden`).
+- **Ritmo de la bajada (escritorio).** VI y VII: scroll normal. VIII entra como lámina cubriendo a VII (`.under` sticky + `.slide` opaca). IX: carrusel horizontal pinneado (un track con `translate3d`, la línea de proceso avanza con él, indicador "Paso n de 4" → "Compromisos"). X: scroll normal. XI entra como lámina cubriendo a X. Las `.under` tienen 30vh de aire abajo y solo se velan en el último 35% de la subida. Sticky solo mientras se pinnea (`.pinning`); cubiertas del todo → `.gone` (vuelven al flujo, `visibility:hidden`).
 - **Celular.** Sin pines: scroll normal + reveals; IX es un carrusel táctil con `scroll-snap` que no atrapa el scroll vertical.
 - **Posiciones de flujo.** Todo se calcula desde el final de `#story` sumando `offsetHeight` (ResizeObserver). Los anchors hacia una lámina fija la devuelven al flujo (`.measure`) solo durante el click.
 - **Telón V → VI (escritorio).** `.plate` y `#bosque` se sostienen con la misma `translateY` mientras VI sube encima con su borde de 4 colores; un velo opaco (opacity) oscurece la placa. tree.js congela el canvas apenas empieza el telón.
-- **Índice.** Rail fijo a la derecha (≥ 1024px); en celular "VII / XI" en la nav + filete de progreso.
-- **Texto.** H2 por renglones desde máscara, etiquetas con fundido + 40%, párrafos y listas en cascada de 60 ms en orden del DOM (máx. 0,4 s de retraso).
+- **Índice.** motion.js sigue creando el rail y el contador de la nav, pero el CSS los oculta (sin numerales de lámina); en celular queda solo el filete de progreso de la nav.
+- **Texto.** Sin entradas por sección (se quitaron en sept. 2026: eran el movimiento por defecto). El único movimiento no pedido es el titular del hero, en CSS dentro de `index.html`. motion.js solo vuelve a medir cuando cargan las fuentes.
 - **Lenis + GSAP.** Un solo rAF: `gsap.ticker.add(t => lenis.raf(t * 1000))` y `window.__lenisTicker = true` (tree.js deja su loop de Lenis). `lenis.on('scroll', ScrollTrigger.update)`.
-- **Rendimiento.** Solo se anima transform y opacity. Estrellas: una imagen (`v2/stars.png`, generada con un script determinístico de canvas) como fondo del body. Nav sin backdrop-filter. Animaciones infinitas del hero en pausa con `html.hero-off`. Placa oculta cuando la escena ya pasó (`html.story-off`).
+- **Rendimiento.** Solo se anima transform y opacity. `v2/stars.png` ya no se usa como fondo (la escena dibuja su propio cielo; debajo, papel). Nav sin backdrop-filter. Animaciones infinitas del hero en pausa con `html.hero-off`. Placa oculta cuando la escena ya pasó (`html.story-off`).
 
 ## tree.js: política de render
 

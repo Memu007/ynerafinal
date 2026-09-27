@@ -5,40 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Página no encontrada | Ynera</title>
 <meta name="robots" content="noindex, follow">
-<meta name="theme-color" content="#06070C">
+<meta name="theme-color" content="#E3E5DD">
 <link rel="icon" type="image/svg+xml" href="/brand/ynera-favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
-@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4.woff2) format("woff2");font-weight:400 600;font-display:swap}
-@font-face{font-family:"Source Sans 3";src:url(/fonts/source-sans-3.woff2) format("woff2");font-weight:400 600;font-display:swap}
-:root{color-scheme:dark;--night:#06070C;--rule:#1D2130;--bone:#E9E5D9;--mute:#8F8D82;--root:#FF9A1F;
-  --ink-2:#BDB9AD;--f:"Source Serif 4",Charter,"Iowan Old Style",Georgia,serif;--sans:"Source Sans 3","Segoe UI","Helvetica Neue",Arial,sans-serif}
+/* Misma receta que la landing (código de marca §4 y §5): papel liquen, tinta, musgo; Piazzolla sola. */
+@font-face{font-family:"Piazzolla";src:url(/fonts/piazzolla.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{color-scheme:light;--tinta:#17131F;--papel:#E3E5DD;--musgo:#1E4D3A;--gris:#4E5249;
+  --f:"Piazzolla","Iowan Old Style",Charter,Georgia,serif}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;min-height:100svh;display:grid;place-items:center;background:var(--night);color:var(--bone);font:400 18px/1.5 var(--f);font-variant-numeric:oldstyle-nums;font-kerning:normal;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;padding:32px 16px}
-main{width:min(100%,560px);display:grid;gap:22px;border-top:1px solid var(--rule);padding-top:16px}
-.mono{font:400 16px/1.4 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--mute)}
-svg{width:72px;height:auto;display:block;margin-top:24px}
-h1{margin:0;font:400 clamp(38px,7vw,60px)/1.04 var(--f);text-wrap:balance}
-.poem{margin:0;font:400 clamp(21px,4vw,25px)/1.3 var(--f);color:var(--ink-2)}
-p{margin:0;color:var(--ink-2);text-wrap:pretty}
-.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
-a.btn{display:inline-flex;align-items:center;gap:12px;font:600 15px/1 var(--sans);text-decoration:none;padding:16px 22px;border:1px solid var(--bone);color:var(--bone);transition:background .2s,color .2s,border-color .2s}
-a.btn.fill{background:var(--bone);color:var(--night)}
-a.btn.fill:hover{background:var(--root);border-color:var(--root)}
-a.btn:not(.fill):hover{background:var(--bone);color:var(--night)}
-:focus-visible{outline:2px solid var(--root);outline-offset:3px}
+body{margin:0;min-height:100vh;min-height:100svh;display:grid;place-items:center;background:var(--papel);color:var(--tinta);font:400 18px/1.55 var(--f);word-spacing:.03em;font-variant-numeric:oldstyle-nums;font-kerning:normal;font-optical-sizing:auto;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;padding:32px 16px}
+main{width:min(100%,600px);display:grid;gap:20px}
+.brand{font:700 25px/1 var(--f);letter-spacing:-.01em;text-decoration:none;color:inherit;justify-self:start;margin-bottom:28px}
+h1{margin:0;font:280 clamp(44px,9vw,76px)/.98 var(--f);letter-spacing:-.022em;text-wrap:balance}
+.poem{margin:0;font:320 clamp(21px,4vw,26px)/1.28 var(--f);color:var(--gris)}
+p{margin:0;text-wrap:pretty}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+a.btn{display:inline-flex;align-items:center;font:620 16px/1.1 var(--f);text-decoration:none;padding:15px 22px;border:1.5px solid var(--tinta);color:var(--tinta);transition:background-color .2s,color .2s,border-color .2s}
+a.btn.fill{background:var(--musgo);border-color:var(--musgo);color:var(--papel)}
+a.btn.fill:hover{background:var(--tinta);border-color:var(--tinta)}
+a.btn:not(.fill):hover{background:var(--tinta);color:var(--papel)}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <main>
-  <span class="mono">Lám.&nbsp;404 · Página no encontrada</span>
-  <svg viewBox="0 0 96 96" role="img" aria-label="Ynera"><defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="48" y1="87.32" x2="48" y2="8.68"><stop offset="0" stop-color="#FF9A1F"/><stop offset=".46" stop-color="#B25BFF"/><stop offset="1" stop-color="#3F7BFF"/></linearGradient></defs><path fill="url(#g)" d="M42.00 87.32H54.00V45.32H42.00ZM52.60 41.46L26.88 10.82A6.0 6.0 0 0 0 17.69 18.54L43.40 49.18ZM52.60 49.18L78.31 18.54A6.0 6.0 0 0 0 69.12 10.82L43.40 41.46Z"/></svg>
+  <a class="brand" href="/">Ynera</a>
   <h1>Esta página no existe.</h1>
   <p class="poem">La rama que buscabas no creció acá.</p>
   <p>Puede que el enlace esté mal escrito o que la página se haya movido. Volvé al inicio o escribinos si buscabas algo puntual.</p>
   <div class="row">
     <a class="btn fill" href="/">Volver al inicio</a>
-    <a class="btn" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Diagnóstico sin costo</a>
+    <a class="btn" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Pedí tu diagnóstico sin costo</a>
   </div>
 </main>
 </body>

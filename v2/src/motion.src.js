@@ -1,6 +1,6 @@
 /* Ynera · motion.js
    Capa de movimiento debajo del hero: láminas apiladas, índice de láminas,
-   reveals de texto, transición bosque → Lám. VI y microinteracciones.
+   transición bosque → VI y microinteracciones (sin entradas de texto por sección).
    Principio de marca: crecer, no aparecer. Curva de entrada cubic-bezier(.16,1,.3,1).
    Progressive enhancement: sin este archivo (o con prefers-reduced-motion) la página
    queda estática y completa. Los estados ocultos solo existen bajo html.motion. */
@@ -154,7 +154,7 @@ import { CustomEase } from 'gsap/CustomEase';
       const view = document.createElement('div'); view.className = 'car-view';
       stepsEl.before(view); view.appendChild(track); track.append(stepsEl, pledges);
       const ind = document.createElement('div'); ind.className = 'car-ind mono'; ind.setAttribute('aria-hidden', 'true');
-      ind.innerHTML = '<span class="ci-t">Paso <b>01</b> / 04</span><i></i>';
+      ind.innerHTML = '<span class="ci-t">Paso <b>1</b> de 4</span><i></i>';
       // escritorio: indicador debajo del track pinneado; celular: pegado al carrusel táctil
       car_placeInd = () => { if (pins) view.after(ind); else stepsEl.after(ind); };
       const stepEls = $$('.step', stepsEl), growEl = $('.grow', stepsEl), indT = $('.ci-t', ind);
@@ -178,7 +178,7 @@ import { CustomEase } from 'gsap/CustomEase';
         if (pins) return;
         const w = stepEls[1] ? stepEls[1].offsetLeft - stepEls[0].offsetLeft : 1;
         const i = clamp(Math.round(stepsEl.scrollLeft / Math.max(1, w)), 0, stepEls.length - 1);
-        const t = 'Paso <b>' + String(i + 1).padStart(2, '0') + '</b> / 04';
+        const t = 'Paso <b>' + (i + 1) + '</b> de 4';
         if (t !== car.lastLabel) { car.lastLabel = t; indT.innerHTML = t; }
         ind.style.setProperty('--cp', ((i + 1) / stepEls.length).toFixed(3));
         stepsEl.classList.toggle('at-end', stepsEl.scrollLeft + stepsEl.clientWidth >= stepsEl.scrollWidth - 4);
@@ -211,7 +211,7 @@ import { CustomEase } from 'gsap/CustomEase';
       putStyle('ck', car.growEl.style, 'transform', `scaleX(${k.toFixed(4)})`);
       car.stepEls.forEach((el, i) => { const on = k >= car.fr[i] + .004; if (last['cs' + i] !== on) { last['cs' + i] = on; el.classList.toggle('on', on); } });
       const act = Math.round(u);
-      const t = act >= car.stepEls.length ? 'Compromisos' : 'Paso <b>' + String(act + 1).padStart(2, '0') + '</b> / 04';
+      const t = act >= car.stepEls.length ? 'Compromisos' : 'Paso <b>' + (act + 1) + '</b> de 4';
       if (t !== car.lastLabel) { car.lastLabel = t; car.indT.innerHTML = t; }
       const cp = pc.toFixed(3); if (last.cp !== cp) { last.cp = cp; car.ind.style.setProperty('--cp', cp); }
     }
@@ -282,106 +282,11 @@ import { CustomEase } from 'gsap/CustomEase';
     }, true);
     addEventListener('click', () => { if (measuring) { measuring.classList.remove('measure'); measuring = null; } });
 
-    /* ================= TEXTO ================= */
-    // 1) títulos por líneas: se parte en palabras, se agrupa por renglón medido y cada renglón es una máscara
-    const splitEls = [...$$('.chap:not(.hero) h2'), ...$$('.sec h2'), ...$$('.motto')];
-    function split(el) {
-      if (el._orig == null) el._orig = el.innerHTML; else el.innerHTML = el._orig;
-      const nodes = [];
-      [...el.childNodes].forEach(n => {
-        if (n.nodeType === 3) {
-          n.textContent.split(/(\s+)/).forEach(part => {
-            if (!part) return;
-            if (/^\s+$/.test(part)) nodes.push(document.createTextNode(' '));
-            else { const w = document.createElement('span'); w.textContent = part; nodes.push(w); }
-          });
-        } else nodes.push(n);
-      });
-      el.textContent = ''; nodes.forEach(n => el.appendChild(n));
-      const lines = []; let cur = [], top = null;
-      nodes.forEach(n => {
-        if (n.nodeName === 'BR') { lines.push(cur); cur = []; top = null; return; }
-        if (n.nodeType === 1) {
-          const t = n.offsetTop;
-          if (top !== null && t > top + 2) { lines.push(cur); cur = []; }
-          top = t;
-        }
-        cur.push(n);
-      });
-      lines.push(cur);
-      el.textContent = '';
-      lines.forEach(ln => {
-        while (ln.length && ln[0].nodeType === 3) ln.shift();
-        while (ln.length && ln[ln.length - 1].nodeType === 3) ln.pop();
-        if (!ln.length) return;
-        const o = document.createElement('span'), i = document.createElement('span');
-        o.className = 'ln-m'; ln.forEach(n => i.appendChild(n)); i.appendChild(document.createTextNode(' '));
-        o.appendChild(i); el.appendChild(o);
-      });
-      el.dataset.split = '';
-    }
-    splitEls.forEach(split);
-    let lastW = innerWidth, st = 0;
-    const resplit = () => { splitEls.forEach(el => { gsap.killTweensOf(el.querySelectorAll('.ln-m>span')); split(el); }); ScrollTrigger.refresh(); };
-    addEventListener('resize', () => { if (innerWidth === lastW) return; lastW = innerWidth; clearTimeout(st); st = setTimeout(resplit, 220); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { splitEls.forEach(el => { if (!el._busy) split(el); }); remeasure(); });
-
-    // 2) etiquetas de lámina (mono + latín): suben desde 40% con fundido, sin tipeo
-    const labelEls = [...$$('.sec .lam'), ...$$('.chap:not(.hero) .plate-no'), ...$$('.chap:not(.hero) .chap-card > .key')];
-
-    // 3) bloques que suben (fade + rise, nunca fade solo) y listas en cascada
-    const riseSel = [
-      '.chap:not(.hero) .lede', '.chap:not(.hero) .did', '.chap:not(.hero) .ctx', '#bosque .case',
-      '.sec .lede', '.fork-hd', '.fork-col li',
-      '#list .item', '.reading',
-      '.person > *',
-      ...(pins ? [] : ['.step']), '.pledge', // en el carrusel pinneado la opacidad de los pasos la maneja el track
-      '.faq-side .ctx', '.faq-list details',
-      '.offer', '.offer-col > .mono', '.offer-col li', // (los CTA de la tarjeta no dependen de ninguna animación)
-      '.foot-sig > *', '.foot-links a', '.foot-meta > *'
-    ].join(',');
-    const riseEls = $$(riseSel);
-    [...labelEls, ...riseEls].forEach(el => { el.dataset.rv = ''; });
-    labelEls.forEach(el => { el.dataset.label = ''; });
-    const footWord = $('.foot-word svg');
-
-    const reveal = (el, delay) => {
-      if (el.classList.contains('rv-in')) return;
-      el.classList.add('rv-in');
-      if (el.hasAttribute('data-split')) {
-        el._busy = true;
-        gsap.fromTo(el.querySelectorAll('.ln-m>span'), {yPercent: 112}, {yPercent: 0, duration: .8, ease: 'grow', stagger: .06, delay, clearProps: 'transform', onComplete: () => { el._busy = false; }});
-      } else if (el.hasAttribute('data-label')) {
-        gsap.fromTo(el.children.length ? el.children : el, {opacity: 0, yPercent: 40}, {opacity: 1, yPercent: 0, duration: .6, ease: 'grow', stagger: .06, delay, clearProps: 'opacity,transform'});
-      } else {
-        gsap.fromTo(el, {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: .75, ease: 'grow', delay, clearProps: 'opacity,transform'});
-        // pasos: el número cuenta desde 00
-        const num = el.classList.contains('step') && $(':scope > .mono', el);
-        if (num) {
-          const n = parseInt(num.textContent, 10) || 0, o = {v: 0};
-          gsap.to(o, {v: n, duration: .4, ease: `steps(${Math.max(1, n)})`, delay: delay + .1, onUpdate: () => { num.textContent = String(Math.round(o.v)).padStart(2, '0'); }});
-        }
-      }
-    };
-    // cascada en orden del DOM también entre lotes: cada elemento arranca 60 ms después del anterior
-    // (nunca antes que uno que está más arriba), con un retraso máximo de .4 s → entrada total ≤ 1,2 s
-    const docOrder = (a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
-    let nextAt = 0;
-    const io = new IntersectionObserver(entries => {
-      const now = performance.now() / 1000;
-      entries.filter(e => e.isIntersecting).map(e => e.target).sort(docOrder).forEach(el => {
-        io.unobserve(el);
-        const d = Math.min(Math.max(0, nextAt - now), .4);
-        nextAt = now + d + .06;
-        reveal(el, d);
-      });
-    }, {rootMargin: '0px 0px -8% 0px'}); // = start 'top 92%'
-    [...splitEls, ...labelEls, ...riseEls].sort(docOrder).forEach(el => io.observe(el));
-
-    // pie: la palabra crece desde su base
-    if (footWord) {
-      gsap.fromTo(footWord, {yPercent: 45}, {yPercent: 0, ease: 'none', scrollTrigger: {trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true}});
-    }
+    /* ================= TEXTO =================
+       Sin entradas por sección (código de marca §7: un solo momento orquestado, el titular del hero).
+       El texto de VI–XI está quieto; lo que se mueve responde al scroll (telón, láminas, carrusel).
+       Las fuentes cambian alturas: se vuelve a medir cuando terminan de cargar. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
 
     // 4) paneles II–V: al salir se desvanecen (cuando el texto ya pasó la mitad superior)
     // (V queda fuera: en escritorio la sostiene el telón; en celular sale con el scroll)
@@ -393,14 +298,6 @@ import { CustomEase } from 'gsap/CustomEase';
     });
 
     /* ================= MICROINTERACCIONES ================= */
-    // flechas → span.arr para que avancen en hover
-    $$('.btn, .ctx').forEach(b => {
-      const s = [...b.querySelectorAll('span[aria-hidden="true"]')].find(x => x.textContent.trim() === '→');
-      if (s) { s.classList.add('arr'); return; }
-      const t = [...b.childNodes].reverse().find(n => n.nodeType === 3 && /→\s*$/.test(n.textContent));
-      if (t) { t.textContent = t.textContent.replace(/\s*→\s*$/, ' '); const a = document.createElement('span'); a.className = 'arr'; a.setAttribute('aria-hidden', 'true'); a.textContent = '→'; b.appendChild(a); }
-    });
-
     if (fine.matches) {
       // CTA principal (hero) y su eco en el cierre: magnetismo corto, sin rebote
       $$('.chap.hero .btn-glow, #contacto .offer-ft .btn-fill').forEach(btn => {
