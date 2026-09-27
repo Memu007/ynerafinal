@@ -81,7 +81,7 @@ Archivo maestro: `ynera-simbolo.svg` (viewBox 96 × 96). Módulo **w = 12** (anc
 | Símbolo plano monocromo | `ynera-simbolo.svg` (`fill="currentColor"`) | **Versión por defecto.** Nav, footer, documentos, sello, una tinta. Hueso sobre noche o noche sobre hueso. |
 | Símbolo con degradé | `ynera-simbolo-color.svg` | Solo donde el símbolo está solo y es protagonista: avatar, favicon, portada de deck, lámina de cierre. |
 | Favicon | `ynera-favicon.svg` | ≤ 32 px. Trazo reforzado (w = 16, brazos más cortos) sobre cuadrado noche redondeado. Exportar también PNG 32, 180 (apple-touch) y 512. |
-| Wordmark | `ynera-wordmark.svg` | **Ynera** en Ynera Furca Bold, vectorizado a curvas (`currentColor`). Y mayúscula, resto minúsculas; la Y del wordmark es la Y-símbolo de la tipografía. Tracking −0,01 em (≥ 32 px), 0 (< 24 px). |
+| Wordmark | `ynera-wordmark.svg` | **YNERA** en versales de Source Serif 4 (peso 500, tamaño óptico 36), espaciadas 16 % con el kerning de la fuente, vectorizado a curvas (`currentColor`). En la web se compone en vivo con la misma receta (ver §5). |
 | Lockup vertical (preferido) | a armar | Símbolo arriba, wordmark centrado abajo. Altura de mayúscula del wordmark = 0,45 × alto del símbolo. Separación = 1,5w. Portada de deck, sello, pie de documento. |
 | Lockup horizontal | a armar | Símbolo a la izquierda, base del tronco sobre la línea de base del texto, alto del símbolo = 1,2 × altura de mayúscula, separación = 2,5w. Solo cuando no entra el vertical. |
 
@@ -125,7 +125,7 @@ Colores fuera de esta tabla **no existen** (hoy aparecen `#FF4FD8` magenta y `#c
 | `--rule` | `#1D2130` | Filetes | Líneas de lámina, apenas visibles. |
 | `--rule-2` | `#30354A` | Bordes de controles | Visible sin competir. |
 | `--bone` | `#E9E5D9` | Texto principal, botón primario | Papel de lámina botánica: cálido contra la noche fría. Contraste 16:1. |
-| `--mute` | `#8F8D82` | Texto secundario, etiquetas mono | 6:1 sobre noche. |
+| `--mute` | `#8F8D82` | Etiquetas en versalitas, pies | 6:1 sobre noche. |
 | `--dim` | `#5E5D56` | Solo decorativo o placeholders | 3:1: **prohibido para texto de lectura.** |
 
 Los neutros cálidos (bone/mute) y los fondos fríos (night) son intencionales: el papel es naturaleza, la noche es tecnología.
@@ -137,7 +137,7 @@ Los neutros cálidos (bone/mute) y los fondos fríos (night) son intencionales: 
 - Excepción: la escena 3D puede llevar más color porque es la ilustración; aun así, **el violeta no debe teñir el cielo** (ver auditoría).
 
 ### 4.4 Degradé
-- **Sí:** en el símbolo color, en la escena 3D (tronco→copa), y en **una sola palabra por página** (hoy: "creciendo."). Siempre vertical o en el orden ámbar → violeta → azul.
+- **Sí:** en el símbolo color, en la escena 3D (tronco→copa), y en filetes y líneas (el borde de la Lámina VI, la línea de proceso). **No en letras** (ver §5). Siempre vertical o en el orden ámbar → violeta → azul.
 - **No:** en botones, fondos de secciones, bordes, halos, textos largos, ni animado en loop. *Por qué:* un degradé repetido es papel de regalo; uno solo es firma.
 - Paradas del degradé: `#FF9A1F 0 %`, `#B25BFF 46 %`, `#3F7BFF 100 %`.
 
@@ -146,7 +146,7 @@ Los neutros cálidos (bone/mute) y los fondos fríos (night) son intencionales: 
 |---|---|---|
 | bone | 16:1 | todo |
 | `#B9B6AA` | 9,9:1 | leads |
-| mute | 6,0:1 | texto secundario y mono ≥ 11 px |
+| mute | 6,0:1 | etiquetas en versalitas y pies ≥ 15 px (el texto secundario usa `--ink-2` #BDB9AD) |
 | root / cyan | 9,5:1 / 13,9:1 | texto y UI |
 | bark / leaf | 5,6:1 / 5,3:1 | texto ≥ 16 px o UI; en tamaños menores usar `#C792FF` / `#7FA4FF` (8,6 / 8,3:1) |
 | dim | 3,0:1 | nunca texto de lectura |
@@ -157,46 +157,71 @@ Mínimo: 4,5:1 para texto normal, 3:1 para títulos ≥ 24 px y componentes. Nun
 
 ## 5. Tipografía
 
+> Rehecha en septiembre de 2026 a pedido del cliente ("es fea la tipografía… se siente full AI"). Esta sección explica qué se cambió, por qué, y con qué libros se decidió. Si algo de acá choca con otra sección, manda esta.
+
+### 5.1 Qué había y por qué no funcionaba
+Cuatro voces tipográficas a la vez: una display dibujada por código (Ynera Furca), una grotesca para el texto, una serif itálica "de acento" y una mono en mayúsculas espaciadas para las etiquetas. Es exactamente la receta que hoy produce cualquier generador de landings: **titular en sans + una frase en serif itálica que carga la emoción + etiquetas mono en mayúscula en cada esquina + una palabra en degradé sobre fondo oscuro**. Además:
+- **Furca** tenía espaciado, curvas y detalles (muescas, biseles) de fuente amateur; en tamaños grandes se notaba el dibujo por código, sin corrección óptica. Una display propia solo suma si está al nivel de una fuente comercial; si no, resta.
+- **Demasiados niveles antes del texto.** Una lámina apilaba: nº de lámina mono + nombre latino itálico + etiqueta mono de color + H2 + frase itálica + bajada + lista con `dt` mono. Butterick lo describe tal cual: demasiados niveles llevan a "intentos cada vez más desesperados de diferenciarlos" con itálica, mayúsculas, tamaño y color.
+- **Mono para texto que no es código.** Butterick: en texto no hay buenas razones para usar monoespaciada. Y todo en mayúsculas a 11,5 px.
+- **Degradé dentro de la letra**, interlineado de títulos por debajo de 1 (.94–.98) y tracking negativo sobre minúsculas (Bringhurst: no espaciar ni apretar la caja baja sin motivo).
+
+### 5.2 Qué leímos (y la regla que sacamos de cada uno)
+| Fuente | Regla aplicada |
+|---|---|
+| Butterick, *Practical Typography* — Summary of key rules, Line length, Line spacing, Point size | Texto 15–25 px en web; medida 45–90 caracteres; interlineado 120–145 %. → Texto a 18 px (17 en celular), interlínea 1,5, medida 33 em ≈ 66 caracteres. |
+| Butterick — Headings, Hierarchical headings | Los títulos se destacan con **espacio** antes que con efectos; el menor aumento de tamaño que se note; pocos niveles. → Un solo peso de títulos (500; 400 en el hero y el cierre), sin itálica, sin mayúsculas, sin degradé. |
+| Butterick — All caps, Letterspacing | Las mayúsculas y versalitas siempre llevan 5–12 % de espacio extra; las minúsculas no. → Versalitas a +6 %, wordmark en versales a +16 %, minúsculas a 0. |
+| Butterick — Monospaced fonts, Font recommendations | Mono solo para código; usar fuentes profesionales, no "de sistema" ni caprichosas. → Fuera la mono; fuera la display hecha por código. |
+| Bringhurst, *The Elements of Typographic Style* 2.1.2 | Medida cómoda: 45–75 caracteres, 66 ideal. → `--measure: 33em`. |
+| Bringhurst 2.1.6 / 2.1.7 | Espaciar toda secuencia de versales o versalitas (5–10 %); no espaciar la caja baja sin razón, y nunca con valores negativos. |
+| Bringhurst 3.2.1 | Cifras de caja alta (lining) con versales; cifras elzevirianas (old-style) en todo lo demás. → `oldstyle-nums` en el texto y las etiquetas; `lining-nums` en títulos; `tabular-nums` de la sans en las lecturas del test. |
+| Bringhurst cap. 3 y 6 (*Harmony & counterpoint*, *Choosing and combining type*) | Empezar con una sola familia: da variedad y homogeneidad a la vez; si se suma otra, que sea pariente. Escala tradicional 6·7·8·9·10·11·12·14·16·18·21·24·36·48·60·72. → Tamaños tomados de esa escala (ver 5.4). |
+| Lupton, *Thinking with Type* (Letter / Text) | Jerarquía con pocos contrastes bien elegidos; versalitas y cifras elzevirianas como herramientas de texto; puntuación colgante. → `hanging-punctuation`, versalitas reales (no mayúsculas achicadas). |
+| Tim Brown, "More Meaningful Typography" (A List Apart) | Medidas relacionadas por una escala, no números arbitrarios. |
+| Müller-Brockmann, *Grid Systems* | Pocos tamaños, saltos claros; ancho de columna según tamaño de letra. |
+| Google Fonts Knowledge — *Optical size axis*, *Choosing typefaces that have optical sizes*, *Pairing within a superfamily* | Tamaños ópticos: menos contraste y más aire en chico, más refinamiento en grande; emparejar dentro de una misma superfamilia. → Source Serif 4 con eje `opsz` (el navegador elige el corte según el tamaño) + Source Sans 3. |
+| Artículos sobre el "look IA" (p. ej. *AI Design Already Has a Cliché*, Superdesign "6 tells") | Las marcas del cliché: serif itálica suave en la frase clave, mono en mayúsculas en esquinas, fondo oscuro con ámbar/violeta, palabra en degradé. → Se eliminaron las tres que son tipográficas. |
+| Referentes mirados | Fonts In Use (una condensada para mandar + una serif de texto para todo lo demás, sin color decorativo), Stripe Press (libros: serif, jerarquía por tamaño y aire), Vercel/Geist y Stripe (una sola familia de sistema bien espaciada). Común a todos: **pocas familias, una voz dominante, jerarquía por escala y espacio, no por efectos.** |
+
+### 5.3 Familias
 | Rol | Familia | Uso | Por qué |
 |---|---|---|---|
-| Display | **Ynera Furca** Bold (propia, `fonts/ynera-furca-bold.woff2`) | Títulos H1–H3, cifras grandes, wordmark, la palabra del degradé. | Una display dibujada desde las reglas del símbolo. Es lo único que nadie más puede tener: si alguien ve "planillas" con estos cortes, es Ynera. |
-| Texto | **Schibsted Grotesk** (variable 400–700, OFL) | Párrafos, botones, navegación, FAQ. | Grotesca de diario, sobria y muy legible. Acompaña sin competir con la display. |
-| Acento | **EB Garamond itálica** (OFL) | Nombres latinos (*Radix*, *Cortex*, *Coma*, *Silva*, *Ynera bifurcata*), epígrafes de lámina, citas. | La voz del naturalista que anota: humano frente a sistema. |
-| Datos / etiquetas | **IBM Plex Mono** 400/500 (OFL) | Número de lámina, coordenadas, etiquetas, `dt`, porcentajes, horario. | La voz del instrumento: lo que se mide. |
+| Texto, títulos y etiquetas | **Source Serif 4** (Frank Grießhammer / Adobe, OFL), variable `opsz` 20–60 × `wght` 400–600, `fonts/source-serif-4.woff2` | Todo lo que se lee: H1–H3, bajadas, párrafos, listas, FAQ, etiquetas de lámina (en versalitas), wordmark (en versales). | Serif de libro de corte Fournier: sobria, con tamaños ópticos reales (el titular a 72 px usa el corte "display", el texto a 18 px el de lectura), versalitas y cifras elzevirianas verdaderas. Da la voz de "lámina de naturalista impresa" sin disfrazarse de antigua, y no está gastada en landings de IA. |
+| Itálica | **Source Serif 4 Italic** (instancia fija 400 / opsz 24), `fonts/source-serif-4-italic.woff2` | **Solo** nombres científicos: *Radix*, *Cortex*, *Coma*, *Silva*, *Ynera bifurcata*. | Es la convención tipográfica de la nomenclatura binomial, no un "acento". |
+| Interfaz | **Source Sans 3** (Paul D. Hunt / Adobe, OFL), `wght` 400–600, `fonts/source-sans-3.woff2` | Navegación, botones, barra móvil y lecturas numéricas del test (0 %, 0 de 10). | Pariente de la serif (misma casa, proporciones compatibles): lo que se opera se distingue de lo que se lee, sin sumar una tercera voz. |
 
-### Ynera Furca: por qué es así
-Se dibujó con el mismo razonamiento que el símbolo (la bifurcación). Tres reglas, en ese orden:
+Dos familias de una misma superfamilia. Antes: cuatro familias y cinco archivos (118 KB). Ahora: tres archivos (≈151 KB, la serif lleva los dos ejes).
 
-1. **Base recta.** Todo trazo que toca la línea de base se corta horizontal, como una raíz apoyada. *Por qué:* estabilidad; una consultora de datos y seguridad no puede verse frágil.
-2. **Corte de poda.** En minúsculas, cada trazo que crece hacia arriba (l, i, n, a, d, t…) termina cortado en bisel, más alto a la izquierda. *Por qué:* es crecimiento con criterio: una rama podada, no una rama salvaje. Es el rasgo que se ve a la distancia.
-3. **Bifurcación.** Donde un arco nace del tronco (n, m, r, h, a, d, b, p, q, u) hay una muesca en V. *Por qué:* es la Y del logo repetida en miniatura dentro de cada palabra.
+**Ynera Furca queda archivada** (`src/tipografia/`, `brand/ynera-furca-specimen.png`). No se usa en la web ni en piezas nuevas. Si alguna vez vuelve una letra propia, que sea solo el wordmark, dibujado por un diseñador de tipos y corregido a mano.
 
-Además: las **mayúsculas son el tronco**, rectas y sin brotes (sobrias, institucionales). La **Y** es el símbolo: ramas a ±40° cortadas en perpendicular. Contraste óptico: horizontales al 78 % de las verticales. Métricas: UPM 1000, altura x 520, mayúscula 700, trazo 132.
+### 5.4 Escala y composición (web)
+Tamaños tomados de la escala tradicional (Bringhurst): 14 · 16 · 18 · 21 · 24 · 36 · 48 · 60 · 72. Entre escritorio y celular se interpola con `clamp()`.
 
-Fuente editable: `src/tipografia/` (Python + fontTools/skia-pathops). Cambiar un glifo = editar `glyphs.py` y volver a compilar; nunca retocar el woff2 a mano. Muestrario: `brand/ynera-furca-specimen.png`.
-
-### Escala (web, desktop → mobile)
-| Nivel | Tamaño | Ajuste |
+| Nivel | Tamaño (desktop → celular) | Peso / interlínea / tracking |
 |---|---|---|
-| Hero | clamp(44px, 5vw, 88px) | Furca 700, interlínea .98, tracking −.008em |
-| Sección grande | clamp(44px, 6,2vw, 100px) | Furca 700, .94 |
-| H2 | clamp(32px, 3,4vw, 54px) | Furca 700, 1 |
-| H3 | 24–46px | Furca 700 |
-| Lead | 17–20px | Schibsted 400, 1,6, máx 54ch |
-| Texto | 16–17px | Schibsted 400, 1,6, máx 62ch |
-| Mono | 11,5px | mayúsculas, tracking .1em |
-| Serif acento | 18–32px | itálica 400, 1,25 |
+| H1 hero, H2 de cierre | 72 → 34–50 px (hero) · 80 → 44 px (cierre) | 400 · 1,02–1,04 · 0 |
+| H2 | 48 → 34 px | 500 · 1,08 · 0 · `text-wrap: balance` |
+| H3 (personas, pasos, casos) | 24–40 px | 500 (600 en las fichas de 24 px) · 1,08–1,1 |
+| Bajada (la frase debajo del H2) | 25 → 21 px | 400 redonda · 1,3 · `--ink-2` |
+| Lead | 20 → 18 px | 400 · 1,5 · máx. 30 em |
+| Texto | 18 → 17 px | 400 · 1,5 · máx. 33 em ≈ 66 caracteres · `text-wrap: pretty` |
+| Pie / micro | 15–16 px | 400 · 1,4–1,45 |
+| Etiqueta (ex-mono) | 16 px en versalitas (`all-small-caps`) | 400 · +6 % · cifras elzevirianas |
+| Wordmark | 19 px en versales | 500 · +16 % |
+| Interfaz (sans) | 15 px | 400 nav, 600 botones |
 
-### Reglas
-- **Furca solo en tamaños de título (≥ 22px).** *Por qué:* los cortes y muescas son detalles de display; en texto chico se vuelven ruido.
-- **Nunca** Furca en párrafos, botones ni navegación (salvo el wordmark). Nunca en mayúsculas sostenidas: las mayúsculas son de la mono.
-- **La itálica serif es la voz del naturalista**, no un énfasis: nombres latinos, epígrafes, citas y veredicto del Diagnóstico. Nunca Garamond recta ni en negrita.
-- **Nunca** mono para párrafos ni para títulos.
-- **Una** palabra en degradé por página (ámbar → violeta → azul), en Furca.
-- Todo autoalojado (woff2, subset latín + español) y Furca/Schibsted precargadas. *Por qué:* rendimiento, privacidad (sin Google Fonts) y cero parpadeo en el hero. Furca pesa 5 KB.
-- Licencias: Furca es propiedad de Ynera; Schibsted Grotesk, EB Garamond e IBM Plex Mono son OFL (textos en `fonts/`).
-
----
+### 5.5 Reglas
+- **Una voz.** Todo lo que se lee va en Source Serif 4. La sans solo en lo que se toca (nav, botones) y en cifras de instrumento.
+- **Jerarquía por tamaño y espacio**, no por efectos. Nada de itálica, subrayado, mayúsculas sostenidas ni degradé para destacar.
+- **Sin degradé en letras.** El degradé vive en el símbolo, en la escena y en filetes (ver 4.4).
+- **Itálica solo para nombres latinos.** Las frases de lámina ("Lo que no se ve alimenta todo lo demás.") son bajadas en redonda, no epígrafes en itálica.
+- **Nunca mayúsculas sostenidas en texto.** Las etiquetas van en versalitas reales (`font-variant-caps: all-small-caps`), espaciadas 6 %. Las versales espaciadas quedan solo para el wordmark.
+- **Cifras:** elzevirianas en texto y etiquetas; de caja alta en títulos; tabulares de la sans en porcentajes y contadores.
+- **Tracking:** 0 en minúsculas en cualquier tamaño (el eje óptico ya ajusta el espaciado del corte display). Nunca negativo.
+- **Microtipografía en español:** signos de apertura ¿ ¡ siempre; raya (—) para incisos, semirraya (–) para rangos; comillas latinas « » y, dentro, “ ”; espacio de no separación entre número y unidad ("30&nbsp;minutos") y entre "Lám." y su número; `hyphens: auto` solo en celular (medida corta, `lang="es-AR"`); `hanging-punctuation` donde el navegador lo soporte.
+- **Autoalojado** (woff2, subset latín + español: U+20–7E, U+A0–FF, Œœ, comillas, rayas, primas, flechas). Se precargan la serif y la sans. **No quitar las instrucciones de hinting (`prep`) al hacer el subset:** sin ellas, FreeType (Chrome en Linux/Android) espacia mal el texto chico ("pr oblema").
+- Licencias: Source Serif 4 y Source Sans 3 son OFL (textos en `fonts/`).
 
 ## 6. Dirección de arte e imagen
 
@@ -207,7 +232,7 @@ On-brand:
 - Noche azul-negra, estrellas pequeñas y frías.
 - Luz que sale **de adentro** del objeto (savia ámbar en raíces, anillos violetas en corteza, nodos azules en copa, pasto cian). *Por qué:* el sistema está vivo por dentro; no lo ilumina un reflector de marketing.
 - Isla flotante como "maceta" del espécimen: aislado para estudiarlo.
-- Etiquetas de lámina rectas, filete fino, mono. *Por qué:* es un documento, no un videojuego.
+- Etiquetas de lámina rectas, filete fino, en versalitas. *Por qué:* es un documento, no un videojuego.
 - La Y del hero con la **misma geometría del símbolo** (brazos a 40°).
 
 Off-brand:
@@ -287,10 +312,10 @@ Principio: **crecer, no aparecer.** Las cosas salen desde su base y ganan altura
 
 **LinkedIn.**
 - Avatar empresa (400 × 400): fondo `--night`, símbolo color centrado a 56 % del lado. *Por qué:* el recorte circular necesita aire y el degradé solo funciona sobre oscuro.
-- Banner (1584 × 396): noche, captura limpia de la Lámina V (bosque) a la derecha; a la izquierda "Construimos antes de aconsejar." en Archivo wdth 62 bone y debajo en mono mute "DATOS · SEGURIDAD · IA APLICADA · BUENOS AIRES". Dejar libre el tercio izquierdo inferior (lo tapa el avatar).
+- Banner (1584 × 396): noche, captura limpia de la Lámina V (bosque) a la derecha; a la izquierda "Construimos antes de aconsejar." en Source Serif 4 (peso 400) hueso y debajo en versalitas mute "Datos · Seguridad · IA aplicada · Buenos Aires". Dejar libre el tercio izquierdo inferior (lo tapa el avatar).
 - Avatares personales: foto según 6.2; nada de marco con logo.
 
-**Deck.** 16:9, fondo noche. Portada: lockup vertical + título en Archivo condensado. Cada sección abre con su lámina (número romano + nombre latino + color del servicio). Una idea por slide, texto a la izquierda, imagen/dato a la derecha. Números grandes en Archivo, unidad en mono. Cierre: "Empecemos por la raíz." + contacto. Exportar también en fondo hueso para imprimir.
+**Deck.** 16:9, fondo noche. Portada: lockup vertical + título en Source Serif 4. Cada sección abre con su lámina (número romano + nombre latino + color del servicio). Una idea por slide, texto a la izquierda, imagen/dato a la derecha. Números grandes en Archivo, unidad en mono. Cierre: "Empecemos por la raíz." + contacto. Exportar también en fondo hueso para imprimir.
 
 **Firma de mail.** Solo texto, sin imagen (las imágenes se bloquean y pesan):
 ```
@@ -303,7 +328,7 @@ Nombre en negrita, resto en gris. Sin frases motivacionales, sin banners.
 
 **WhatsApp Business.** Foto de perfil = avatar de LinkedIn. Descripción: "Datos, seguridad e IA aplicada para PyMEs y profesionales. Construimos antes de aconsejar." Mensaje de bienvenida: "Hola, somos Emiliano y Mariano de Ynera. Contanos qué te pasa y te respondemos nosotros, en el día." Respuestas en voseo, sin stickers ni emojis de cohete.
 
-**Documento del Diagnóstico** (PDF / A4 o carta). Portada hueso con símbolo plano noche y "Diagnóstico · [Empresa] · [fecha]" en mono. Estructura en tres láminas: Raíces (ámbar), Corteza (violeta), Copa (azul), cada una con: lo que vimos · riesgo · primer paso · costo estimado. Barras horizontales finas como en la web. Cierre: "Qué haríamos primero" + "Qué no haríamos". Texto en Archivo 10,5 pt, notas en Garamond itálica, datos en Plex Mono. *Por qué:* es la pieza que el cliente reenvía a su socio; tiene que verse como un documento de estudio, no como una propuesta comercial.
+**Documento del Diagnóstico** (PDF / A4 o carta). Portada hueso con símbolo plano noche y "Diagnóstico · [Empresa] · [fecha]" en versalitas de Source Serif 4. Estructura en tres láminas: Raíces (ámbar), Corteza (violeta), Copa (azul), cada una con: lo que vimos · riesgo · primer paso · costo estimado. Barras horizontales finas como en la web. Cierre: "Qué haríamos primero" + "Qué no haríamos". Texto en Archivo 10,5 pt, notas en Garamond itálica, datos en Plex Mono. *Por qué:* es la pieza que el cliente reenvía a su socio; tiene que verse como un documento de estudio, no como una propuesta comercial.
 
 ---
 

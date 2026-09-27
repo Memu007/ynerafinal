@@ -360,15 +360,15 @@
  ]
 }
 </script>
-<link rel="preload" href="fonts/ynera-furca-bold.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/schibsted-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/source-serif-4.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/source-sans-3.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Tipografías propias del sitio: sin Google Fonts. Ynera Furca es la display de la marca (brand/TIPOGRAFIA.md). */
-@font-face{font-family:"Ynera Furca";src:url(fonts/ynera-furca-bold.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Schibsted Grotesk";src:url(fonts/schibsted-grotesk.woff2) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
-@font-face{font-family:"EB Garamond";src:url(fonts/eb-garamond-italic.woff2) format("woff2");font-weight:400 500;font-style:italic;font-display:swap}
-@font-face{font-family:"IBM Plex Mono";src:url(fonts/ibm-plex-mono-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"IBM Plex Mono";src:url(fonts/ibm-plex-mono-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
+/* Tipografía (código de marca §5): una familia de libro, Source Serif 4, con ejes de tamaño óptico y peso,
+   para títulos, texto y etiquetas (versalitas reales); Source Sans 3, su pareja de la misma casa, solo para la interfaz
+   (navegación, botones, lecturas numéricas). Autoalojadas, subset latín + español. */
+@font-face{font-family:"Source Serif 4";src:url(fonts/source-serif-4.woff2) format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Source Serif 4";src:url(fonts/source-serif-4-italic.woff2) format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Source Sans 3";src:url(fonts/source-sans-3.woff2) format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
 :root{
   color-scheme: dark;
   --night:#06070C;
@@ -382,38 +382,43 @@
   --bark:#B25BFF;   /* corteza · seguridad */
   --leaf:#3F7BFF;   /* copa · IA */
   --cyan:#27F0D2;
-  --f:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --d:"Ynera Furca", "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --serif:"EB Garamond", Garamond, "Times New Roman", serif;
-  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --ink-2:#BDB9AD;  /* texto secundario: el gris de antes (#8F8D82) es muy flojo para una serif de trazo fino sobre negro */
+  --f:"Source Serif 4", Charter, "Iowan Old Style", Georgia, serif;
+  --d:var(--f);
+  --serif:var(--f);
+  --sans:"Source Sans 3", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono:var(--f); /* nombre heredado: las etiquetas ya no son mono, son versalitas de la serif */
+  --measure:33em;  /* ≈ 66 caracteres a 18px (Bringhurst 2.1.2) */
   --g:clamp(16px,4vw,48px);
   --ease:cubic-bezier(.16,1,.3,1);
   --ui:cubic-bezier(.2,.8,.2,1);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--night) url(stars.png) 0 0/1024px 1024px;color:var(--bone);font:400 17px/1.6 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:var(--night) url(stars.png) 0 0/1024px 1024px;color:var(--bone);font:400 18px/1.5 var(--f);font-variant-numeric:oldstyle-nums proportional-nums;font-kerning:normal;font-optical-sizing:auto;text-rendering:optimizeLegibility;hanging-punctuation:first allow-end;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 img{max-width:100%;display:block}
 a{color:inherit}
 p{margin:0}
-h1,h2,h3{margin:0;font-family:var(--d);font-weight:700;letter-spacing:-.004em;line-height:1;text-wrap:balance}
+p,dd,li,summary,blockquote{text-wrap:pretty}
+h1,h2,h3{margin:0;font-family:var(--d);font-weight:500;letter-spacing:0;line-height:1.08;text-wrap:balance;font-variant-numeric:lining-nums}
 :focus-visible{outline:2px solid var(--root);outline-offset:3px}
 ::selection{background:var(--bark);color:#fff}
 .wrap{max-width:1400px;margin-inline:auto;padding-inline:var(--g)}
-.mono{font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+/* etiqueta: versalitas reales (all-small-caps) con cifras elzevirianas, espaciadas 6 % (Bringhurst 2.1.6 y 3.2.1) */
+.mono{font:400 16px/1.4 var(--f);font-variant-caps:all-small-caps;font-variant-numeric:oldstyle-nums;letter-spacing:.06em;text-transform:none;color:var(--mute)}
 .latin{font:italic 400 1em/1.3 var(--serif);letter-spacing:0}
-.num{font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:oldstyle-nums tabular-nums}
 
 /* ---------- NAV ---------- */
 .nav{position:fixed;inset:0 0 auto;z-index:40;padding-top:env(safe-area-inset-top,0px);background:linear-gradient(to bottom,rgba(6,7,12,.75),rgba(6,7,12,0));transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
 .nav.solid{background:rgb(6,7,12);border-bottom-color:var(--rule)}
 .nav-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 23px/1 var(--d);letter-spacing:-.01em}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:500 19px/1 var(--d);letter-spacing:.16em;text-transform:uppercase;font-variant-numeric:lining-nums;padding-left:.16em}
 .brand img{width:26px;height:26px}
 .nav-mid{display:flex;gap:28px}
-.nav-mid a{text-decoration:none;font-size:14px;color:var(--mute)}
+.nav-mid a{text-decoration:none;font:400 15px/1 var(--sans);color:var(--mute)}
 .nav-mid a:hover{color:var(--bone)}
-.btn{display:inline-flex;align-items:center;gap:12px;font:600 15px/1 var(--f);text-decoration:none;padding:16px 22px;border:1px solid var(--bone);transition:background .2s,color .2s,border-color .2s}
+.btn{display:inline-flex;align-items:center;gap:12px;font:600 15px/1 var(--sans);letter-spacing:.005em;text-decoration:none;padding:16px 22px;border:1px solid var(--bone);transition:background .2s,color .2s,border-color .2s}
 .btn-fill{background:var(--bone);color:var(--night)}
 .btn-fill:hover{background:var(--root);border-color:var(--root)}
 .btn-line:hover{background:var(--bone);color:var(--night)}
@@ -429,31 +434,35 @@ h1,h2,h3{margin:0;font-family:var(--d);font-weight:700;letter-spacing:-.004em;li
 .corner.tr{top:90px;right:var(--g);text-align:right}
 .corner.br{bottom:22px;right:var(--g);flex-direction:column;align-items:flex-end;gap:6px}
 .specimen{font:italic 400 19px/1 var(--serif);color:var(--bone)}
+.tag3d{font-size:15px}
 #labels{position:absolute;inset:0;pointer-events:none;z-index:1}
 .tag3d{position:absolute;left:0;top:0;white-space:nowrap;color:var(--bone);opacity:0;padding:6px 10px;border:1px solid rgba(233,229,217,.25);background:rgba(6,7,12,.55);translate:-50% 0;will-change:transform}
 .no-webgl .plate{background:radial-gradient(60% 50% at 70% 45%,#1a1535,var(--night))}
 
 .chapters{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh;padding-left:var(--g);padding-right:var(--g);pointer-events:none}
 .chap *{pointer-events:auto}
-.chap{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:26px;padding-block:120px 64px;max-width:560px}
+.chap{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;gap:24px;padding-block:120px 64px;max-width:560px}
 .chap .plate-no{display:flex;gap:14px;align-items:baseline}
-.chap .plate-no .latin{font-size:20px;color:var(--bone);text-transform:none}
-.chap h1{font-size:clamp(40px,4.2vw,70px);line-height:.94}
-.chap h2{font-size:clamp(32px,3.4vw,54px);line-height:.98}
-.chap .lede{color:var(--mute);font-size:clamp(17px,1.3vw,19px);max-width:46ch}
+.chap .plate-no .latin{font-size:20px;color:var(--bone);text-transform:none;font-variant-caps:normal}
+.chap .plate-no+.key{margin-top:-18px}
+.chap h1{font-size:clamp(40px,4.2vw,70px);line-height:1.04}
+.chap h2{font-size:clamp(34px,3.3vw,48px);line-height:1.08}
+.chap .lede{color:var(--ink-2);font-size:clamp(18px,1.3vw,19px);max-width:28em}
 .chap .cta-row{display:flex;flex-wrap:wrap;gap:12px}
 .key{display:inline-flex;align-items:center;gap:10px}
 .key::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
 .did{display:grid;grid-template-columns:auto 1fr;gap:10px 20px;border-top:1px solid var(--rule);padding-top:22px;margin:0}
-.did dt{font:400 11.5px/1.7 var(--mono);color:var(--mute);text-transform:uppercase;letter-spacing:.1em}
-.did dd{margin:0}
-/* subtítulo poético: el H2 lleva la palabra clave (Ynera Furca) y la metáfora queda como epígrafe del naturalista (Garamond itálica).
+.did dt{font:400 16px/1.45 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--mute)}
+.did dd{margin:0;font-size:17px;line-height:1.45}
+/* bajada: el H2 lleva la palabra clave (SEO) y la metáfora va debajo como bajada de revista.
    Lleva también .lede para heredar la entrada de motion.js; estos selectores le ganan en especificidad. */
-.chap .lede.poem,.sec .lede.poem{font:italic 400 clamp(23px,2.1vw,32px)/1.22 var(--serif);color:var(--bone);letter-spacing:0;max-width:32ch;text-wrap:balance}
-.chap .lede.poem{margin-top:-10px}
-.sec .lede.poem{margin-top:18px}
+/* bajada (dek) de revista, no epígrafe en itálica: redonda, un escalón bajo el título, en el gris de lectura.
+   La itálica queda solo para lo que por convención va en itálica: los nombres científicos. */
+.chap .lede.poem,.sec .lede.poem{font:400 clamp(21px,1.75vw,25px)/1.3 var(--f);color:var(--ink-2);letter-spacing:0;max-width:26em;text-wrap:balance}
+.chap .lede.poem{margin-top:-12px}
+.sec .lede.poem{margin-top:14px}
 .fork .lede.poem{margin-inline:auto}
-.caption{font:italic 400 18px/1.4 var(--serif);color:var(--mute);max-width:44ch;border-left:1px solid var(--rule-2);padding-left:16px}
+.caption{font:400 17px/1.45 var(--f);color:var(--mute);max-width:44ch;border-left:1px solid var(--rule-2);padding-left:16px}
 
 
 /* ---------- HERO ---------- */
@@ -461,23 +470,23 @@ h1,h2,h3{margin:0;font-family:var(--d);font-weight:700;letter-spacing:-.004em;li
 .chap.hero .chap-card{transform:translate3d(0,calc((1 - var(--out,1)) * -90px),0);opacity:calc(.15 + var(--out,1) * .85);transition:none}
 /* eyebrow: etiqueta mono de lámina, sin caja ni punto con ping (código de marca 3.6/7: nada de adornos que laten) */
 .live{display:block;align-self:flex-start;color:var(--bone)}
-.hero-title{font-size:clamp(44px,5vw,88px);line-height:.98;letter-spacing:-.008em;display:grid}
-.hero-title .ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.hero-title{font-size:clamp(44px,5vw,80px);line-height:1.02;font-weight:400;letter-spacing:0;display:grid}
+.hero-title .ln{display:block;overflow:hidden;padding-bottom:.12em;margin-bottom:-.12em}
 .hero-title .ln>span{display:inline-block;animation:rise 1.1s cubic-bezier(.16,1,.3,1) both}
 .hero-title .ln:nth-child(2)>span{animation-delay:.09s}
 .hero-title .ln:nth-child(3)>span{animation-delay:.18s}
 .hero-title .ln:nth-child(4)>span{animation-delay:.27s}
 .hero-title .ln:nth-child(4) .grow-word{animation-delay:.27s}
-.chap.hero .hero-title{font-size:clamp(40px,4.5vw,78px)}
-.micro{color:var(--mute);font-size:14px;line-height:1.5;max-width:52ch}
-.chap .lede.hero-lede{color:#B9B6AA;max-width:54ch}
+.chap.hero .hero-title{font-size:clamp(40px,4.6vw,72px)}
+.micro{color:var(--mute);font-size:15px;line-height:1.45;max-width:34em}
+.chap .lede.hero-lede{color:var(--ink-2);max-width:30em;font-size:clamp(18px,1.35vw,20px);line-height:1.5}
 .did dt.you{color:var(--bone)}
 .did dd.you{color:var(--bone)}
-.ctx{align-self:flex-start;justify-self:start;display:inline-block;font:500 15px/1.4 var(--f);text-decoration:none;color:var(--bone);border-bottom:1px solid var(--c,var(--rule-2));padding-bottom:3px;transition:color .2s}
+.ctx{align-self:flex-start;justify-self:start;display:inline-block;font:400 17px/1.4 var(--f);text-decoration:none;color:var(--bone);border-bottom:1px solid var(--c,var(--rule-2));padding-bottom:3px;transition:color .2s}
 .ctx:hover{color:var(--c,var(--bone))}
 @keyframes rise{from{transform:translate3d(0,105%,0) rotate(2deg)}to{transform:none}}
-/* la única palabra en degradé de la página: estático, en el orden del árbol (código de marca 4.4) */
-.grow-word{font:inherit;padding-right:.04em;background:linear-gradient(100deg,var(--root) 0%,var(--bark) 46%,var(--leaf) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;animation:rise 1.1s cubic-bezier(.16,1,.3,1) .18s both}
+/* sin degradé en la letra (código de marca §5): el titular se lee de corrido, en un solo color; el degradé vive en filetes y líneas */
+.grow-word{font:inherit;color:inherit;animation:rise 1.1s cubic-bezier(.16,1,.3,1) .18s both}
 .hero-in{animation:fadeup 1s cubic-bezier(.16,1,.3,1) var(--d,0s) both}
 @keyframes fadeup{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
 /* .btn-glow queda solo como gancho de motion.js (magnetismo): el botón es .btn-fill hueso sólido, hover ámbar, sin halo */
@@ -502,11 +511,11 @@ html.lenis,html.lenis body{height:auto}
 #bosque h2,#bosque .lede{max-width:560px}
 .forest{display:grid;grid-template-columns:1fr;gap:8px;border:0;max-width:560px}
 .case{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:6px 20px;align-items:start;padding:13px 16px 14px;border-left:1px solid var(--cyan);background:rgb(6 7 12/.62);}
-.case h3{grid-column:1;font-size:25px;line-height:1}
-.case .mono.key{grid-column:1;font-size:10.5px;letter-spacing:.09em}
+.case h3{grid-column:1;font-size:24px;line-height:1.1;font-weight:600}
+.case .mono.key{grid-column:1;font-size:15px;letter-spacing:.05em}
 .case .key::before{width:6px;height:6px;box-shadow:0 0 8px var(--c)}
-.case .res{grid-column:2;grid-row:1;align-self:end;color:var(--bone);font-size:15px;line-height:1.4}
-.case .desc{grid-column:2;grid-row:2;color:var(--mute);font-size:13.5px;line-height:1.45}
+.case .res{grid-column:2;grid-row:1;align-self:end;color:var(--bone);font-size:16px;line-height:1.4}
+.case .desc{grid-column:2;grid-row:2;color:var(--ink-2);font-size:15px;line-height:1.4}
 
 /* ---------- TRANSICIÓN: la escena se funde en la noche ---------- */
 .story::after{content:"";position:absolute;left:0;right:0;bottom:0;height:25vh;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgb(6 7 12/0),rgb(6 7 12/.55) 50%,var(--night))}
@@ -518,13 +527,13 @@ html.lenis,html.lenis body{height:auto}
 .lam{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:16px;margin-bottom:clamp(36px,5vw,64px)}
 .lam-no{display:flex;gap:14px;align-items:baseline}
 .lam .latin{font-size:20px;color:var(--bone)}
-.lam h2.lam-h{font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--bone)}
+.lam h2.lam-h{font:400 16px/1.4 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--bone)}
 .offer-note{flex-basis:100%;margin:0}
-.dx-alt{font-size:14px}
-.h2s{font-size:clamp(32px,3.4vw,54px);line-height:.98}
-.big{font-size:clamp(44px,6.2vw,100px);line-height:.94}
+.dx-alt{font-size:16px}
+.h2s{font-size:clamp(34px,3.3vw,48px);line-height:1.08}
+.big{font-size:clamp(44px,5.4vw,80px);line-height:1.02;font-weight:400}
 #para-quien{padding-top:clamp(40px,5vw,80px)}
-.sec .lede{margin-top:26px;color:var(--mute);max-width:54ch;font-size:clamp(17px,1.4vw,20px)}
+.sec .lede{margin-top:24px;color:var(--ink-2);max-width:30em;font-size:clamp(18px,1.35vw,20px)}
 .draw path{transition:stroke-dashoffset 1.3s cubic-bezier(.16,1,.3,1) var(--dl,0s)}
 html.js .draw:not(.in) path{stroke-dashoffset:1}
 
@@ -539,17 +548,17 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 .fork-hd::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan)}
 .fork-col.no .fork-hd::before{background:none;box-shadow:none;border:1px solid var(--dim)}
 .fork-col ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
-.fork-col li{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--rule);font-size:clamp(17px,1.4vw,20px);line-height:1.35}
-.fork-col li::before{content:"";flex:none;width:7px;height:7px;margin-top:.52em;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.fork-col li{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--rule);font-size:clamp(18px,1.4vw,20px);line-height:1.4}
+.fork-col li::before{content:"";flex:none;width:7px;height:7px;margin-top:.55em;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
 .fork-col.no li{color:var(--mute);text-decoration:line-through 1px transparent;transition:text-decoration-color .22s,color .22s}
-.fork-col.no li::before{background:none;box-shadow:none;border-radius:0;width:9px;height:1px;margin-top:.72em;background:var(--dim)}
+.fork-col.no li::before{background:none;box-shadow:none;border-radius:0;width:9px;height:1px;margin-top:.75em;background:var(--dim)}
 .fork-col.no li:hover{text-decoration-color:var(--dim)}
 
 /* VII · Test */
 .check-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,5vw,80px);margin-top:clamp(40px,5vw,64px);align-items:start}
 .list{border-top:1px solid var(--rule);counter-reset:it}
-.item{display:flex;align-items:center;gap:16px;width:100%;padding:17px 0;background:none;border:0;border-bottom:1px solid var(--rule);color:var(--bone);font:400 clamp(17px,1.5vw,21px)/1.3 var(--f);text-align:left;cursor:pointer;transition:color .2s}
-.item::after{counter-increment:it;content:counter(it,decimal-leading-zero);margin-left:auto;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--dim)}
+.item{display:flex;align-items:center;gap:16px;width:100%;padding:17px 0;background:none;border:0;border-bottom:1px solid var(--rule);color:var(--bone);font:400 clamp(18px,1.45vw,20px)/1.35 var(--f);font-variant-numeric:oldstyle-nums;text-align:left;cursor:pointer;transition:color .2s}
+.item::after{counter-increment:it;content:counter(it);margin-left:auto;font:400 15px/1 var(--f);font-variant-numeric:oldstyle-nums tabular-nums;color:var(--dim)}
 .box{width:22px;height:22px;border:1px solid var(--rule-2);flex:none;display:grid;place-items:center;transition:background .2s,border-color .2s}
 .item:hover .box{border-color:var(--bone)}
 .item[aria-pressed="true"] .box{background:var(--c,var(--bone));border-color:var(--c,var(--bone))}
@@ -566,19 +575,21 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 .spec .org circle{fill:var(--c);opacity:var(--p,0);transition:opacity .6s}
 .meters{display:grid;gap:18px}
 .meter{display:grid;gap:8px}
-.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:15px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:16px}
+/* lecturas numéricas: cifras de caja alta tabulares de la sans, alineadas como en un instrumento */
+.meter-top .num,.reading-hd .num{font:500 15px/1 var(--sans);font-variant-caps:normal;font-variant-numeric:lining-nums tabular-nums;letter-spacing:0;color:var(--bone)}
 .track{height:1px;background:var(--rule)}
 .track span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 8px var(--c);transition:width .6s cubic-bezier(.2,.8,.2,1)}
-.verdict{font:italic 400 clamp(22px,2vw,28px)/1.3 var(--serif)}
-.hint{color:var(--mute);font-size:15px}
+.verdict{font:400 clamp(22px,1.9vw,26px)/1.3 var(--f);text-wrap:balance}
+.hint{color:var(--ink-2);font-size:16px}
 .sumbar{display:none}
 
 /* VIII · Nosotros: dos ramas, un mismo tronco */
 .duo{display:grid;grid-template-columns:minmax(0,1fr) clamp(160px,17vw,240px) minmax(0,1fr);gap:clamp(16px,2vw,32px);margin-top:clamp(48px,6vw,88px);align-items:start}
 .person{display:grid;gap:16px;align-content:start;padding-top:clamp(8px,2vw,28px)}
 .person.l{text-align:right;justify-items:end}
-.person h3{font-size:clamp(30px,3vw,46px)}
-.person p{color:var(--mute);max-width:40ch}
+.person h3{font-size:clamp(30px,2.8vw,40px)}
+.person p{color:var(--ink-2);max-width:23em}
 .duo-y{position:relative}
 .duo-y svg{display:block;width:100%;height:auto;overflow:visible}
 .duo-y path{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
@@ -587,7 +598,7 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 /* fotos futuras: <figure class="photo"><img ...></figure> dentro de cada .person, cuadrada, sin radio */
 .photo{margin:0;width:min(100%,280px);aspect-ratio:1;border:1px solid var(--rule-2);overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
-.motto{margin-top:clamp(28px,3vw,40px);text-align:center;font:italic 400 clamp(24px,2.4vw,34px)/1.25 var(--serif);color:var(--bone)}
+.motto{margin-top:clamp(28px,3vw,40px);text-align:center;font:400 clamp(24px,2.2vw,32px)/1.25 var(--f);color:var(--bone)}
 
 /* IX · Cómo trabajamos */
 .steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 clamp(20px,2.4vw,40px);margin:0;padding:0;list-style:none}
@@ -596,21 +607,21 @@ html.js .draw:not(.in) path{stroke-dashoffset:1}
 .step{position:relative;display:grid;gap:12px;align-content:start;padding-top:34px;min-width:0}
 .node{position:absolute;left:0;top:0;width:9px;height:9px;border-radius:50%;border:1px solid var(--c);background:var(--c);box-shadow:0 0 12px var(--c);transition:background .35s,box-shadow .35s}
 html.js .steps:not(.done) .step:not(.on) .node{background:var(--night);box-shadow:none}
-.step h3{font-size:clamp(24px,2vw,34px);hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
-.step p{color:var(--mute);font-size:16px}
+.step h3{font-size:clamp(24px,2vw,32px);hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+.step p{color:var(--ink-2);font-size:17px}
 .pledges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,48px);margin-top:clamp(64px,8vw,120px)}
 .pledges .pledge{margin:0;border-top:1px solid var(--c);padding-top:20px;display:grid;gap:14px;align-content:start}
-.pledge blockquote{margin:0;font:italic 400 clamp(22px,2vw,28px)/1.28 var(--serif)}
+.pledge blockquote{margin:0;font:400 clamp(21px,1.8vw,25px)/1.3 var(--f);text-wrap:balance}
 
 /* X · FAQ */
 .faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,80px);align-items:start}
 .faq-side{position:sticky;top:96px;display:grid;gap:28px;align-content:start}
-.faq-side .h2s{font-size:clamp(36px,3.3vw,56px)}
+.faq-side .h2s{font-size:clamp(34px,3.1vw,46px)}
 .faq-side .lede.poem{margin-top:-12px}
 .faq-side .ctx{--c:var(--cyan)}
 details{border-bottom:1px solid var(--rule)}
 details:first-child{border-top:1px solid var(--rule)}
-summary{position:relative;list-style:none;cursor:pointer;padding:24px 44px 24px 0;font:500 clamp(18px,1.6vw,22px)/1.3 var(--f);transition:color .2s}
+summary{position:relative;list-style:none;cursor:pointer;padding:22px 44px 22px 0;font:500 clamp(19px,1.5vw,21px)/1.35 var(--f);text-wrap:balance;transition:color .2s}
 summary:hover{color:#fff}
 summary::-webkit-details-marker{display:none}
 summary::before,summary::after{content:"";position:absolute;right:4px;top:50%;width:15px;height:1px;background:var(--bone);transition:transform .22s cubic-bezier(.2,.8,.2,1),background .22s}
@@ -619,7 +630,7 @@ details[open] summary::before{transform:rotate(0)}
 details[open] summary::after,details[open] summary::before{background:var(--root)}
 details[open].closing summary::before{transform:rotate(90deg)}
 details.closing summary::after,details.closing summary::before{background:var(--bone)}
-details p{color:var(--mute);padding-bottom:24px;max-width:62ch;overflow:hidden}
+details p{color:var(--ink-2);padding-bottom:24px;max-width:var(--measure);overflow:hidden}
 
 /* XI · Cierre */
 .close-hd{position:relative;isolation:isolate}
@@ -627,18 +638,18 @@ details p{color:var(--mute);padding-bottom:24px;max-width:62ch;overflow:hidden}
 .roots path{fill:none;stroke:var(--root);stroke-width:1;stroke-linecap:round;opacity:.28;stroke-dasharray:1;stroke-dashoffset:0}
 .roots path.f{opacity:.16}
 .close .big{margin-top:clamp(28px,4vw,56px)}
-.close .lede{color:#B9B6AA}
+.close .lede{color:var(--ink-2)}
 .offer{margin-top:clamp(48px,6vw,80px);border:1px solid var(--rule-2);background:var(--night-2);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}
 .offer-hd{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 24px;padding:22px clamp(20px,3vw,36px);border-bottom:1px solid var(--rule-2)}
-.offer-hd strong{font:700 clamp(21px,2vw,28px)/1.1 var(--d);letter-spacing:-.01em}
+.offer-hd strong{font:500 clamp(22px,1.9vw,26px)/1.1 var(--d);letter-spacing:0}
 .offer-col{padding:clamp(22px,3vw,36px);display:grid;gap:16px;align-content:start}
 .offer-col+.offer-col{border-left:1px solid var(--rule-2)}
 .offer-col ul,.offer-col ol{margin:0;padding:0;list-style:none;display:grid;gap:12px}
-.offer-col li{display:flex;gap:12px;line-height:1.45}
+.offer-col li{display:flex;gap:12px;line-height:1.45;font-size:17px}
 .offer-col ul li::before{content:"";flex:none;width:12px;height:6px;margin-top:.45em;border-left:1.5px solid var(--cyan);border-bottom:1.5px solid var(--cyan);transform:rotate(-45deg)}
 .offer-col ol{counter-reset:o}
-.offer-col ol li::before{counter-increment:o;content:counter(o);flex:none;font:500 12px/1.9 var(--mono);color:var(--mute);width:14px}
-.offer-col li small{display:block;color:var(--mute);font-size:14px}
+.offer-col ol li::before{counter-increment:o;content:counter(o) ".";flex:none;font:400 17px/1.45 var(--f);font-variant-numeric:oldstyle-nums;color:var(--mute);width:16px}
+.offer-col li small{display:block;color:var(--ink-2);font-size:15px;margin-top:2px}
 .offer-ft{grid-column:1/-1;border-top:1px solid var(--rule-2);padding:clamp(20px,3vw,32px) clamp(20px,3vw,36px);display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
 .offer-ft .cta-row{display:flex;flex-wrap:wrap;gap:12px}
 
@@ -660,25 +671,25 @@ footer>.wrap{border:0}
 .foot-sym{width:clamp(120px,11vw,156px);height:auto;color:var(--bone);display:block;margin-bottom:12px}
 .foot-sig .specimen{font-size:clamp(22px,2vw,28px);margin:0}
 .foot-links{display:grid;grid-template-columns:repeat(2,max-content);gap:12px 40px;align-content:end}
-.foot-links a,.foot-meta a{text-decoration:none;color:var(--mute);font:400 11.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:color .2s}
+.foot-links a,.foot-meta a{text-decoration:none;color:var(--mute);font:400 16px/1.4 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;transition:color .2s}
 .foot-links a:hover{color:var(--bone)}
 .foot-meta{display:grid;gap:10px;justify-items:end;text-align:right}
 .foot-word{margin-top:clamp(48px,6vw,96px);line-height:0;pointer-events:none;user-select:none}
 .foot-word svg{display:block;width:100%;height:auto}
-.foot-word text{font:700 330px var(--d);letter-spacing:-.012em}
+.foot-word text{font:400 300px var(--d);letter-spacing:0;text-transform:uppercase}
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width:980px){
   .nav-mid{display:none}
   .plate::after{background:linear-gradient(180deg,rgba(6,7,12,0) 35%,rgba(6,7,12,.85) 80%)}
   .chap.hero{max-width:none}
-  .hero-title,.chap.hero .hero-title{font-size:clamp(34px,9.4vw,50px)}
+  .hero-title,.chap.hero .hero-title{font-size:clamp(34px,9.3vw,50px);line-height:1.04}
   .chap.hero{padding-block:28svh 16px}
   .chap.hero .chap-card{gap:10px}
   .chap.hero .cta-row{gap:10px}
   .chap.hero .cta-row .btn{padding:14px 18px}
-  .chap.hero .hero-lede{font-size:15px;line-height:1.5}
-  .chap.hero .live{font-size:10.5px;letter-spacing:.07em}
+  .chap.hero .hero-lede{font-size:17px;line-height:1.45}
+  .chap.hero .live{font-size:15px;letter-spacing:.05em}
   .scroll-cue{display:none}
   .corner.tr{top:74px}
   .corner.br{display:none}
@@ -699,14 +710,14 @@ footer>.wrap{border:0}
   .reading,.faq-side{position:static}
   .sumbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;position:sticky;top:var(--navh,70px);z-index:5;padding:12px 0 12px;background:rgb(6 7 12/.94);border-bottom:1px solid var(--rule)}
   .sumbar>span{display:grid;gap:6px}
-  .sumbar b{font:500 13px/1 var(--mono);color:var(--bone)}
-  .sumbar small{font:400 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .sumbar b{font:500 14px/1 var(--sans);font-variant-numeric:lining-nums tabular-nums;color:var(--bone)}
+  .sumbar small{font:400 15px/1 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--mute)}
   .sumbar i{display:block;height:2px;background:var(--rule)}
   .sumbar i span{display:block;height:100%;width:0;background:var(--c);box-shadow:0 0 6px var(--c);transition:width .5s cubic-bezier(.2,.8,.2,1)}
   .list{border-top:0}
   .duo{grid-template-columns:1fr;gap:28px}
   .duo-y{order:-1;width:150px;justify-self:center}
-  .duo-tag{display:block;position:absolute;top:23.7%;transform:translateY(-50%);font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .duo-tag{display:block;position:absolute;top:23.7%;transform:translateY(-50%);font:400 15px/1 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--mute)}
   .duo-tag.l{right:calc(94% + 12px)}
   .duo-tag.r{left:calc(94% + 12px)}
   .person.l{text-align:left;justify-items:start}
@@ -725,7 +736,9 @@ footer>.wrap{border:0}
 }
 @media (min-width:981px){ .chap-card{display:contents} .chap.hero .chap-card{display:flex;flex-direction:column;gap:26px} }
 @media (max-width:640px){
-  body{font-size:16px}
+  body{font-size:17px}
+  /* medida corta en celular: se corta en sílabas (lang es-AR) para no dejar ríos ni líneas muy desparejas */
+  p,dd,li,summary{hyphens:auto;-webkit-hyphens:auto}
   .did{grid-template-columns:1fr}
   .fork-cols{grid-template-columns:1fr 1fr;gap:0 16px}
   .fork-col{display:contents}
@@ -782,16 +795,16 @@ html.motion.carousel #proceso .lam{margin-bottom:clamp(28px,5vh,56px)}
 html.motion.carousel #proceso .car-track.car-live{will-change:transform}
 html.motion.carousel .steps{grid-template-columns:repeat(4,min(56vw,820px));gap:0 clamp(40px,4vw,72px);flex:none}
 html.motion.carousel .step{gap:18px;padding-top:48px;padding-right:4vw}
-html.motion.carousel .step>.mono{font-size:13px}
+html.motion.carousel .step>.mono{font-size:18px}
 html.motion.carousel .step>h3,html.motion.carousel .step>p{opacity:var(--vis,1)}
-html.motion.carousel .step h3{font-size:clamp(40px,4.2vw,60px);hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
-html.motion.carousel .step p{font-size:clamp(18px,1.45vw,22px);max-width:34ch}
+html.motion.carousel .step h3{font-size:clamp(40px,4vw,56px);font-weight:400;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal}
+html.motion.carousel .step p{font-size:clamp(19px,1.45vw,21px);max-width:26em}
 html.motion.carousel .grow{clip-path:none;transform:scaleX(0);transform-origin:0 50%}
 html.motion.carousel .pledges{grid-template-columns:1fr;gap:22px;margin-top:0;width:min(46vw,640px);flex:none}
-html.motion.carousel .pledge blockquote{font-size:clamp(20px,1.7vw,26px)}
+html.motion.carousel .pledge blockquote{font-size:clamp(20px,1.6vw,24px)}
 .car-ind{display:none}
 html.motion.carousel .car-ind{display:flex;align-items:center;gap:16px;margin-top:clamp(28px,5vh,56px)}
-.car-ind b{font-weight:500;color:var(--bone)}
+.car-ind b{font-weight:500;color:var(--bone);font-variant-numeric:lining-nums}
 .car-ind i{display:block;width:120px;height:1px;background:var(--rule-2);position:relative;overflow:hidden}
 .car-ind i::after{content:"";position:absolute;inset:0;background:var(--bone);transform:scaleX(var(--cp,0));transform-origin:0 50%}
 /* IX en celular: carrusel táctil con scroll-snap (sin pin, no atrapa el scroll vertical) */
@@ -847,14 +860,14 @@ html.motion .case:hover::after{opacity:1}
 
 /* índice de láminas */
 .rail{position:fixed;right:12px;top:50%;z-index:39;transform:translateY(-50%);display:grid;gap:1px}
-.rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:7px;height:22px;text-decoration:none;font:400 10px/1 var(--mono);letter-spacing:.06em;color:var(--dim);transition:color .3s var(--ui)}
+.rail a{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:7px;height:22px;text-decoration:none;font:400 14px/1 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--dim);transition:color .3s var(--ui)}
 .rail .rt{width:14px;height:1px;background:var(--rule-2);transform:scaleX(.3);transform-origin:100% 50%;transition:transform .7s var(--ease),background .3s,box-shadow .3s}
-.rail .rl{position:absolute;right:calc(100% + 6px);top:50%;padding:4px 8px;white-space:nowrap;font:italic 400 14px/1 var(--serif);letter-spacing:0;color:var(--bone);background:rgb(6 7 12/.8);opacity:0;transform:translate3d(6px,-50%,0);pointer-events:none;transition:opacity .2s,transform .35s var(--ui)}
+.rail .rl{position:absolute;right:calc(100% + 6px);top:50%;padding:4px 8px;white-space:nowrap;font:400 15px/1 var(--f);font-variant-caps:normal;letter-spacing:0;color:var(--bone);background:rgb(6 7 12/.8);opacity:0;transform:translate3d(6px,-50%,0);pointer-events:none;transition:opacity .2s,transform .35s var(--ui)}
 .rail a:hover{color:var(--bone)}
 .rail a:hover .rl,.rail a:focus-visible .rl{opacity:1;transform:translate3d(0,-50%,0)}
 .rail a.on{color:var(--c)}
 .rail a.on .rt{transform:none;background:var(--c);box-shadow:0 0 8px var(--c)}
-.nav-lam{display:none;margin-right:auto;margin-left:14px;font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--mute);white-space:nowrap}
+.nav-lam{display:none;margin-right:auto;margin-left:14px;font:400 15px/1 var(--f);font-variant-caps:all-small-caps;letter-spacing:.06em;color:var(--mute);white-space:nowrap}
 .nav-lam b{display:inline-block;font-weight:500;color:var(--c,var(--bone))}
 .nav-prog{display:none;position:absolute;left:0;right:0;bottom:-1px;height:1px;transform-origin:0 50%;transform:scaleX(0);background:var(--c,var(--bone));box-shadow:0 0 6px var(--c,transparent)}
 @media (max-width:1023px){ .rail{display:none} .nav-prog{display:block} }
@@ -889,8 +902,8 @@ html.motion .case:hover::after{opacity:1}
     <div class="plate-in">
       <canvas id="tree"></canvas>
       <div id="labels"></div>
-      <div class="corner tr"><span class="mono num" id="plateNo">Lám. I · Semilla</span></div>
-      <div class="corner br"><span class="specimen">Ynera bifurcata</span><span class="mono">Buenos Aires · 34°36′ S 58°22′ O</span></div>
+      <div class="corner tr"><span class="mono num" id="plateNo">Lám.&nbsp;I · Semilla</span></div>
+      <div class="corner br"><span class="specimen">Ynera bifurcata</span><span class="mono">Buenos Aires · 34°36′&nbsp;S · 58°22′&nbsp;O</span></div>
     </div>
   </div>
 
@@ -907,15 +920,15 @@ html.motion .case:hover::after{opacity:1}
         <p class="lede hero-lede hero-in" style="--d:.55s">Ynera es una consultora de Buenos Aires para PyMEs y profesionales. Ordenamos tus datos, cuidamos tu operación y, sobre esa base, ponemos la IA a trabajar con tus documentos, siempre con revisión humana. Te atienden los dos socios, y nuestro propio software ya está en uso en salud mental, comercio exterior y hotelería.</p>
         <div class="cta-row hero-in" style="--d:.7s">
           <a class="btn btn-fill btn-glow" href="https://cal.com/ynera/30min" target="_blank" rel="noopener">Pedí tu diagnóstico sin costo <span aria-hidden="true">→</span></a>
-          <a class="btn btn-line" href="#diagnostico">Hacé el test en 2 minutos</a>
+          <a class="btn btn-line" href="#diagnostico">Hacé el test en 2&nbsp;minutos</a>
         </div>
-        <p class="micro hero-in" style="--d:.8s">30 minutos con los dos socios, sin costo. Te llevás un plan por escrito, y si no podemos ayudarte, te lo decimos en esa misma charla.</p>
+        <p class="micro hero-in" style="--d:.8s">30&nbsp;minutos con los dos socios, sin costo. Te llevás un plan por escrito, y si no podemos ayudarte, te lo decimos en esa misma charla.</p>
       </div>
     </article>
 
     <article class="chap" id="raices" data-plate="Lám. II · Raíces">
       <div class="chap-card">
-        <div class="plate-no"><span class="mono">Lám. II</span><span class="latin">Radix</span></div>
+        <div class="plate-no"><span class="mono">Lám.&nbsp;II</span><span class="latin">Radix</span></div>
         <span class="mono key" style="--c:var(--root)">Raíces · Datos</span>
         <h2>Datos y tableros para PyMEs</h2>
         <p class="lede poem">Lo que no se ve alimenta todo lo demás.</p>
@@ -930,7 +943,7 @@ html.motion .case:hover::after{opacity:1}
 
     <article class="chap" id="corteza" data-plate="Lám. III · Corteza">
       <div class="chap-card">
-        <div class="plate-no"><span class="mono">Lám. III</span><span class="latin">Cortex</span></div>
+        <div class="plate-no"><span class="mono">Lám.&nbsp;III</span><span class="latin">Cortex</span></div>
         <span class="mono key" style="--c:var(--bark)">Corteza · Seguridad</span>
         <h2>Ciberseguridad para PyMEs</h2>
         <p class="lede poem">La corteza crece con el árbol. No se agrega al final.</p>
@@ -945,7 +958,7 @@ html.motion .case:hover::after{opacity:1}
 
     <article class="chap" id="copa" data-plate="Lám. IV · Copa">
       <div class="chap-card">
-        <div class="plate-no"><span class="mono">Lám. IV</span><span class="latin">Coma</span></div>
+        <div class="plate-no"><span class="mono">Lám.&nbsp;IV</span><span class="latin">Coma</span></div>
         <span class="mono key" style="--c:var(--leaf)">Copa · IA aplicada</span>
         <h2>IA aplicada con revisión humana</h2>
         <p class="lede poem">La copa convierte luz en energía.</p>
@@ -960,14 +973,14 @@ html.motion .case:hover::after{opacity:1}
 
     <article class="chap" id="bosque" data-plate="Lám. V · Bosque">
       <div class="chap-card">
-        <div class="plate-no"><span class="mono">Lám. V</span><span class="latin">Silva</span></div>
+        <div class="plate-no"><span class="mono">Lám.&nbsp;V</span><span class="latin">Silva</span></div>
         <h2>Casos: software propio en producción</h2>
         <p class="lede poem">Un bosque no se promete. Se planta.</p>
         <p class="lede">Operamos nuestro propio software en salud mental, comercio exterior y hotelería. Lo que aprendimos ahí es lo que después aplicamos en tu negocio.</p>
         <div class="forest">
           <article class="case"><h3>Aira</h3><span class="mono key" style="--c:var(--cyan)">Salud mental</span><p class="res">El profesional deja de perseguir turnos y facturas.</p><p class="desc">Agenda, historias clínicas, facturación y recordatorios para psicólogos y psiquiatras independientes.</p></article>
           <article class="case"><h3>CDI</h3><span class="mono key" style="--c:var(--cyan)">Comercio exterior</span><p class="res">El despachante deja de perder vencimientos entre papeles y chats.</p><p class="desc">Documentos, conversaciones y vencimientos de despachantes de aduana, en un solo lugar.</p></article>
-          <article class="case"><h3>ReservaYá</h3><span class="mono key" style="--c:var(--cyan)">Hotelería</span><p class="res">El hotel deja las planillas y ve su ocupación al día.</p><p class="desc">Reservas online, check-in digital y ocupación para hoteles de 10 a 40 habitaciones.</p></article>
+          <article class="case"><h3>ReservaYá</h3><span class="mono key" style="--c:var(--cyan)">Hotelería</span><p class="res">El hotel deja las planillas y ve su ocupación al día.</p><p class="desc">Reservas online, check-in digital y ocupación para hoteles de 10 a 40&nbsp;habitaciones.</p></article>
         </div>
         <a class="ctx" style="--c:var(--cyan)" href="https://wa.me/5491100000000?text=Hola%20Ynera%2C%20vi%20sus%20casos%20y%20mi%20problema%20se%20parece%20a%20uno.%20Les%20cuento%3A" target="_blank" rel="noopener">¿Tu problema se parece a alguno de estos? Contanos <span aria-hidden="true">→</span></a>
       </div>
@@ -978,7 +991,7 @@ html.motion .case:hover::after{opacity:1}
 <!-- ===== VI · PARA QUIÉN ===== -->
 <section class="sec" id="para-quien" aria-labelledby="pq">
   <div class="wrap">
-    <header class="lam"><span class="lam-no"><span class="mono">Lám. VI · Para quién</span></span></header>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;VI · Para quién</span></span></header>
     <div class="fork">
       <h2 class="h2s" id="pq">Consultoría para PyMEs y profesionales</h2>
       <p class="lede poem">Con quién trabajamos mejor.</p>
@@ -1015,7 +1028,7 @@ html.motion .case:hover::after{opacity:1}
 <!-- ===== VII · DIAGNÓSTICO ===== -->
 <section class="sec under" id="diagnostico" aria-labelledby="dh">
   <div class="wrap">
-    <header class="lam"><span class="lam-no"><span class="mono">Lám. VII · Autodiagnóstico</span></span><span class="mono">2 minutos</span></header>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;VII · Autodiagnóstico</span></span><span class="mono">2&nbsp;minutos</span></header>
     <h2 class="h2s" id="dh">Autodiagnóstico de datos, seguridad e IA</h2>
     <p class="lede poem">¿Dónde está el problema?</p>
     <p class="lede">Marcá lo que te pasa. Te mostramos si el problema está en las raíces, en la corteza o en la copa, y con qué arrancaríamos.</p>
@@ -1082,7 +1095,7 @@ html.motion .case:hover::after{opacity:1}
 <!-- ===== VIII · DUPLA ===== -->
 <section class="sec slide" id="dupla" aria-labelledby="duh">
   <div class="wrap">
-    <header class="lam"><span class="lam-no"><span class="mono">Lám. VIII · Quiénes somos</span></span></header>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;VIII · Quiénes somos</span></span></header>
     <h2 class="h2s" id="duh">Emiliano y Mariano, los socios de Ynera</h2>
     <p class="lede poem">Dos ramas. Un mismo tronco.</p>
     <p class="lede">Ynera nació de una dupla: seguridad y datos. Uno asegura lo que se construye; el otro mide si sirve. Como la Y del logo, son dos ramas que salen del mismo tronco.</p>
@@ -1144,7 +1157,7 @@ html.motion .case:hover::after{opacity:1}
 <!-- ===== IX · PROCESO ===== -->
 <section class="sec" id="proceso" aria-labelledby="ph">
   <div class="wrap">
-    <header class="lam"><span class="lam-no"><span class="mono">Lám. IX</span></span><h2 class="lam-h" id="ph">Cómo trabajamos</h2></header>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;IX</span></span><h2 class="lam-h" id="ph">Cómo trabajamos</h2></header>
     <ol class="steps" id="steps">
       <li class="grow" aria-hidden="true"></li>
       <li class="step" style="--c:var(--root)"><span class="node" aria-hidden="true"></span><span class="mono">01</span><h3>Escuchamos</h3><p>Traés el problema. Empieza con una conversación, no con una presentación comercial.</p></li>
@@ -1153,9 +1166,9 @@ html.motion .case:hover::after{opacity:1}
       <li class="step" style="--c:var(--cyan)"><span class="node" aria-hidden="true"></span><span class="mono">04</span><h3>Operamos</h3><p>Sale a producción y lo seguimos cuidando mientras crece.</p></li>
     </ol>
     <div class="pledges" aria-label="Compromisos">
-      <figure class="pledge" style="--c:var(--root)"><span class="mono">Compromiso 1</span><blockquote>Si no vale la pena, te lo decimos antes de cobrar.</blockquote></figure>
-      <figure class="pledge" style="--c:var(--bark)"><span class="mono">Compromiso 2</span><blockquote>Trabajás directo con los socios, sin intermediarios.</blockquote></figure>
-      <figure class="pledge" style="--c:var(--leaf)"><span class="mono">Compromiso 3</span><blockquote>Avanzamos por etapas con alcance y costo acordados antes de empezar.</blockquote></figure>
+      <figure class="pledge" style="--c:var(--root)"><span class="mono">Compromiso&nbsp;1</span><blockquote>Si no vale la pena, te lo decimos antes de cobrar.</blockquote></figure>
+      <figure class="pledge" style="--c:var(--bark)"><span class="mono">Compromiso&nbsp;2</span><blockquote>Trabajás directo con los socios, sin intermediarios.</blockquote></figure>
+      <figure class="pledge" style="--c:var(--leaf)"><span class="mono">Compromiso&nbsp;3</span><blockquote>Avanzamos por etapas con alcance y costo acordados antes de empezar.</blockquote></figure>
     </div>
   </div>
 </section>
@@ -1163,7 +1176,7 @@ html.motion .case:hover::after{opacity:1}
 <!-- ===== X · FAQ ===== -->
 <section class="sec under" id="faq" aria-labelledby="fh">
   <div class="wrap">
-    <header class="lam"><span class="lam-no"><span class="mono">Lám. X · Preguntas frecuentes</span></span></header>
+    <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;X · Preguntas frecuentes</span></span></header>
     <div class="faq">
       <div class="faq-side">
         <h2 class="h2s" id="fh">Preguntas frecuentes sobre datos, ciberseguridad e IA</h2>
@@ -1179,7 +1192,7 @@ html.motion .case:hover::after{opacity:1}
         <details><summary>¿Qué pasa con mis datos?</summary><p>Los tratamos con el mismo criterio de seguridad que aplicamos en Aira, nuestro software con información clínica de pacientes. Trabajamos con acceso mínimo y dejamos por escrito quién accede a qué antes de tocar tus datos. Nada sale de tu control sin que lo sepas, y lo que no hace falta para el trabajo no lo pedimos.</p></details>
         <details><summary>¿Cuánto cuesta y cuánto tarda?</summary><p>Depende del problema y del alcance, por eso no publicamos una tarifa fija ni plazos genéricos. Trabajamos por etapas, con alcance y costo acordados antes de empezar cada una. En el diagnóstico sin costo te damos un rango de costo y plazo para tu caso, y cada etapa entrega algo que ya podés usar.</p></details>
         <details><summary>¿Trabajan con equipos chicos?</summary><p>Sí. Aira, CDI y ReservaYá nacieron junto a profesionales independientes y PyMEs argentinas, así que estamos acostumbrados a equipos donde la misma persona atiende, factura y decide. El tamaño de tu empresa no define si podemos ayudarte. Lo que importa es que haya un problema concreto que valga la pena resolver.</p></details>
-        <details><summary>¿Trabajan con empresas fuera de Buenos Aires?</summary><p>Sí. Ynera tiene base en Buenos Aires y trabajamos de forma remota: el diagnóstico es una llamada de 30 minutos y el proyecto se organiza por etapas, con reuniones online y acceso acordado a tus sistemas. Si en algún momento conviene vernos en persona, lo hablamos en la primera charla.</p></details>
+        <details><summary>¿Trabajan con empresas fuera de Buenos Aires?</summary><p>Sí. Ynera tiene base en Buenos Aires y trabajamos de forma remota: el diagnóstico es una llamada de 30&nbsp;minutos y el proyecto se organiza por etapas, con reuniones online y acceso acordado a tus sistemas. Si en algún momento conviene vernos en persona, lo hablamos en la primera charla.</p></details>
         <details><summary>¿Qué diferencia a Ynera de una agencia de software?</summary><p>Operamos nuestro propio software en producción: Aira, CDI y ReservaYá. Eso nos obliga a diseñar pensando en lo que pasa después de entregar, cuando el sistema tiene que funcionar todos los días. Además trabajás directo con los dos socios, y si el proyecto no vale la pena, te lo decimos antes de cobrar.</p></details>
         <details><summary>¿Con quién voy a trabajar?</summary><p>Directo con Emiliano y Mariano, los dos socios de Ynera. Emiliano se ocupa de ciberseguridad, código e IA; Mariano, de ciencia de datos y negocio. No hay capas comerciales entre tu problema y quien lo resuelve: las personas que te escuchan en el diagnóstico son las mismas que después diseñan y construyen.</p></details>
         <details><summary>¿Y después de entregar?</summary><p>Podemos seguir operando y mejorando lo que construimos, como hacemos con nuestros propios productos, con un plan de mantenimiento que acordamos aparte. Si preferís que tu equipo lo maneje solo, lo dejamos documentado para que funcione sin depender de nosotros. Esa es la idea de Ynera desde el principio.</p></details>
@@ -1208,7 +1221,7 @@ html.motion .case:hover::after{opacity:1}
         <path class="f" pathLength="1" d="M640 150C600 180 560 190 540 240" style="--dl:.5s"/>
         <path class="f" pathLength="1" d="M60 0C70 40 50 70 58 120" style="--dl:.2s"/>
       </svg>
-      <header class="lam"><span class="lam-no"><span class="mono">Lám. XI · Contacto</span></span></header>
+      <header class="lam"><span class="lam-no"><span class="mono">Lám.&nbsp;XI · Contacto</span></span></header>
       <h2 class="big" id="ch">Diagnóstico sin costo.</h2>
       <p class="lede poem">Empecemos por la raíz.</p>
       <p class="lede">Una charla corta para entender el problema de fondo. Si podemos ayudarte, te decimos cómo. Si no, también.</p>
@@ -1218,8 +1231,8 @@ html.motion .case:hover::after{opacity:1}
       <div class="offer-col">
         <span class="mono">Incluye</span>
         <ul>
-          <li><span>Llamada de 30 minutos con los dos socios.</span></li>
-          <li><span>Revisión de hasta 3 problemas<small>Datos, seguridad o automatización.</small></span></li>
+          <li><span>Llamada de 30&nbsp;minutos con los dos socios.</span></li>
+          <li><span>Revisión de hasta 3&nbsp;problemas<small>Datos, seguridad o automatización.</small></span></li>
           <li><span>Chequeo básico de exposición<small>Accesos compartidos, datos sensibles, backups.</small></span></li>
         </ul>
       </div>
@@ -1227,7 +1240,7 @@ html.motion .case:hover::after{opacity:1}
         <span class="mono">Te llevás un documento breve con</span>
         <ol>
           <li><span>El problema principal, priorizado.</span></li>
-          <li><span>3 acciones ordenadas por impacto<small>Al menos una que podés hacer sin contratarnos.</small></span></li>
+          <li><span>3&nbsp;acciones ordenadas por impacto<small>Al menos una que podés hacer sin contratarnos.</small></span></li>
           <li><span>Un rango de costo y plazo, si decidís avanzar.</span></li>
         </ol>
       </div>
@@ -1254,7 +1267,7 @@ html.motion .case:hover::after{opacity:1}
     <div class="foot-sig">
       <svg class="foot-sym" viewBox="0 0 96 96" role="img" aria-label="Ynera"><path fill="currentColor" d="M42.00 87.32H54.00V45.32H42.00ZM52.60 41.46L26.88 10.82A6.0 6.0 0 0 0 17.69 18.54L43.40 49.18ZM52.60 49.18L78.31 18.54A6.0 6.0 0 0 0 69.12 10.82L43.40 41.46Z"/></svg>
       <p class="specimen">Ynera bifurcata</p>
-      <p class="mono">Buenos Aires, Argentina · 34°36′ S 58°22′ O</p>
+      <p class="mono">Buenos Aires, Argentina · 34°36′&nbsp;S · 58°22′&nbsp;O</p>
     </div>
     <nav class="foot-links" aria-label="Pie"><a href="#raices">Datos</a><a href="#corteza">Seguridad</a><a href="#copa">IA</a><a href="#bosque">Casos</a><a href="#dupla">Nosotros</a><a href="#diagnostico">Test</a></nav>
     <div class="foot-meta">
@@ -1265,7 +1278,7 @@ html.motion .case:hover::after{opacity:1}
   <div class="foot-word" aria-hidden="true">
     <svg viewBox="0 0 1000 205">
       <defs><linearGradient id="fwG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D2130"/><stop offset="1" stop-color="#0C0E16"/></linearGradient></defs>
-      <text x="0" y="252" textLength="1000" lengthAdjust="spacingAndGlyphs" fill="url(#fwG)">Ynera</text>
+      <text x="0" y="252" textLength="1000" lengthAdjust="spacing" fill="url(#fwG)">Ynera</text>
     </svg>
   </div>
 </footer>
